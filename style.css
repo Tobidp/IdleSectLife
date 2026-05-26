@@ -663,6 +663,46 @@ button:disabled {
   color: var(--crimson);
 }
 
+/* ---------- Update banner ---------- */
+.update-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.update-modal {
+  background: var(--bg-panel);
+  border: 1px solid var(--gold);
+  border-radius: var(--radius);
+  padding: 24px;
+  max-width: 380px;
+  text-align: center;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+}
+.update-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+.update-text {
+  color: var(--ink-dim);
+  margin-bottom: 16px;
+}
+.update-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+.update-refresh {
+  background: var(--jade-dim);
+  border-color: var(--jade);
+  color: #fff;
+}
+
 /* ---------- New game screen ---------- */
 .new-game {
   max-width: 760px;

@@ -15,6 +15,7 @@ const { renderGame } = await import("../src/ui/render");
 const { renderNewGameScreen } = await import("../src/ui/newGameScreen");
 const { createViewState } = await import("../src/ui/viewState");
 const { createDisciple } = await import("../src/domain/disciples/disciple");
+const { showUpdateBanner } = await import("../src/ui/updateBanner");
 import type { GameActions } from "../src/ui/gameActions";
 
 let failures = 0;
@@ -92,6 +93,11 @@ check(
   root.querySelector(".accept-btn") !== null && root.querySelector(".deny-btn") !== null,
   "applicant shows Accept/Deny buttons",
 );
+
+// 6. Update banner overlay.
+showUpdateBanner();
+check(dom.window.document.querySelector(".update-overlay") !== null, "update banner overlay shown");
+check(dom.window.document.querySelector(".update-refresh") !== null, "update banner has a refresh button");
 
 console.log(failures === 0 ? "\n✓ UI RENDER OK" : `\n✗ ${failures} CHECK(S) FAILED`);
 process.exit(failures === 0 ? 0 : 1);
