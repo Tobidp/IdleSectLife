@@ -3,6 +3,10 @@ dist
 dist-ssr
 *.local
 scripts/.out.*.mjs
+
+# Markdown docs are kept local only — not pushed.
+*.md
+
 .DS_Store
 .vscode/*
 !.vscode/extensions.json
