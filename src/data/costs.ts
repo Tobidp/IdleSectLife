@@ -23,7 +23,7 @@ export const WAREHOUSE = {
 
 export const SECT = {
   baseCost: { stone: 100, wood: 100, gold: 50 } as Cost,
-  famePerLevelPerDay: 2, // passive fame/day granted per sect level
+  famePerLevelPerDay: 1, // passive fame/day granted per sect level
   maintenancePerLevel: { gold: 5 } as Cost,
 };
 

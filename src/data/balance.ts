@@ -32,8 +32,8 @@ export const FAME_BURST_PER_PAVILION_LEVEL = 5;
 export const FAME_BURST_PER_SECT_LEVEL = 20;
 
 // --- Recruitment ---
-export const RECRUIT_FAME_DIVISOR = 200;
-export const RECRUIT_CHANCE_CAP = 0.9;
+export const RECRUIT_FAME_DIVISOR = 500; // higher = rarer arrivals for the same fame
+export const RECRUIT_CHANCE_CAP = 0.6; // max daily arrival chance even at high fame
 
 // --- HP pool (maxHp = HP_BASE + (healthLevel + vitalityLevel) * HP_PER_LEVEL) ---
 export const HP_BASE = 20;

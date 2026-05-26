@@ -37,5 +37,10 @@ export function renderGame(root: HTMLElement, state: GameState, actions: GameAct
     }),
   ]);
 
+  // Preserve scroll position: rebuilding the DOM can otherwise jump the page (e.g. clicking
+  // a market button briefly collapses the layout height and the browser clamps the scroll).
+  const sx = window.scrollX;
+  const sy = window.scrollY;
   root.replaceChildren(topbar, layout, footer);
+  window.scrollTo(sx, sy);
 }
