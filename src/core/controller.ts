@@ -23,9 +23,25 @@ export class GameController implements GameActions {
   private rng = new Rng(randomSeed());
   private loop: GameLoop | null = null;
   private lastSave = 0;
+  private renderPending = false;
 
   constructor(private readonly root: HTMLElement) {
     this.store.subscribe(() => this.render());
+    // Keep an open action <select> from being destroyed by a day-tick re-render:
+    // defer redraws while one is focused, then catch up once focus leaves it.
+    this.root.addEventListener("focusout", () => {
+      setTimeout(() => {
+        if (this.renderPending && !this.isEditingActionSelect()) {
+          this.renderPending = false;
+          this.render();
+        }
+      }, 0);
+    });
+  }
+
+  private isEditingActionSelect(): boolean {
+    const el = document.activeElement;
+    return el instanceof HTMLSelectElement && el.classList.contains("action-select");
   }
 
   /** Resume a save if one exists, otherwise show sect selection. */
@@ -37,8 +53,18 @@ export class GameController implements GameActions {
 
   private render(): void {
     const state = this.store.getState();
-    if (!state) renderNewGameScreen(this.root, this);
-    else renderGame(this.root, state, this);
+    if (!state) {
+      renderNewGameScreen(this.root, this);
+      return;
+    }
+    // Don't rebuild the DOM while the user is mid-choice in an action dropdown —
+    // it would close the open <select>. Defer and redraw when focus leaves it.
+    if (this.isEditingActionSelect()) {
+      this.renderPending = true;
+      return;
+    }
+    this.renderPending = false;
+    renderGame(this.root, state, this);
   }
 
   private startLoop(): void {

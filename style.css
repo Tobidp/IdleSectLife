@@ -208,9 +208,26 @@ button:disabled {
 .res-amount {
   font-variant-numeric: tabular-nums;
   color: var(--ink);
+  min-width: 92px;
+  text-align: right;
 }
 .res-amount.at-cap {
   color: var(--gold);
+}
+.res-rate {
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  min-width: 64px;
+  text-align: right;
+}
+.res-rate.up {
+  color: var(--jade);
+}
+.res-rate.down {
+  color: var(--crimson);
+}
+.res-rate.flat {
+  color: var(--ink-dim);
 }
 .res-gather {
   padding: 1px 8px;

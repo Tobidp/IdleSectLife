@@ -51,6 +51,7 @@ for (let i = 0; i < 45; i++) advanceDay(state, rng);
 
 renderGame(root, state, actions);
 check(root.querySelectorAll(".panel").length >= 6, "game screen renders >= 6 panels");
+check(root.querySelectorAll(".res-rate").length === 5, "per-day rate shown for all 5 resources");
 check(root.querySelector(".topbar") !== null, "topbar present");
 check(root.querySelectorAll(".disciple-card").length === state.disciples.length, "one card per disciple");
 check(root.querySelectorAll(".attr-row").length === 4 * state.disciples.length, "4 attribute rows per disciple");
