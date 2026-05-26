@@ -1,12 +1,17 @@
 // Central tuning knobs for the v1 simulation. All values are meant to be adjusted during playtesting.
 // NOTE: combat/yield formulas use a disciple's *effective level* (rank*10 + star), see data/progression.ts.
 
-// --- Collection (yield = COLLECT_BASE + strengthLevel * COLLECT_PER_LEVEL) ---
-export const COLLECT_BASE = 5;
-export const COLLECT_PER_LEVEL = 2;
+// --- Collection (per action: yield = COLLECT_BASE_BY_RESOURCE[r] + strengthLevel * COLLECT_PER_LEVEL, x season) ---
+// Deliberately small so warehouses don't fill instantly — the game should be a slow burn.
+export const COLLECT_BASE_BY_RESOURCE: Record<"stone" | "wood" | "food", number> = {
+  stone: 0.6,
+  wood: 0.6,
+  food: 0.3,
+};
+export const COLLECT_PER_LEVEL = 0.05;
 
 // --- Food ---
-export const FOOD_PER_DISCIPLE_PER_DAY = 1;
+export const FOOD_PER_DISCIPLE_PER_DAY = 0.5;
 
 // --- Happiness -> gain multiplier (applied to all XP earned) ---
 export const HAPPINESS_FULL = 75; // >= -> full gain
@@ -31,9 +36,10 @@ export const FAME_HAPPY_THRESHOLD = 75;
 export const FAME_BURST_PER_PAVILION_LEVEL = 5;
 export const FAME_BURST_PER_SECT_LEVEL = 20;
 
-// --- Recruitment ---
-export const RECRUIT_FAME_DIVISOR = 500; // higher = rarer arrivals for the same fame
-export const RECRUIT_CHANCE_CAP = 0.6; // max daily arrival chance even at high fame
+// --- Recruitment (rolled ONCE PER MONTH, not daily; produces an applicant to Accept/Deny) ---
+export const RECRUIT_FAME_DIVISOR = 150; // chance/month = min(cap, fame / divisor)
+export const RECRUIT_CHANCE_CAP = 0.9;
+export const MAX_APPLICANTS = 5; // queue cap for pending applicants
 
 // --- HP pool (maxHp = HP_BASE + (healthLevel + vitalityLevel) * HP_PER_LEVEL) ---
 export const HP_BASE = 20;

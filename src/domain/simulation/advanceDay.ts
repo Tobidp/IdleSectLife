@@ -7,7 +7,7 @@ import { collectYield, foodNeed, addResource, clampAllResources } from "../resou
 import { collectResourceOf } from "../disciples/actions";
 import { trainOnce, happinessGainMultiplier } from "../disciples/training";
 import { updateHappiness } from "../disciples/happiness";
-import { tryRecruit } from "../disciples/recruitment";
+import { rollMonthlyApplicant } from "../disciples/recruitment";
 import { maxHp, type Disciple } from "../disciples/disciple";
 import { addXp, effectiveLevel } from "../disciples/attributes";
 import { sectAttribute } from "../sect/sect";
@@ -39,7 +39,7 @@ export function advanceDay(state: GameState, rng: Rng): void {
       const resource = collectResourceOf(action);
       if (resource) {
         const strLevel = effectiveLevel(d.attributes.strength);
-        addResource(state, resource, collectYield(strLevel, seasonMultiplier(season, resource)));
+        addResource(state, resource, collectYield(resource, strLevel, seasonMultiplier(season, resource)));
         if (addXp(d.attributes.strength, COLLECT_XP * mult).rankedUp) {
           pushLog(state, `${d.name}'s ${ATTRIBUTE_LABEL.strength} reached ${rankName(d.attributes.strength.rank)}!`, "good");
         }
@@ -118,12 +118,12 @@ export function advanceDay(state: GameState, rng: Rng): void {
   // 6. Passive fame.
   state.fame += passiveFamePerDay(state);
 
-  // 7. Recruitment.
-  tryRecruit(state, rng);
-
-  // 8. Advance calendar; monthly upkeep + season notices.
+  // 7. Advance calendar; monthly upkeep + recruitment roll + season notices.
   const result = advanceOneDay(state.time);
-  if (result.monthChanged) applyMonthlyMaintenance(state);
+  if (result.monthChanged) {
+    applyMonthlyMaintenance(state);
+    rollMonthlyApplicant(state, rng);
+  }
   if (result.seasonChanged) {
     pushLog(state, `The season turns to ${SEASON_LABEL[currentSeason(state.time)]}.`, "info");
   }

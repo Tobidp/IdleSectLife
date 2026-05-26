@@ -7,9 +7,11 @@ import { advanceDay } from "../src/domain/simulation/advanceDay";
 import { warehouseCap } from "../src/domain/resources/resources";
 import { disciplesCapacity } from "../src/domain/buildings/buildings";
 import { upgradePavilion } from "../src/domain/buildings/buildings";
+import { acceptApplicant } from "../src/domain/disciples/recruitment";
 import { STORABLE_RESOURCES } from "../src/domain/resources/resourceTypes";
 import { effectiveLevel, createAttr, addXp } from "../src/domain/disciples/attributes";
 import { rankName } from "../src/data/progression";
+import { MAX_APPLICANTS } from "../src/data/balance";
 
 let failures = 0;
 function check(cond: boolean, msg: string): void {
@@ -31,7 +33,13 @@ for (let i = 0; i < DAYS; i++) {
   // Occasionally upgrade quarters so recruitment isn't capacity-locked.
   if (i === 60 || i === 180) upgradePavilion(state, "quarters");
 
+  // Auto-accept applicants while there's room (recruitment is now an Accept/Deny queue).
+  while (state.applicants.length > 0 && state.disciples.length < disciplesCapacity(state)) {
+    acceptApplicant(state, state.applicants[0].id);
+  }
+
   // Invariants every day:
+  check(state.applicants.length <= MAX_APPLICANTS, `applicants within cap on day ${i}`);
   for (const r of STORABLE_RESOURCES) {
     const v = state.resources[r];
     check(Number.isFinite(v), `resource ${r} finite (got ${v}) on day ${i}`);

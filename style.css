@@ -116,9 +116,10 @@ button:disabled {
 /* ---------- Layout ---------- */
 .layout {
   display: grid;
-  grid-template-columns: 1.5fr 1fr;
+  grid-template-columns: 1.2fr 1fr;
   gap: var(--gap);
   align-items: start;
+  max-width: 640px; /* keep the small panels compact instead of stretched across the page */
 }
 .col {
   display: flex;
@@ -627,6 +628,39 @@ button:disabled {
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+/* ---------- Pending applicants ---------- */
+.applicants {
+  margin-top: 10px;
+}
+.applicants-divider {
+  height: 2px;
+  background: var(--gold);
+  opacity: 0.5;
+  border-radius: 2px;
+  margin: 6px 0;
+}
+.applicants-header {
+  color: var(--gold);
+}
+.applicant-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-row);
+  border: 1px dashed var(--border);
+  border-radius: 5px;
+  padding: 4px 8px;
+  margin-bottom: 3px;
+}
+.accept-btn:hover:not(:disabled) {
+  border-color: var(--jade);
+  color: var(--jade);
+}
+.deny-btn:hover:not(:disabled) {
+  border-color: var(--crimson);
+  color: var(--crimson);
 }
 
 /* ---------- New game screen ---------- */

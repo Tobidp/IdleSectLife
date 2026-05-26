@@ -3,7 +3,12 @@
 import type { ResourceType } from "./resourceTypes";
 import { STORABLE_RESOURCES } from "./resourceTypes";
 import { WAREHOUSE, type Cost } from "../../data/costs";
-import { COLLECT_BASE, COLLECT_PER_LEVEL, FOOD_PER_DISCIPLE_PER_DAY } from "../../data/balance";
+import {
+  COLLECT_BASE_BY_RESOURCE,
+  COLLECT_PER_LEVEL,
+  FOOD_PER_DISCIPLE_PER_DAY,
+} from "../../data/balance";
+import type { CollectableResource } from "./resourceTypes";
 import type { GameState } from "../../state/gameState";
 
 export function warehouseCap(level: number): number {
@@ -31,9 +36,13 @@ export function addResource(state: GameState, resource: ResourceType, amount: nu
   clampResource(state, resource);
 }
 
-/** Units gathered by one collect action given the gatherer's Strength level and a season multiplier. */
-export function collectYield(strengthLevel: number, seasonMult: number): number {
-  return (COLLECT_BASE + strengthLevel * COLLECT_PER_LEVEL) * seasonMult;
+/** Units gathered by one collect action, given the resource, the gatherer's Strength level and the season. */
+export function collectYield(
+  resource: CollectableResource,
+  strengthLevel: number,
+  seasonMult: number,
+): number {
+  return (COLLECT_BASE_BY_RESOURCE[resource] + strengthLevel * COLLECT_PER_LEVEL) * seasonMult;
 }
 
 export function foodNeed(state: GameState): number {

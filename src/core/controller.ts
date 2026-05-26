@@ -13,6 +13,7 @@ import { upgradePavilion, type PavilionKey } from "../domain/buildings/buildings
 import { upgradeSect } from "../domain/sect/sect";
 import { addResource } from "../domain/resources/resources";
 import { sellResource, buyResource } from "../domain/market/market";
+import { acceptApplicant, denyApplicant } from "../domain/disciples/recruitment";
 import type { ResourceType } from "../domain/resources/resourceTypes";
 import type { Activity } from "../domain/disciples/disciple";
 import { createViewState, type Tab, type DiscipleSort } from "../ui/viewState";
@@ -155,6 +156,20 @@ export class GameController implements GameActions {
     this.store.update((s) => {
       const d = s.disciples.find((x) => x.id === discipleId);
       if (d && slot >= 0 && slot < 3) d.actions[slot] = activity;
+    });
+    this.saveNow();
+  }
+
+  acceptApplicant(id: number): void {
+    this.store.update((s) => {
+      acceptApplicant(s, id);
+    });
+    this.saveNow();
+  }
+
+  denyApplicant(id: number): void {
+    this.store.update((s) => {
+      denyApplicant(s, id);
     });
     this.saveNow();
   }

@@ -20,7 +20,7 @@ export function dailyNet(state: GameState): Record<ResourceType, number> {
     for (const action of d.actions) {
       const resource = collectResourceOf(action);
       if (resource) {
-        net[resource] += collectYield(strengthLevel, seasonMultiplier(season, resource));
+        net[resource] += collectYield(resource, strengthLevel, seasonMultiplier(season, resource));
       }
     }
   }

@@ -14,6 +14,7 @@ const { advanceDay } = await import("../src/domain/simulation/advanceDay");
 const { renderGame } = await import("../src/ui/render");
 const { renderNewGameScreen } = await import("../src/ui/newGameScreen");
 const { createViewState } = await import("../src/ui/viewState");
+const { createDisciple } = await import("../src/domain/disciples/disciple");
 import type { GameActions } from "../src/ui/gameActions";
 
 let failures = 0;
@@ -39,6 +40,8 @@ const actions: GameActions = {
   sell: noop,
   buy: noop,
   setDiscipleAction: noop,
+  acceptApplicant: noop,
+  denyApplicant: noop,
   setTab: noop,
   setDiscipleSort: noop,
   toggleDiscipleSelected: noop,
@@ -80,6 +83,15 @@ check(root.querySelectorAll(".d-check").length === state.disciples.length, "a ch
 view.expandedIds.add(state.disciples[0].id);
 renderGame(root, state, view, actions);
 check(root.querySelectorAll(".attr-row").length === 4, "expanding a disciple reveals 4 attribute rows");
+
+// 5. Pending applicants appear with Accept/Deny (attributes hidden).
+state.applicants.push(createDisciple(state.nextId++, "sword", state.sect.type, rng));
+renderGame(root, state, view, actions);
+check(root.querySelectorAll(".applicant-row").length === 1, "pending applicant row rendered");
+check(
+  root.querySelector(".accept-btn") !== null && root.querySelector(".deny-btn") !== null,
+  "applicant shows Accept/Deny buttons",
+);
 
 console.log(failures === 0 ? "\n✓ UI RENDER OK" : `\n✗ ${failures} CHECK(S) FAILED`);
 process.exit(failures === 0 ? 0 : 1);

@@ -12,6 +12,7 @@ import {
   type AttrProgress,
 } from "../../domain/disciples/attributes";
 import { ACTIVITY_LABEL, ACTIVITY_OPTIONS } from "../../domain/disciples/actions";
+import { disciplesCapacity } from "../../domain/buildings/buildings";
 import {
   ATTRIBUTE_LABEL,
   SECT_ICON,
@@ -219,29 +220,65 @@ function toolbar(state: GameState, view: ViewState, actions: GameActions): HTMLE
   return el("div", { class: "disciples-toolbar" }, [selectRow, bulkRow, sortRow]);
 }
 
+/** Pending applicants: name + Accept/Deny only; attributes stay hidden until accepted. */
+function applicantsSection(state: GameState, actions: GameActions): HTMLElement | null {
+  if (state.applicants.length === 0) return null;
+  const full = state.disciples.length >= disciplesCapacity(state);
+
+  const rows = state.applicants.map((a) =>
+    el("div", { class: "applicant-row" }, [
+      el("span", { class: "d-sect", text: "❔", title: "Attributes are hidden until accepted" }),
+      el("span", { class: "d-name", text: a.name }),
+      el("button", {
+        class: "accept-btn",
+        text: "Accept",
+        disabled: full,
+        title: full ? "Quarters are full — upgrade or deny someone first" : "Accept into the sect",
+        onClick: () => actions.acceptApplicant(a.id),
+      }),
+      el("button", {
+        class: "deny-btn",
+        text: "Deny",
+        title: "Turn this applicant away",
+        onClick: () => actions.denyApplicant(a.id),
+      }),
+    ]),
+  );
+
+  return el("div", { class: "applicants" }, [
+    el("div", { class: "applicants-divider" }),
+    el("div", {
+      class: "d-group applicants-header",
+      text: `Awaiting approval (${state.applicants.length})${full ? " — quarters full" : ""}`,
+    }),
+    ...rows,
+  ]);
+}
+
 export function disciplesView(state: GameState, view: ViewState, actions: GameActions): HTMLElement {
   const sectAttr = SECT_ATTRIBUTE[state.sect.type];
+  const body: HTMLElement[] = [];
 
   if (state.disciples.length === 0) {
-    return panel("Disciples (0)", [
-      el("p", { class: "muted", text: "No disciples yet. Raise your fame to attract them." }),
-    ]);
-  }
-
-  const ordered = orderedDisciples(state, view.sort);
-  const rows: HTMLElement[] = [];
-  let lastGroup: string | null = null;
-  for (const d of ordered) {
-    const key = groupKey(d, view.sort);
-    if (key !== null && key !== lastGroup) {
-      rows.push(el("div", { class: "d-group", text: groupLabel(key, view.sort) }));
-      lastGroup = key;
+    body.push(el("p", { class: "muted", text: "No disciples in the sect yet." }));
+  } else {
+    body.push(toolbar(state, view, actions));
+    const ordered = orderedDisciples(state, view.sort);
+    const rows: HTMLElement[] = [];
+    let lastGroup: string | null = null;
+    for (const d of ordered) {
+      const key = groupKey(d, view.sort);
+      if (key !== null && key !== lastGroup) {
+        rows.push(el("div", { class: "d-group", text: groupLabel(key, view.sort) }));
+        lastGroup = key;
+      }
+      rows.push(discipleRow(view, actions, sectAttr, d));
     }
-    rows.push(discipleRow(view, actions, sectAttr, d));
+    body.push(el("div", { class: "disciples-list" }, rows));
   }
 
-  return panel(`Disciples (${state.disciples.length})`, [
-    toolbar(state, view, actions),
-    el("div", { class: "disciples-list" }, rows),
-  ]);
+  const applicants = applicantsSection(state, actions);
+  if (applicants) body.push(applicants);
+
+  return panel(`Disciples (${state.disciples.length})`, body);
 }

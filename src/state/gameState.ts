@@ -8,7 +8,7 @@ import { createDisciple, type Disciple } from "../domain/disciples/disciple";
 import { STARTING_RESOURCES, STARTING_DISCIPLES } from "../data/baseStats";
 import type { LogEntry } from "./log";
 
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;
 
 export type Speed = 1 | 2 | 4;
 
@@ -38,6 +38,8 @@ export interface GameState {
   sect: SectState;
   resources: Record<ResourceType, number>;
   disciples: Disciple[];
+  /** Applicants awaiting Accept/Deny. Their attributes stay hidden until accepted. */
+  applicants: Disciple[];
   buildings: BuildingsState;
   fame: number;
   log: LogEntry[];
@@ -54,6 +56,7 @@ export function createNewGame(sect: SectType, rng: Rng): GameState {
     sect: { type: sect, level: 1 },
     resources: { ...STARTING_RESOURCES },
     disciples: [],
+    applicants: [],
     buildings: {
       quarters: { level: 1 },
       warehouse: { level: 1 },

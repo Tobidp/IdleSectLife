@@ -29,6 +29,10 @@ export interface GameActions {
   // Disciples — individual
   setDiscipleAction(discipleId: number, slot: number, activity: Activity): void;
 
+  // Applicants (pending approval)
+  acceptApplicant(id: number): void;
+  denyApplicant(id: number): void;
+
   // View / navigation
   setTab(tab: Tab): void;
   setDiscipleSort(sort: DiscipleSort): void;
