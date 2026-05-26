@@ -1,0 +1,519 @@
+/* IdleSectLife — theme (wuxia / dark ink + jade) and layout. */
+
+:root {
+  --bg: #14110f;
+  --bg-panel: #1f1a16;
+  --bg-panel-2: #2a231d;
+  --bg-row: #241e19;
+  --border: #4a3c2e;
+  --border-soft: #362d24;
+  --ink: #e8ddc7;
+  --ink-dim: #a89878;
+  --jade: #4fae8b;
+  --jade-dim: #2f6e57;
+  --gold: #d9b25a;
+  --crimson: #c45b54;
+  --blue: #5b86c4;
+
+  --gap: 12px;
+  --radius: 8px;
+  --font: "Segoe UI", system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+#app {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: var(--gap);
+}
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  background: var(--bg-panel-2);
+  color: var(--ink);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 10px;
+  transition: border-color 0.12s, color 0.12s;
+}
+button:hover:not(:disabled) {
+  border-color: var(--jade);
+  color: var(--jade);
+}
+button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.muted {
+  color: var(--ink-dim);
+}
+
+/* ---------- Top bar ---------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap);
+  padding: 8px 12px;
+  margin-bottom: var(--gap);
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  position: sticky;
+  top: 8px;
+  z-index: 10;
+}
+.brand {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.5px;
+}
+.time-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.time-date {
+  color: var(--ink-dim);
+  font-variant-numeric: tabular-nums;
+}
+.pause-btn.is-paused {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.speed-group {
+  display: flex;
+  gap: 4px;
+}
+.speed-btn.active {
+  background: var(--jade-dim);
+  border-color: var(--jade);
+  color: #fff;
+}
+
+/* ---------- Layout ---------- */
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr 1fr;
+  gap: var(--gap);
+  align-items: start;
+}
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  min-width: 0;
+}
+@media (max-width: 960px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Panels ---------- */
+.panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.panel-title {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--jade);
+  padding: 8px 12px;
+  background: var(--bg-panel-2);
+  border-bottom: 1px solid var(--border-soft);
+}
+.panel-body {
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ---------- Sect overview ---------- */
+.sect-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sect-icon {
+  font-size: 32px;
+}
+.sect-name {
+  font-size: 16px;
+  font-weight: 600;
+}
+.sect-date {
+  color: var(--ink-dim);
+  font-variant-numeric: tabular-nums;
+}
+.stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 12px;
+}
+.stat {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px dotted var(--border-soft);
+  padding: 2px 0;
+}
+.stat-label {
+  color: var(--ink-dim);
+}
+.stat-value {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Resources ---------- */
+.res-row,
+.market-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.res-icon {
+  width: 22px;
+  text-align: center;
+}
+.res-name {
+  flex: 1;
+}
+.res-amount {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.res-amount.at-cap {
+  color: var(--gold);
+}
+.res-gather {
+  padding: 1px 8px;
+}
+
+/* ---------- Buildings ---------- */
+.building-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px dotted var(--border-soft);
+}
+.building-row:last-child {
+  border-bottom: none;
+}
+.building-name {
+  font-weight: 600;
+}
+.building-effect {
+  font-size: 12px;
+}
+.building-upgrade {
+  text-align: right;
+  white-space: nowrap;
+}
+.building-cost {
+  font-size: 12px;
+  color: var(--gold);
+  margin-bottom: 3px;
+}
+
+/* ---------- Market ---------- */
+.market-note {
+  font-size: 12px;
+}
+.trade-btns {
+  display: flex;
+  gap: 4px;
+}
+.trade-btn {
+  font-size: 12px;
+  padding: 2px 6px;
+}
+.trade-btn.sell:hover:not(:disabled) {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.trade-btn.buy:hover:not(:disabled) {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+/* ---------- Disciples ---------- */
+.disciple-card {
+  background: var(--bg-row);
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.disciple-card.is-down {
+  opacity: 0.72;
+  border-color: var(--crimson);
+}
+.disciple-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.disciple-name {
+  font-weight: 600;
+  flex: 1;
+}
+.disciple-sect {
+  font-size: 16px;
+}
+.badge {
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+.badge-down {
+  background: var(--crimson);
+  color: #fff;
+}
+.disciple-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.bar-label {
+  width: 26px;
+  font-size: 11px;
+  color: var(--ink-dim);
+}
+.bar {
+  flex: 1;
+  height: 8px;
+  background: #100d0b;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 4px;
+}
+.bar-fill.hp {
+  background: var(--crimson);
+}
+.bar-fill.happy {
+  background: var(--jade);
+}
+.bar-fill.mid {
+  background: var(--gold);
+}
+.bar-fill.unhappy {
+  background: var(--crimson);
+}
+.bar-num {
+  width: 56px;
+  text-align: right;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-dim);
+}
+.disciple-attrs {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+}
+.attr-row {
+  display: grid;
+  grid-template-columns: 62px 102px 1fr;
+  align-items: center;
+  gap: 6px;
+}
+.attr-name {
+  color: var(--ink-dim);
+}
+.attr-row.is-sect-attr .attr-name {
+  color: var(--jade);
+  font-weight: 600;
+}
+.attr-rank {
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.attr-stars {
+  letter-spacing: 1px;
+  color: var(--gold);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.attr-xp {
+  grid-column: 1 / -1;
+  height: 3px;
+  background: #100d0b;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.attr-xp-fill {
+  height: 100%;
+  background: var(--jade-dim);
+}
+.rank-gray .attr-rank {
+  color: #9a9a9a;
+}
+.rank-green .attr-rank {
+  color: #6fbf73;
+}
+.rank-blue .attr-rank {
+  color: var(--blue);
+}
+.rank-purple .attr-rank {
+  color: #9b6fc4;
+}
+.rank-gold .attr-rank {
+  color: var(--gold);
+}
+.disciple-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.action-slot {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 92px;
+}
+.slot-label {
+  font-size: 10px;
+  color: var(--ink-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.action-select {
+  background: var(--bg-panel-2);
+  color: var(--ink);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 3px 4px;
+}
+
+/* ---------- Event log ---------- */
+.log-scroll {
+  max-height: 70vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.log-entry {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  border-left: 3px solid var(--border);
+  padding: 2px 6px;
+}
+.log-time {
+  color: var(--ink-dim);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.log-good {
+  border-left-color: var(--jade);
+}
+.log-bad {
+  border-left-color: var(--crimson);
+}
+.log-info {
+  border-left-color: var(--blue);
+}
+
+/* ---------- Footer ---------- */
+.footer {
+  margin-top: var(--gap);
+  text-align: center;
+}
+.reset-btn {
+  font-size: 12px;
+  color: var(--ink-dim);
+}
+.reset-btn:hover {
+  border-color: var(--crimson);
+  color: var(--crimson);
+}
+
+/* ---------- New game screen ---------- */
+.new-game {
+  max-width: 760px;
+  margin: 8vh auto;
+  text-align: center;
+}
+.new-game .title {
+  font-size: 40px;
+  color: var(--gold);
+  letter-spacing: 1px;
+}
+.new-game .subtitle {
+  color: var(--ink-dim);
+  margin: 8px 0 24px;
+}
+.sect-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap);
+}
+@media (max-width: 560px) {
+  .sect-cards {
+    grid-template-columns: 1fr;
+  }
+}
+.sect-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 20px;
+  text-align: center;
+}
+.sect-card-icon {
+  font-size: 40px;
+}
+.sect-card-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--jade);
+}
+.sect-card-desc {
+  font-size: 13px;
+  color: var(--ink-dim);
+}
