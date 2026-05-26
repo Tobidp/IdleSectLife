@@ -33,9 +33,10 @@ function check(cond: boolean, msg: string): void {
 const root = dom.window.document.getElementById("app") as HTMLElement;
 const ctrl = new GameController(root);
 ctrl.newGame("sword");
+ctrl.setTab("disciples"); // action <select>s live on the Disciples tab
 
 const sel1 = root.querySelector(".action-select") as HTMLSelectElement | null;
-check(sel1 !== null, "action <select> rendered after newGame");
+check(sel1 !== null, "action <select> rendered on the Disciples tab");
 
 sel1!.focus();
 check(dom.window.document.activeElement === sel1, "select is focused (dropdown 'open')");

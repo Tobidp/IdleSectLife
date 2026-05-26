@@ -15,6 +15,9 @@ import { addResource } from "../domain/resources/resources";
 import { sellResource, buyResource } from "../domain/market/market";
 import type { ResourceType } from "../domain/resources/resourceTypes";
 import type { Activity } from "../domain/disciples/disciple";
+import { createViewState, type Tab, type DiscipleSort } from "../ui/viewState";
+import type { SlotTarget } from "../ui/gameActions";
+import { orderedDisciples } from "../ui/views/disciplesView";
 
 const AUTOSAVE_THROTTLE_MS = 1500;
 
@@ -24,14 +27,15 @@ export class GameController implements GameActions {
   private loop: GameLoop | null = null;
   private lastSave = 0;
   private renderPending = false;
+  private readonly view = createViewState();
 
   constructor(private readonly root: HTMLElement) {
     this.store.subscribe(() => this.render());
-    // Keep an open action <select> from being destroyed by a day-tick re-render:
+    // Keep an open <select> from being destroyed by a day-tick re-render:
     // defer redraws while one is focused, then catch up once focus leaves it.
     this.root.addEventListener("focusout", () => {
       setTimeout(() => {
-        if (this.renderPending && !this.isEditingActionSelect()) {
+        if (this.renderPending && !this.isEditingSelect()) {
           this.renderPending = false;
           this.render();
         }
@@ -39,9 +43,8 @@ export class GameController implements GameActions {
     });
   }
 
-  private isEditingActionSelect(): boolean {
-    const el = document.activeElement;
-    return el instanceof HTMLSelectElement && el.classList.contains("action-select");
+  private isEditingSelect(): boolean {
+    return document.activeElement instanceof HTMLSelectElement;
   }
 
   /** Resume a save if one exists, otherwise show sect selection. */
@@ -57,14 +60,22 @@ export class GameController implements GameActions {
       renderNewGameScreen(this.root, this);
       return;
     }
-    // Don't rebuild the DOM while the user is mid-choice in an action dropdown —
+    // Don't rebuild the DOM while the user is mid-choice in a dropdown —
     // it would close the open <select>. Defer and redraw when focus leaves it.
-    if (this.isEditingActionSelect()) {
+    if (this.isEditingSelect()) {
       this.renderPending = true;
       return;
     }
     this.renderPending = false;
-    renderGame(this.root, state, this);
+    this.pruneView(state);
+    renderGame(this.root, state, this.view, this);
+  }
+
+  /** Drop selection/expansion of disciples that have left or died. */
+  private pruneView(state: GameState): void {
+    const alive = new Set(state.disciples.map((d) => d.id));
+    for (const id of this.view.selectedIds) if (!alive.has(id)) this.view.selectedIds.delete(id);
+    for (const id of this.view.expandedIds) if (!alive.has(id)) this.view.expandedIds.delete(id);
   }
 
   private startLoop(): void {
@@ -164,6 +175,67 @@ export class GameController implements GameActions {
   buy(resource: ResourceType, qty: number): void {
     this.store.update((s) => {
       buyResource(s, resource, qty);
+    });
+    this.saveNow();
+  }
+
+  // --- View / navigation (UI-only state, no save) ---
+
+  setTab(tab: Tab): void {
+    this.view.tab = tab;
+    this.render();
+  }
+
+  setDiscipleSort(sort: DiscipleSort): void {
+    this.view.sort = sort;
+    this.render();
+  }
+
+  toggleDiscipleSelected(id: number): void {
+    if (this.view.selectedIds.has(id)) this.view.selectedIds.delete(id);
+    else this.view.selectedIds.add(id);
+    this.render();
+  }
+
+  toggleDiscipleExpanded(id: number): void {
+    if (this.view.expandedIds.has(id)) this.view.expandedIds.delete(id);
+    else this.view.expandedIds.add(id);
+    this.render();
+  }
+
+  selectDisciplePortion(fraction: number): void {
+    const state = this.store.getState();
+    if (!state) return;
+    this.view.selectedIds.clear();
+    if (fraction > 0) {
+      const ordered = orderedDisciples(state, this.view.sort);
+      const count = Math.ceil(fraction * ordered.length);
+      for (let i = 0; i < count; i++) this.view.selectedIds.add(ordered[i].id);
+    }
+    this.render();
+  }
+
+  setBulkActivity(activity: Activity): void {
+    this.view.bulkActivity = activity;
+    this.render();
+  }
+
+  // --- Disciples — bulk (mutate game state) ---
+
+  applyActionToSelected(slot: SlotTarget, activity: Activity): void {
+    this.store.update((s) => {
+      for (const d of s.disciples) {
+        if (!this.view.selectedIds.has(d.id)) continue;
+        if (slot === "all") d.actions = [activity, activity, activity];
+        else d.actions[slot] = activity;
+      }
+    });
+    this.saveNow();
+  }
+
+  applyPresetToAll(activity: Activity): void {
+    this.store.update((s) => {
+      for (const d of s.disciples) d.actions = [activity, activity, activity];
     });
     this.saveNow();
   }

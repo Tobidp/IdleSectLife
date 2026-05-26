@@ -13,6 +13,7 @@ const { createNewGame } = await import("../src/state/gameState");
 const { advanceDay } = await import("../src/domain/simulation/advanceDay");
 const { renderGame } = await import("../src/ui/render");
 const { renderNewGameScreen } = await import("../src/ui/newGameScreen");
+const { createViewState } = await import("../src/ui/viewState");
 import type { GameActions } from "../src/ui/gameActions";
 
 let failures = 0;
@@ -34,32 +35,51 @@ const actions: GameActions = {
   togglePause: noop,
   upgradePavilion: noop,
   upgradeSect: noop,
-  setDiscipleAction: noop,
   manualCollect: noop,
   sell: noop,
   buy: noop,
+  setDiscipleAction: noop,
+  setTab: noop,
+  setDiscipleSort: noop,
+  toggleDiscipleSelected: noop,
+  toggleDiscipleExpanded: noop,
+  selectDisciplePortion: noop,
+  setBulkActivity: noop,
+  applyActionToSelected: noop,
+  applyPresetToAll: noop,
 };
 
 // 1. New game screen.
 renderNewGameScreen(root, actions);
 check(root.querySelectorAll(".sect-card").length === 4, "new-game screen shows 4 sect cards");
 
-// 2. Game screen after a few simulated days.
+// 2. Sect dashboard (default tab) after a few simulated days.
 const rng = new Rng(999);
 const state = createNewGame("bow", rng);
 for (let i = 0; i < 45; i++) advanceDay(state, rng);
+const view = createViewState();
 
-renderGame(root, state, actions);
-check(root.querySelectorAll(".panel").length >= 6, "game screen renders >= 6 panels");
-check(root.querySelectorAll(".res-rate").length === 5, "per-day rate shown for all 5 resources");
+renderGame(root, state, view, actions);
+check(root.querySelectorAll(".tab-btn").length === 2, "two tabs rendered");
 check(root.querySelector(".topbar") !== null, "topbar present");
-check(root.querySelectorAll(".disciple-card").length === state.disciples.length, "one card per disciple");
-check(root.querySelectorAll(".attr-row").length === 4 * state.disciples.length, "4 attribute rows per disciple");
-check(root.querySelectorAll(".attr-stars").length > 0, "star meters rendered");
-check(root.querySelectorAll(".action-select").length === 3 * state.disciples.filter((d) => d.status === "active").length, "3 action selects per active disciple");
+check(root.querySelectorAll(".panel").length >= 5, "sect dashboard renders >= 5 panels");
+check(root.querySelectorAll(".res-rate").length === 5, "per-day rate shown for all 5 resources");
+check(root.querySelectorAll(".d-row").length === 0, "no disciple rows on the sect tab");
 check(root.querySelector(".speed-btn.active") !== null || state.settings.paused, "a speed button is active");
-const hpBar = root.querySelector(".bar-fill.hp") as HTMLElement | null;
-check(hpBar !== null && hpBar.style.width.endsWith("%"), "HP bar width was set");
+
+// 3. Disciples tab.
+view.tab = "disciples";
+renderGame(root, state, view, actions);
+check(root.querySelectorAll(".d-row").length === state.disciples.length, "one row per disciple");
+const activeCount = state.disciples.filter((d) => d.status === "active").length;
+check(root.querySelectorAll(".action-select").length === 3 * activeCount, "3 action selects per active disciple");
+check(root.querySelector(".disciples-toolbar") !== null, "management toolbar present");
+check(root.querySelectorAll(".d-check").length === state.disciples.length, "a checkbox per disciple");
+
+// 4. Expanding a disciple shows its attribute rows.
+view.expandedIds.add(state.disciples[0].id);
+renderGame(root, state, view, actions);
+check(root.querySelectorAll(".attr-row").length === 4, "expanding a disciple reveals 4 attribute rows");
 
 console.log(failures === 0 ? "\n✓ UI RENDER OK" : `\n✗ ${failures} CHECK(S) FAILED`);
 process.exit(failures === 0 ? 0 : 1);

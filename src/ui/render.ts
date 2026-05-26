@@ -1,32 +1,56 @@
-// Top-level renderer: rebuilds the game screen from state on every store notification.
+// Top-level renderer: tab bar + either the Sect dashboard or the Disciples view.
 
 import { el } from "./components/el";
 import type { GameState } from "../state/gameState";
 import type { GameActions } from "./gameActions";
+import type { ViewState, Tab } from "./viewState";
 import { timeControls } from "./controls/timeControls";
 import { sectOverviewPanel } from "./panels/sectOverviewPanel";
 import { resourcesPanel } from "./panels/resourcesPanel";
-import { disciplesPanel } from "./panels/disciplesPanel";
 import { buildingsPanel } from "./panels/buildingsPanel";
 import { marketPanel } from "./panels/marketPanel";
 import { eventLogPanel } from "./panels/eventLogPanel";
+import { disciplesView } from "./views/disciplesView";
 
-export function renderGame(root: HTMLElement, state: GameState, actions: GameActions): void {
-  const topbar = el("header", { class: "topbar" }, [
-    el("span", { class: "brand", text: "IdleSectLife" }),
-    timeControls(state, actions),
-  ]);
+function tabButton(view: ViewState, actions: GameActions, tab: Tab, label: string): HTMLElement {
+  return el("button", {
+    class: `tab-btn ${view.tab === tab ? "active" : ""}`.trim(),
+    text: label,
+    onClick: () => actions.setTab(tab),
+  });
+}
 
-  const layout = el("div", { class: "layout" }, [
+function sectDashboard(state: GameState, actions: GameActions): HTMLElement {
+  return el("div", { class: "layout" }, [
     el("div", { class: "col col-left" }, [
       sectOverviewPanel(state),
       resourcesPanel(state, actions),
       buildingsPanel(state, actions),
       marketPanel(state, actions),
     ]),
-    el("div", { class: "col col-mid" }, [disciplesPanel(state, actions)]),
     el("div", { class: "col col-right" }, [eventLogPanel(state)]),
   ]);
+}
+
+export function renderGame(
+  root: HTMLElement,
+  state: GameState,
+  view: ViewState,
+  actions: GameActions,
+): void {
+  const topbar = el("header", { class: "topbar" }, [
+    el("span", { class: "brand", text: "IdleSectLife" }),
+    el("nav", { class: "tabs" }, [
+      tabButton(view, actions, "sect", "Sect"),
+      tabButton(view, actions, "disciples", `Disciples (${state.disciples.length})`),
+    ]),
+    timeControls(state, actions),
+  ]);
+
+  const body =
+    view.tab === "disciples"
+      ? el("div", { class: "view-disciples" }, [disciplesView(state, view, actions)])
+      : sectDashboard(state, actions);
 
   const footer = el("footer", { class: "footer" }, [
     el("button", {
@@ -37,10 +61,10 @@ export function renderGame(root: HTMLElement, state: GameState, actions: GameAct
     }),
   ]);
 
-  // Preserve scroll position: rebuilding the DOM can otherwise jump the page (e.g. clicking
-  // a market button briefly collapses the layout height and the browser clamps the scroll).
+  // Preserve scroll position across the DOM rebuild (e.g. clicking a market button
+  // would otherwise jump the page when the layout height changes).
   const sx = window.scrollX;
   const sy = window.scrollY;
-  root.replaceChildren(topbar, layout, footer);
+  root.replaceChildren(topbar, body, footer);
   window.scrollTo(sx, sy);
 }
