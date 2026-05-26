@@ -13,6 +13,7 @@ import { addXp, effectiveLevel } from "../disciples/attributes";
 import { sectAttribute } from "../sect/sect";
 import { passiveFamePerDay } from "../fame/fame";
 import { applyMonthlyMaintenance } from "../buildings/maintenance";
+import { progressNarrative } from "./storyEvents";
 import { ATTRIBUTE_LABEL } from "../sect/sectTypes";
 import { seasonMultiplier, SEASON_LABEL } from "../../data/seasons";
 import { COLLECT_XP, rankName } from "../../data/progression";
@@ -127,6 +128,9 @@ export function advanceDay(state: GameState, rng: Rng): void {
   if (result.seasonChanged) {
     pushLog(state, `The season turns to ${SEASON_LABEL[currentSeason(state.time)]}.`, "info");
   }
+
+  // 8. Narrative progression: discover clues, queue NPC encounters.
+  progressNarrative(state);
 
   // 9. Keep stores within warehouse caps.
   clampAllResources(state);

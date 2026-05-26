@@ -12,6 +12,9 @@ import { STORABLE_RESOURCES } from "../src/domain/resources/resourceTypes";
 import { effectiveLevel, createAttr, addXp } from "../src/domain/disciples/attributes";
 import { rankName } from "../src/data/progression";
 import { MAX_APPLICANTS } from "../src/data/balance";
+import { progressNarrative } from "../src/domain/simulation/storyEvents";
+import { validateInvestigation } from "../src/domain/investigations/validator";
+import { canAcceptQuest } from "../src/domain/quests/quest";
 
 let failures = 0;
 function check(cond: boolean, msg: string): void {
@@ -86,6 +89,40 @@ for (let i = 0; i < 200000 && a.rank < 3; i++) {
 console.log(`\nRank-up probe: reached ${rankName(a.rank)} ${a.star}/10★ (eff ${effectiveLevel(a)})`);
 check(promoted && a.rank >= 3, "addXp promotes ranks (reached rank 3)");
 check(ok, "star stays within 1..10 across promotions");
+
+// Narrative pipeline probe (deterministic — drive content unlocks by sect level + flags).
+const nrng = new Rng(42);
+const ng = createNewGame("sword", nrng);
+ng.sect.level = 2; // unlock the sect-level-gated clue + NPC encounter
+
+progressNarrative(ng); // detects events for level 2, then applies them
+check(ng.narrative.discoveredClues.includes("expulsion_letter"), "clue discovered at sect level 2");
+check(
+  ng.narrative.pendingEncounters.some((p) => p.npcId === "mestre_chen"),
+  "NPC encounter queued in the inbox",
+);
+check(ng.narrative.flags.met_chen === true, "encounter once-flag set on apply");
+
+progressNarrative(ng); // met_chen now true -> second clue becomes discoverable
+check(ng.narrative.discoveredClues.includes("witness_account"), "flag-gated clue unlocks next tick");
+
+check(canAcceptQuest("first_disciples", ng), "first_disciples quest available from start");
+check(canAcceptQuest("seek_chen", ng), "seek_chen quest available at sect level 2");
+
+const allClues = ["expulsion_letter", "witness_account"];
+check(
+  validateInvestigation("was_i_guilty", "unknown_rival", [], ng).outcome === "failure",
+  "investigation fails with missing clues",
+);
+check(
+  validateInvestigation("was_i_guilty", "mestre_chen", allClues, ng).outcome === "partial",
+  "investigation is partial with the wrong suspect",
+);
+check(
+  validateInvestigation("was_i_guilty", "unknown_rival", allClues, ng).outcome === "success",
+  "investigation succeeds with all clues + correct suspect",
+);
+console.log(`\nNarrative probe: clues=${ng.narrative.discoveredClues.join(",")} pending=${ng.narrative.pendingEncounters.length}`);
 
 console.log(failures === 0 ? "\n✓ ALL INVARIANTS PASSED" : `\n✗ ${failures} CHECK(S) FAILED`);
 process.exit(failures === 0 ? 0 : 1);

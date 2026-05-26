@@ -748,3 +748,234 @@ button:disabled {
   font-size: 13px;
   color: var(--ink-dim);
 }
+
+/* ---------- Story tab ---------- */
+.tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.tab-alert {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--crimson);
+  box-shadow: 0 0 6px var(--crimson);
+}
+
+/* Encounter inbox */
+.encounter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-row);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 6px 8px;
+  margin-bottom: 4px;
+}
+.encounter-row-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+.encounter-row-name {
+  font-weight: 600;
+  color: var(--gold);
+}
+.encounter-row-blurb {
+  font-size: 12px;
+}
+.talk-btn:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+/* Quests */
+.quest-card {
+  background: var(--bg-row);
+  border: 1px solid var(--border-soft);
+  border-left: 3px solid var(--border);
+  border-radius: 5px;
+  padding: 8px;
+  margin-bottom: 6px;
+}
+.quest-card.quest-active {
+  border-left-color: var(--jade);
+}
+.quest-card.quest-available {
+  border-left-color: var(--gold);
+}
+.quest-card.quest-completed {
+  opacity: 0.6;
+  border-left-color: var(--jade-dim);
+}
+.quest-title {
+  font-weight: 600;
+}
+.quest-desc {
+  font-size: 12px;
+  margin: 2px 0;
+}
+.quest-reward {
+  font-size: 12px;
+  color: var(--gold);
+}
+.quest-action {
+  margin-top: 6px;
+  padding: 2px 10px;
+  font-size: 12px;
+}
+.accept-quest:hover:not(:disabled),
+.complete-quest:hover:not(:disabled) {
+  border-color: var(--jade);
+  color: var(--jade);
+}
+.quest-section {
+  font-size: 12px;
+  margin: 8px 0 4px;
+  border-top: 1px solid var(--border-soft);
+  padding-top: 6px;
+}
+
+/* Journal / dossier */
+.clue-group {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--jade);
+  margin: 8px 0 4px;
+}
+.clue-group:first-child {
+  margin-top: 0;
+}
+.clue-card {
+  background: var(--bg-row);
+  border: 1px solid var(--border-soft);
+  border-radius: 5px;
+  padding: 6px 8px;
+  margin-bottom: 4px;
+}
+.clue-title {
+  font-weight: 600;
+}
+.clue-desc {
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+/* Investigations */
+.investigation-card {
+  background: var(--bg-row);
+  border: 1px dashed var(--border);
+  border-radius: 5px;
+  padding: 8px;
+  margin-bottom: 6px;
+}
+.inv-title {
+  font-weight: 600;
+  color: var(--gold);
+}
+.inv-desc {
+  font-size: 12px;
+  margin: 2px 0 6px;
+}
+.inv-toggle {
+  padding: 2px 10px;
+  font-size: 12px;
+}
+.inv-accuse-label {
+  font-size: 12px;
+  margin: 8px 0 4px;
+}
+.inv-suspects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.suspect-btn {
+  padding: 2px 10px;
+  font-size: 12px;
+}
+.suspect-btn:hover {
+  border-color: var(--crimson);
+  color: var(--crimson);
+}
+.investigation-card.resolved {
+  border-style: solid;
+  opacity: 0.85;
+}
+.investigation-card.inv-success {
+  border-color: var(--jade);
+}
+.investigation-card.inv-partial {
+  border-color: var(--gold);
+}
+.investigation-card.inv-failure {
+  border-color: var(--crimson);
+}
+.inv-outcome {
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* Encounter modal */
+.encounter-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.encounter-modal {
+  background: var(--bg-panel);
+  border: 1px solid var(--gold);
+  border-radius: var(--radius);
+  padding: 20px;
+  max-width: 440px;
+  width: calc(100% - 32px);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+}
+.encounter-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  border-bottom: 1px solid var(--border-soft);
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+.encounter-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--gold);
+}
+.encounter-type {
+  font-size: 12px;
+  color: var(--ink-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.dialogue-text {
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+.dialogue-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.dialogue-choice {
+  text-align: left;
+  padding: 8px 10px;
+}
+.dialogue-choice:hover {
+  border-color: var(--jade);
+  color: var(--jade);
+}
+.dialogue-close:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}

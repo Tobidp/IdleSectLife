@@ -16,6 +16,7 @@ const { renderNewGameScreen } = await import("../src/ui/newGameScreen");
 const { createViewState } = await import("../src/ui/viewState");
 const { createDisciple } = await import("../src/domain/disciples/disciple");
 const { showUpdateBanner } = await import("../src/ui/updateBanner");
+const { openNPCEncounter } = await import("../src/ui/components/npcEncounter");
 import type { GameActions } from "../src/ui/gameActions";
 
 let failures = 0;
@@ -51,6 +52,12 @@ const actions: GameActions = {
   setBulkActivity: noop,
   applyActionToSelected: noop,
   applyPresetToAll: noop,
+  acceptQuest: noop,
+  completeQuest: noop,
+  applyDialogueChoice: noop,
+  dismissEncounter: noop,
+  openInvestigation: noop,
+  submitInvestigation: noop,
 };
 
 // 1. New game screen.
@@ -64,7 +71,7 @@ for (let i = 0; i < 45; i++) advanceDay(state, rng);
 const view = createViewState();
 
 renderGame(root, state, view, actions);
-check(root.querySelectorAll(".tab-btn").length === 2, "two tabs rendered");
+check(root.querySelectorAll(".tab-btn").length === 3, "three tabs rendered (Sect, Disciples, Story)");
 check(root.querySelector(".topbar") !== null, "topbar present");
 check(root.querySelectorAll(".panel").length >= 5, "sect dashboard renders >= 5 panels");
 check(root.querySelectorAll(".res-rate").length === 5, "per-day rate shown for all 5 resources");
@@ -98,6 +105,27 @@ check(
 showUpdateBanner();
 check(dom.window.document.querySelector(".update-overlay") !== null, "update banner overlay shown");
 check(dom.window.document.querySelector(".update-refresh") !== null, "update banner has a refresh button");
+
+// 7. Story tab: quests + journal panels render (first_disciples is available from the start).
+view.tab = "story";
+renderGame(root, state, view, actions);
+check(root.querySelector(".quests-panel") !== null, "story tab shows the quests panel");
+check(root.querySelector(".journal-panel") !== null, "story tab shows the journal panel");
+check(root.querySelectorAll(".quest-card").length >= 1, "at least one quest card rendered");
+
+// 8. A pending encounter surfaces in the inbox + flags the tab, and opens the dialogue modal.
+state.narrative.pendingEncounters.push({ npcId: "mestre_chen", nodeId: "initial", seenOn: "test" });
+renderGame(root, state, view, actions);
+check(root.querySelector(".encounter-inbox") !== null, "pending encounter shows the inbox panel");
+check(root.querySelector(".talk-btn") !== null, "inbox shows a Talk button");
+check(root.querySelector(".tab-alert") !== null, "story tab shows an alert dot when an encounter is pending");
+
+openNPCEncounter("mestre_chen", "initial", actions);
+check(dom.window.document.querySelector(".encounter-overlay") !== null, "encounter modal overlay opened");
+check(
+  dom.window.document.querySelectorAll(".dialogue-choice").length === 2,
+  "dialogue node renders its two choices",
+);
 
 console.log(failures === 0 ? "\n✓ UI RENDER OK" : `\n✗ ${failures} CHECK(S) FAILED`);
 process.exit(failures === 0 ? 0 : 1);

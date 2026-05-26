@@ -1,7 +1,9 @@
 // Transient UI state (not part of the saved game): which tab is open and how the
 // disciples roster is being viewed/selected.
 
-export type Tab = "sect" | "disciples";
+import type { InvestigationId } from "../domain/narrative/types";
+
+export type Tab = "sect" | "disciples" | "story";
 export type DiscipleSort = "default" | "sect" | "happiness" | "status";
 
 export const DISCIPLE_SORT_LABEL: Record<DiscipleSort, string> = {
@@ -18,6 +20,8 @@ export interface ViewState {
   expandedIds: Set<number>;
   /** Activity chosen in the bulk-action bar, applied to selected disciples. */
   bulkActivity: import("../domain/disciples/disciple").Activity;
+  /** Story tab: the investigation whose accusation picker is open, if any. */
+  openInvestigationId: InvestigationId | null;
 }
 
 export function createViewState(): ViewState {
@@ -27,5 +31,6 @@ export function createViewState(): ViewState {
     selectedIds: new Set<number>(),
     expandedIds: new Set<number>(),
     bulkActivity: "train",
+    openInvestigationId: null,
   };
 }

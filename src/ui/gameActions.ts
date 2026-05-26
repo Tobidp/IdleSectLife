@@ -6,6 +6,7 @@ import type { PavilionKey } from "../domain/buildings/buildings";
 import type { ResourceType } from "../domain/resources/resourceTypes";
 import type { Activity } from "../domain/disciples/disciple";
 import type { Tab, DiscipleSort } from "./viewState";
+import type { QuestId, NPCId, InvestigationId } from "../domain/narrative/types";
 
 /** A daily slot index, or "all" to apply to the whole day. */
 export type SlotTarget = 0 | 1 | 2 | "all";
@@ -45,4 +46,20 @@ export interface GameActions {
   setBulkActivity(activity: Activity): void;
   applyActionToSelected(slot: SlotTarget, activity: Activity): void;
   applyPresetToAll(activity: Activity): void;
+
+  // Narrative — quests
+  acceptQuest(questId: QuestId): void;
+  completeQuest(questId: QuestId): void;
+
+  // Narrative — NPC encounters / dialogue
+  /** Persist a dialogue choice's effects (relationship shift + optional flag). */
+  applyDialogueChoice(npcId: NPCId, relationshipDelta: number, setsFlag?: string): void;
+  /** Remove a pending encounter from the inbox (the conversation ended). */
+  dismissEncounter(npcId: NPCId): void;
+
+  // Narrative — investigations
+  /** Open (or, with null, close) an investigation's accusation picker. View-only. */
+  openInvestigation(invId: InvestigationId | null): void;
+  /** Resolve an investigation by accusing a suspect with the gathered clues. */
+  submitInvestigation(invId: InvestigationId, accusation: string): void;
 }

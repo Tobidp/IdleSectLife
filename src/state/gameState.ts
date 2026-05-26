@@ -7,8 +7,9 @@ import type { ResourceType } from "../domain/resources/resourceTypes";
 import { createDisciple, type Disciple } from "../domain/disciples/disciple";
 import { STARTING_RESOURCES, STARTING_DISCIPLES } from "../data/baseStats";
 import type { LogEntry } from "./log";
+import { createInitialNarrativeState, type NarrativeState } from "./narrative";
 
-export const SAVE_VERSION = 3;
+export const SAVE_VERSION = 4;
 
 export type Speed = 1 | 2 | 4;
 
@@ -45,6 +46,8 @@ export interface GameState {
   log: LogEntry[];
   nextId: number;
   settings: Settings;
+  /** Story progress: quests, clues, NPC relationships, flags. */
+  narrative: NarrativeState;
 }
 
 /** Build a fresh game for the chosen sect. Uses `rng` to name the starting disciples. */
@@ -65,6 +68,7 @@ export function createNewGame(sect: SectType, rng: Rng): GameState {
     log: [],
     nextId: 1,
     settings: { speed: 1, paused: false },
+    narrative: createInitialNarrativeState(),
   };
 
   for (let i = 0; i < STARTING_DISCIPLES; i++) {

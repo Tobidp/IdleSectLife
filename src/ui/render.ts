@@ -11,13 +11,22 @@ import { buildingsPanel } from "./panels/buildingsPanel";
 import { marketPanel } from "./panels/marketPanel";
 import { eventLogPanel } from "./panels/eventLogPanel";
 import { disciplesView } from "./views/disciplesView";
+import { storyView } from "./views/storyView";
 
-function tabButton(view: ViewState, actions: GameActions, tab: Tab, label: string): HTMLElement {
+function tabButton(
+  view: ViewState,
+  actions: GameActions,
+  tab: Tab,
+  label: string,
+  alert = false,
+): HTMLElement {
   return el("button", {
     class: `tab-btn ${view.tab === tab ? "active" : ""}`.trim(),
-    text: label,
     onClick: () => actions.setTab(tab),
-  });
+  }, [
+    el("span", { text: label }),
+    alert ? el("span", { class: "tab-alert", title: "Something needs your attention" }) : null,
+  ]);
 }
 
 function sectDashboard(state: GameState, actions: GameActions): HTMLElement {
@@ -43,6 +52,7 @@ export function renderGame(
     el("nav", { class: "tabs" }, [
       tabButton(view, actions, "sect", "Sect"),
       tabButton(view, actions, "disciples", `Disciples (${state.disciples.length})`),
+      tabButton(view, actions, "story", "Story", state.narrative.pendingEncounters.length > 0),
     ]),
     timeControls(state, actions),
   ]);
@@ -50,7 +60,9 @@ export function renderGame(
   const body =
     view.tab === "disciples"
       ? el("div", { class: "view-disciples" }, [disciplesView(state, view, actions)])
-      : sectDashboard(state, actions);
+      : view.tab === "story"
+        ? storyView(state, view, actions)
+        : sectDashboard(state, actions);
 
   const footer = el("footer", { class: "footer" }, [
     el("button", {

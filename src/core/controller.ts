@@ -19,6 +19,13 @@ import type { Activity } from "../domain/disciples/disciple";
 import { createViewState, type Tab, type DiscipleSort } from "../ui/viewState";
 import type { SlotTarget } from "../ui/gameActions";
 import { orderedDisciples } from "../ui/views/disciplesView";
+import { acceptQuest, completeQuest, getQuestById } from "../domain/quests/quest";
+import { updateNPCRelationship } from "../domain/npcs/relationships";
+import { getInvestigationById } from "../domain/investigations/investigation";
+import { validateInvestigation } from "../domain/investigations/validator";
+import { formatDateShort } from "./time/timeEngine";
+import { pushLog } from "../state/log";
+import type { QuestId, NPCId, InvestigationId } from "../domain/narrative/types";
 
 const AUTOSAVE_THROTTLE_MS = 1500;
 
@@ -252,6 +259,75 @@ export class GameController implements GameActions {
     this.store.update((s) => {
       for (const d of s.disciples) d.actions = [activity, activity, activity];
     });
+    this.saveNow();
+  }
+
+  // --- Narrative ---
+
+  acceptQuest(questId: QuestId): void {
+    this.store.update((s) => {
+      if (acceptQuest(s.narrative, questId, s)) {
+        const quest = getQuestById(questId);
+        if (quest) pushLog(s, `Quest accepted: ${quest.title}`, "info");
+      }
+    });
+    this.saveNow();
+  }
+
+  completeQuest(questId: QuestId): void {
+    this.store.update((s) => {
+      const quest = getQuestById(questId);
+      if (completeQuest(s.narrative, questId, s) && quest) {
+        pushLog(s, `Quest complete: ${quest.title}`, "good");
+      }
+    });
+    this.saveNow();
+  }
+
+  applyDialogueChoice(npcId: NPCId, relationshipDelta: number, setsFlag?: string): void {
+    this.store.update((s) => {
+      if (relationshipDelta) {
+        updateNPCRelationship(s.narrative, npcId, relationshipDelta, formatDateShort(s.time));
+      }
+      if (setsFlag) s.narrative.flags[setsFlag] = true;
+    });
+    this.saveNow();
+  }
+
+  dismissEncounter(npcId: NPCId): void {
+    this.store.update((s) => {
+      s.narrative.pendingEncounters = s.narrative.pendingEncounters.filter(
+        (p) => p.npcId !== npcId,
+      );
+    });
+    this.saveNow();
+  }
+
+  openInvestigation(invId: InvestigationId | null): void {
+    this.view.openInvestigationId = invId;
+    this.render();
+  }
+
+  submitInvestigation(invId: InvestigationId, accusation: string): void {
+    this.store.update((s) => {
+      const inv = getInvestigationById(invId);
+      if (!inv || s.narrative.completedInvestigations.includes(invId)) return;
+      const provided = inv.requiredClues.filter((c) => s.narrative.discoveredClues.includes(c));
+      const result = validateInvestigation(invId, accusation, provided, s);
+      s.narrative.completedInvestigations.push(invId);
+      s.narrative.investigationResults[invId] = {
+        outcome: result.outcome,
+        message: result.message,
+        accusation,
+        resolvedOn: formatDateShort(s.time),
+      };
+      pushLog(
+        s,
+        `Investigation resolved: ${inv.title} (${result.outcome})`,
+        result.success ? "good" : "info",
+      );
+    });
+    this.view.openInvestigationId = null;
     this.saveNow();
   }
 }
