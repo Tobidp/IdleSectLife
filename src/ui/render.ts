@@ -12,6 +12,7 @@ import { marketPanel } from "./panels/marketPanel";
 import { eventLogPanel } from "./panels/eventLogPanel";
 import { disciplesView } from "./views/disciplesView";
 import { storyView } from "./views/storyView";
+import { STORY_ENABLED } from "../config/featureFlags";
 
 function tabButton(
   view: ViewState,
@@ -19,10 +20,15 @@ function tabButton(
   tab: Tab,
   label: string,
   alert = false,
+  disabled = false,
 ): HTMLElement {
   return el("button", {
     class: `tab-btn ${view.tab === tab ? "active" : ""}`.trim(),
-    onClick: () => actions.setTab(tab),
+    disabled,
+    title: disabled ? "Coming soon" : "",
+    onClick: () => {
+      if (!disabled) actions.setTab(tab);
+    },
   }, [
     el("span", { text: label }),
     alert ? el("span", { class: "tab-alert", title: "Something needs your attention" }) : null,
@@ -52,7 +58,14 @@ export function renderGame(
     el("nav", { class: "tabs" }, [
       tabButton(view, actions, "sect", "Sect"),
       tabButton(view, actions, "disciples", `Disciples (${state.disciples.length})`),
-      tabButton(view, actions, "story", "Story", state.narrative.pendingEncounters.length > 0),
+      tabButton(
+        view,
+        actions,
+        "story",
+        "Story",
+        state.narrative.pendingEncounters.length > 0,
+        !STORY_ENABLED,
+      ),
     ]),
     timeControls(state, actions),
   ]);

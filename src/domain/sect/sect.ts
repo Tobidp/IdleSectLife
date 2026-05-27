@@ -15,11 +15,6 @@ export function sectUpgradeCost(level: number): Cost {
   return scaledCost(SECT.baseCost, level);
 }
 
-/** Passive fame per day granted by the sect's current level. */
-export function sectFamePerDay(level: number): number {
-  return SECT.famePerLevelPerDay * level;
-}
-
 export function upgradeSect(state: GameState): boolean {
   const cost = sectUpgradeCost(state.sect.level);
   if (!spend(state, cost)) return false;

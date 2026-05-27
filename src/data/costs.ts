@@ -7,23 +7,25 @@ export type Cost = Partial<Record<ResourceType, number>>;
 /** Exponential growth: upgradeCost = base * COST_MULTIPLIER^(currentLevel). */
 export const COST_MULTIPLIER = 1.5;
 
+// Quarters & Sect base costs are +300% (x4) vs. the original tuning to slow progression.
+// Warehouse is intentionally left cheap: you must upgrade it to unlock the storage space
+// needed to stockpile the (now larger) materials for the other upgrades.
 export const QUARTERS = {
-  baseCost: { wood: 30, stone: 20 } as Cost,
+  baseCost: { wood: 120, stone: 80 } as Cost,
   baseCapacity: 5,
   capacityPerLevel: 2, // lvl 1 = 5, lvl 2 = 7, ...
   maintenancePerLevel: { wood: 2 } as Cost, // consumed per month, scaled by level
 };
 
 export const WAREHOUSE = {
-  baseCost: { stone: 30, wood: 20 } as Cost,
+  baseCost: { stone: 30, wood: 20 } as Cost, // unchanged on purpose (see note above)
   baseCapacity: 200,
   capacityPerLevel: 150, // lvl 1 = 200, lvl 2 = 350, ...
   maintenancePerLevel: { stone: 2 } as Cost,
 };
 
 export const SECT = {
-  baseCost: { stone: 100, wood: 100, gold: 50 } as Cost,
-  famePerLevelPerDay: 1, // passive fame/day granted per sect level
+  baseCost: { stone: 400, wood: 400, gold: 200 } as Cost,
   maintenancePerLevel: { gold: 5 } as Cost,
 };
 

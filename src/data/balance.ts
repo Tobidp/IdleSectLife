@@ -31,7 +31,11 @@ export const ABANDON_THRESHOLD = 50;
 export const ABANDON_DIVISOR = 100; // dailyLeaveChance = (threshold - happiness) / divisor
 
 // --- Fame ---
-export const FAME_PER_HAPPY_DISCIPLE_PER_DAY = 0.1;
+// Fame no longer trickles in daily. It accrues ONCE PER MONTH (sect level + happy disciples)
+// so it grows ~30x slower than before and recruitment doesn't max out almost immediately.
+// Discrete bursts on upgrades remain.
+export const FAME_PER_SECT_LEVEL_PER_MONTH = 2;
+export const FAME_PER_HAPPY_DISCIPLE_PER_MONTH = 0.5;
 export const FAME_HAPPY_THRESHOLD = 75;
 export const FAME_BURST_PER_PAVILION_LEVEL = 5;
 export const FAME_BURST_PER_SECT_LEVEL = 20;

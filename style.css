@@ -504,6 +504,10 @@ button:disabled {
   border-color: var(--jade);
   color: #fff;
 }
+.tab-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
 
 /* ---------- Disciples view ---------- */
 .view-disciples {

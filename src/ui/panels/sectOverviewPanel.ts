@@ -7,7 +7,7 @@ import { SECT_ICON, SECT_LABEL } from "../../domain/sect/sectTypes";
 import { currentSeason, formatDate } from "../../core/time/timeEngine";
 import { SEASON_ICON, SEASON_LABEL, SEASON_NOTE } from "../../data/seasons";
 import { disciplesCapacity } from "../../domain/buildings/buildings";
-import { passiveFamePerDay, recruitChance } from "../../domain/fame/fame";
+import { monthlyFameGain, recruitChance } from "../../domain/fame/fame";
 
 function stat(label: string, value: string, title = ""): HTMLElement {
   return el("div", { class: "stat", title }, [
@@ -31,10 +31,10 @@ export function sectOverviewPanel(state: GameState): HTMLElement {
 
   const grid = el("div", { class: "stat-grid" }, [
     stat("Fame", fmt(state.fame), "Drives recruitment and prestige"),
-    stat("Fame / day", `+${fmt1(passiveFamePerDay(state))}`, "Sect level + happy disciples"),
+    stat("Fame / month", `+${fmt1(monthlyFameGain(state))}`, "Sect level + happy disciples (paid monthly)"),
     stat("Season", `${SEASON_ICON[season]} ${SEASON_LABEL[season]}`, SEASON_NOTE[season]),
     stat("Disciples", `${state.disciples.length} / ${cap}`, `${active} active`),
-    stat("Recruit chance", `${Math.round(recruitChance(state.fame) * 100)}% / day`),
+    stat("Recruit chance", `${Math.round(recruitChance(state.fame) * 100)}% / month`, "Rolled once per month"),
   ]);
 
   return panel("Sect Overview", [header, grid], "sect-overview");

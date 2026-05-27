@@ -1,7 +1,7 @@
 // Pavilions & sect upgrades: level, effect, next cost and upgrade button.
 
 import { el, panel } from "../components/el";
-import { fmt, formatCost } from "../components/format";
+import { fmt, fmt1, formatCost } from "../components/format";
 import type { Cost } from "../../data/costs";
 import type { GameState } from "../../state/gameState";
 import type { GameActions } from "../gameActions";
@@ -13,7 +13,8 @@ import {
   disciplesCapacity,
   type PavilionKey,
 } from "../../domain/buildings/buildings";
-import { sectUpgradeCost, sectFamePerDay } from "../../domain/sect/sect";
+import { sectUpgradeCost } from "../../domain/sect/sect";
+import { FAME_BURST_PER_SECT_LEVEL, FAME_PER_SECT_LEVEL_PER_MONTH } from "../../data/balance";
 
 function buildingRow(
   state: GameState,
@@ -59,7 +60,7 @@ export function buildingsPanel(state: GameState, actions: GameActions): HTMLElem
     state,
     "Sect",
     sectLevel,
-    `Passive +${fmt(sectFamePerDay(sectLevel))} fame/day → +${fmt(sectFamePerDay(sectLevel + 1))} next`,
+    `+${fmt(FAME_BURST_PER_SECT_LEVEL)} fame on upgrade · +${fmt1(FAME_PER_SECT_LEVEL_PER_MONTH)} fame/month per level`,
     sectUpgradeCost(sectLevel),
     () => actions.upgradeSect(),
   );

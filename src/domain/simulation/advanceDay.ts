@@ -11,9 +11,10 @@ import { rollMonthlyApplicant } from "../disciples/recruitment";
 import { maxHp, type Disciple } from "../disciples/disciple";
 import { addXp, effectiveLevel } from "../disciples/attributes";
 import { sectAttribute } from "../sect/sect";
-import { passiveFamePerDay } from "../fame/fame";
+import { monthlyFameGain } from "../fame/fame";
 import { applyMonthlyMaintenance } from "../buildings/maintenance";
 import { progressNarrative } from "./storyEvents";
+import { STORY_ENABLED } from "../../config/featureFlags";
 import { ATTRIBUTE_LABEL } from "../sect/sectTypes";
 import { seasonMultiplier, SEASON_LABEL } from "../../data/seasons";
 import { COLLECT_XP, rankName } from "../../data/progression";
@@ -116,12 +117,10 @@ export function advanceDay(state: GameState, rng: Rng): void {
     for (const d of leaving) pushLog(state, `${d.name} grew unhappy and left the sect.`, "bad");
   }
 
-  // 6. Passive fame.
-  state.fame += passiveFamePerDay(state);
-
-  // 7. Advance calendar; monthly upkeep + recruitment roll + season notices.
+  // 6. Advance calendar; monthly fame + upkeep + recruitment roll + season notices.
   const result = advanceOneDay(state.time);
   if (result.monthChanged) {
+    state.fame += monthlyFameGain(state);
     applyMonthlyMaintenance(state);
     rollMonthlyApplicant(state, rng);
   }
@@ -129,9 +128,10 @@ export function advanceDay(state: GameState, rng: Rng): void {
     pushLog(state, `The season turns to ${SEASON_LABEL[currentSeason(state.time)]}.`, "info");
   }
 
-  // 8. Narrative progression: discover clues, queue NPC encounters.
-  progressNarrative(state);
+  // 7. Narrative progression: discover clues, queue NPC encounters.
+  // Gated while the Story feature is unreleased so no placeholder text reaches the log.
+  if (STORY_ENABLED) progressNarrative(state);
 
-  // 9. Keep stores within warehouse caps.
+  // 8. Keep stores within warehouse caps.
   clampAllResources(state);
 }
