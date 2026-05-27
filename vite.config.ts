@@ -1,6 +1,7 @@
 import { defineConfig, type Plugin } from "vite";
+import react from "@vitejs/plugin-react";
 
-// IdleSectLife — vanilla TS, no framework plugins needed.
+// IdleSectLife — React UI over a framework-free game engine.
 // A unique version per build lets the running app detect that a newer deploy is live.
 const buildVersion = String(Date.now());
 
@@ -22,7 +23,7 @@ export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(buildVersion),
   },
-  plugins: [emitVersionJson()],
+  plugins: [react(), emitVersionJson()],
   server: {
     open: true,
   },

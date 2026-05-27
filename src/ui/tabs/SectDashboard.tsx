@@ -1,0 +1,86 @@
+// Sect dashboard: the five panels as a draggable + resizable React Grid Layout. RGL provides
+// the magnetism (snapping to the 12-column grid); Motion adds smooth entrance + settle. Drag
+// by the panel title bar; resize from the bottom-right corner. Layout persists to localStorage.
+
+import { useCallback, useState } from "react";
+import GridLayout, { WidthProvider, type Layout } from "react-grid-layout";
+import { motion } from "motion/react";
+import type { GameState } from "../../state/gameState";
+import { SectOverviewPanel } from "../panels/SectOverviewPanel";
+import { ResourcesPanel } from "../panels/ResourcesPanel";
+import { BuildingsPanel } from "../panels/BuildingsPanel";
+import { MarketPanel } from "../panels/MarketPanel";
+import { EventLogPanel } from "../panels/EventLogPanel";
+import {
+  GRID_COLS,
+  GRID_ROW_HEIGHT,
+  GRID_MARGIN,
+  PANEL_IDS,
+  type PanelId,
+  loadGridLayout,
+  saveGridLayout,
+  resetGridLayout,
+  defaultLayout,
+} from "../windows/gridLayout";
+
+const Grid = WidthProvider(GridLayout);
+
+export function SectDashboard({ state }: { state: GameState }): JSX.Element {
+  const [layout, setLayout] = useState<Layout[]>(() => loadGridLayout());
+
+  const onLayoutChange = useCallback((next: Layout[]) => {
+    setLayout(next);
+    saveGridLayout(next);
+  }, []);
+
+  const reset = useCallback(() => {
+    resetGridLayout();
+    setLayout(defaultLayout());
+  }, []);
+
+  const panels: Record<PanelId, JSX.Element> = {
+    overview: <SectOverviewPanel state={state} />,
+    resources: <ResourcesPanel state={state} />,
+    buildings: <BuildingsPanel state={state} />,
+    market: <MarketPanel state={state} />,
+    log: <EventLogPanel state={state} />,
+  };
+
+  return (
+    <div className="windows-wrap">
+      <div className="windows-toolbar">
+        <span className="muted">
+          Drag a panel by its title bar; resize from the corner. Windows snap to the grid.
+        </span>
+        <button className="reset-layout" onClick={reset}>
+          Reset layout
+        </button>
+      </div>
+      <Grid
+        className="layout-grid"
+        layout={layout}
+        cols={GRID_COLS}
+        rowHeight={GRID_ROW_HEIGHT}
+        margin={GRID_MARGIN}
+        draggableHandle=".panel-title"
+        onLayoutChange={onLayoutChange}
+        isResizable
+        compactType="vertical"
+        useCSSTransforms
+      >
+        {PANEL_IDS.map((id) => (
+          <div key={id}>
+            <motion.div
+              className="grid-window"
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ type: "spring", stiffness: 420, damping: 32 }}
+            >
+              {panels[id]}
+            </motion.div>
+          </div>
+        ))}
+      </Grid>
+    </div>
+  );
+}

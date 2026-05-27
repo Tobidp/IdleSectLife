@@ -15,7 +15,7 @@ import { MAX_APPLICANTS } from "../src/data/balance";
 import { progressNarrative } from "../src/domain/simulation/storyEvents";
 import { validateInvestigation } from "../src/domain/investigations/validator";
 import { canAcceptQuest } from "../src/domain/quests/quest";
-import { computeReorder, orderedColumn, getLayout } from "../src/ui/windows/windowLayout";
+import { sanitizeLayout, defaultLayout, PANEL_IDS } from "../src/ui/windows/gridLayout";
 
 let failures = 0;
 function check(cond: boolean, msg: string): void {
@@ -125,17 +125,20 @@ check(
 );
 console.log(`\nNarrative probe: clues=${ng.narrative.discoveredClues.join(",")} pending=${ng.narrative.pendingEncounters.length}`);
 
-// Window slot reorder (pure): moving a window into another column at an index keeps every
-// column contiguous and never leaves two windows sharing a slot.
-const base = getLayout(); // defaults: left=[overview,resources], center=[buildings,market], right=[log]
-const moved = computeReorder(base, "market", 0, 0); // market -> left column, top
-check(orderedColumn(moved, 0)[0] === "market", "moved window lands at the requested slot");
-check(orderedColumn(moved, 0).length === 3, "target column gains the window");
-check(orderedColumn(moved, 1).join(",") === "buildings", "source column is renumbered contiguously");
-const allSlots = (["overview", "resources", "buildings", "market", "log"] as const).map(
-  (id) => `${moved[id].col}:${moved[id].order}`,
-);
-check(new Set(allSlots).size === allSlots.length, "no two windows share a column+order slot");
+// Grid-layout sanitisation (pure): a saved layout missing a panel + carrying a stale id is
+// repaired to exactly the five known panels (missing ones fall back to defaults).
+const partial = [
+  { i: "overview", x: 5, y: 2, w: 4, h: 6 },
+  { i: "ghost", x: 0, y: 0, w: 4, h: 4 }, // unknown -> dropped
+];
+const fixed = sanitizeLayout(partial);
+check(fixed.length === PANEL_IDS.length, "sanitizeLayout yields exactly the known panels");
+check(fixed.every((it) => PANEL_IDS.includes(it.i as (typeof PANEL_IDS)[number])), "no unknown panels survive");
+const ov = fixed.find((it) => it.i === "overview");
+check(ov?.x === 5 && ov?.y === 2, "a saved panel keeps its persisted position");
+const log = fixed.find((it) => it.i === "log");
+const defLog = defaultLayout().find((it) => it.i === "log");
+check(log?.x === defLog?.x && log?.y === defLog?.y, "a missing panel falls back to its default slot");
 
 console.log(failures === 0 ? "\n✓ ALL INVARIANTS PASSED" : `\n✗ ${failures} CHECK(S) FAILED`);
 process.exit(failures === 0 ? 0 : 1);

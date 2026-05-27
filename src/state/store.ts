@@ -7,14 +7,28 @@ type Listener = (state: GameState | null) => void;
 export class Store {
   private state: GameState | null;
   private listeners = new Set<Listener>();
+  // Bumped on every notify. The state object is mutated in place, so React's
+  // useSyncExternalStore can't diff it by reference — it watches this counter instead.
+  private version = 0;
 
   constructor(initial: GameState | null = null) {
     this.state = initial;
   }
 
-  getState(): GameState | null {
+  getState = (): GameState | null => {
     return this.state;
-  }
+  };
+
+  /** Monotonic change counter for external-store subscribers (e.g. React). */
+  getVersion = (): number => {
+    return this.version;
+  };
+
+  /** Subscribe to changes; returns an unsubscribe fn. Stable identity for React. */
+  subscribe = (listener: Listener): (() => void) => {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  };
 
   /** Throws if no game is active — use inside code that only runs while playing. */
   requireState(): GameState {
@@ -34,12 +48,8 @@ export class Store {
     this.notify();
   }
 
-  subscribe(listener: Listener): () => void {
-    this.listeners.add(listener);
-    return () => this.listeners.delete(listener);
-  }
-
   notify(): void {
+    this.version++;
     for (const listener of this.listeners) listener(this.state);
   }
 }

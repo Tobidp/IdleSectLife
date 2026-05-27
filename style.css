@@ -509,7 +509,10 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* ---------- Draggable windows (Sect dashboard) ---------- */
+/* ---------- Sect dashboard: React Grid Layout windows ---------- */
+.windows-wrap {
+  max-width: 1100px;
+}
 .windows-toolbar {
   display: flex;
   align-items: center;
@@ -525,41 +528,41 @@ button:disabled {
   border-color: var(--gold);
   color: var(--gold);
 }
-/* Three columns laid out with native flow + gaps: spacing is always consistent and
-   windows can never overlap (no absolute positioning). */
-.window-canvas {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px; /* spacing between the left/center/right columns */
+/* Smooth, springy settle when RGL snaps an item to the grid (the "magnetism"). */
+.layout-grid .react-grid-item.cssTransforms {
+  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1), width 220ms ease, height 220ms ease;
 }
-.window-col {
-  display: flex;
-  flex-direction: column;
-  gap: 12px; /* spacing between windows within a column */
-  flex: 1 1 0; /* the three columns share the available width evenly */
-  min-width: 0;
-  min-height: 40px; /* keep an empty column droppable */
+.layout-grid .react-grid-item.react-grid-placeholder {
+  background: var(--jade);
+  opacity: 0.18;
+  border-radius: var(--radius);
 }
-.window {
-  width: 100%;
-  touch-action: none; /* let interact.js own the pointer gesture */
-  transition: transform 0.12s ease;
-}
-/* While dragging: follow the pointer instantly (no transition) and float above the rest. */
-.window.is-dragging {
-  transition: none;
+.layout-grid .react-grid-item.resizing,
+.layout-grid .react-grid-item.react-draggable-dragging {
   z-index: 50;
-  opacity: 0.92;
+  transition: none;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
 }
+.grid-window {
+  height: 100%;
+  overflow: auto;
+}
+.grid-window > .panel {
+  height: 100%;
+}
 /* The panel title doubles as the drag handle. */
-.window .panel-title {
+.layout-grid .panel-title {
   cursor: move;
   user-select: none;
 }
-.window .panel-title::before {
+.layout-grid .panel-title::before {
   content: "⠿ ";
   opacity: 0.55;
+}
+/* Make RGL's resize handle visible on our dark theme. */
+.layout-grid .react-resizable-handle::after {
+  border-right-color: var(--ink-dim);
+  border-bottom-color: var(--ink-dim);
 }
 
 /* ---------- Disciples view ---------- */

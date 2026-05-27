@@ -1,13 +1,12 @@
-// Game controller: owns the store, RNG, loop and persistence, and implements the UI's action surface.
+// Game engine: owns the store, RNG, loop and persistence, and exposes the game-mutating
+// actions plus an external-store API (subscribe/getState/getVersion) for React. It does NOT
+// render and holds no view state — transient UI state lives in React.
 
 import { Store } from "../state/store";
 import { Rng, randomSeed } from "./rng/rng";
 import { GameLoop } from "./loop/gameLoop";
 import { createNewGame, type GameState, type Speed } from "../state/gameState";
 import { saveGame, loadGame, clearSave } from "./save/saveManager";
-import type { GameActions } from "../ui/gameActions";
-import { renderGame } from "../ui/render";
-import { renderNewGameScreen } from "../ui/newGameScreen";
 import type { SectType } from "../domain/sect/sectTypes";
 import { upgradePavilion, type PavilionKey } from "../domain/buildings/buildings";
 import { upgradeSect } from "../domain/sect/sect";
@@ -16,14 +15,6 @@ import { sellResource, buyResource } from "../domain/market/market";
 import { acceptApplicant, denyApplicant } from "../domain/disciples/recruitment";
 import type { ResourceType } from "../domain/resources/resourceTypes";
 import type { Activity } from "../domain/disciples/disciple";
-import { createViewState, type Tab, type DiscipleSort } from "../ui/viewState";
-import type { SlotTarget } from "../ui/gameActions";
-import { orderedDisciples } from "../ui/views/disciplesView";
-import {
-  loadWindowLayout,
-  resetWindowLayout as resetWindowLayoutStore,
-} from "../ui/windows/windowLayout";
-import { installWindowDragging, isDraggingWindow } from "../ui/windows/draggableWindows";
 import { acceptQuest, completeQuest, getQuestById } from "../domain/quests/quest";
 import { updateNPCRelationship } from "../domain/npcs/relationships";
 import { getInvestigationById } from "../domain/investigations/investigation";
@@ -32,65 +23,27 @@ import { formatDateShort } from "./time/timeEngine";
 import { pushLog } from "../state/log";
 import type { QuestId, NPCId, InvestigationId } from "../domain/narrative/types";
 
+/** A daily slot index, or "all" to apply to the whole day. */
+export type SlotTarget = 0 | 1 | 2 | "all";
+
 const AUTOSAVE_THROTTLE_MS = 1500;
 
-export class GameController implements GameActions {
+export class GameEngine {
   private readonly store = new Store(null);
   private rng = new Rng(randomSeed());
   private loop: GameLoop | null = null;
   private lastSave = 0;
-  private renderPending = false;
-  private readonly view = createViewState();
 
-  constructor(private readonly root: HTMLElement) {
-    this.store.subscribe(() => this.render());
-    // Keep an open <select> from being destroyed by a day-tick re-render:
-    // defer redraws while one is focused, then catch up once focus leaves it.
-    this.root.addEventListener("focusout", () => {
-      setTimeout(() => {
-        if (this.renderPending && !this.isEditingSelect()) {
-          this.renderPending = false;
-          this.render();
-        }
-      }, 0);
-    });
-  }
+  // External-store API for React.useSyncExternalStore (stable identities — Store uses arrows).
+  readonly subscribe = this.store.subscribe;
+  readonly getState = this.store.getState;
+  readonly getVersion = this.store.getVersion;
 
-  private isEditingSelect(): boolean {
-    return document.activeElement instanceof HTMLSelectElement;
-  }
-
-  /** Resume a save if one exists, otherwise show sect selection. */
+  /** Resume a save if one exists, otherwise stay on the sect-selection screen. */
   boot(): void {
-    loadWindowLayout();
-    installWindowDragging(() => this.render());
     const saved = loadGame();
     if (saved) this.resume(saved);
     else this.store.setState(null);
-  }
-
-  private render(): void {
-    const state = this.store.getState();
-    if (!state) {
-      renderNewGameScreen(this.root, this);
-      return;
-    }
-    // Don't rebuild the DOM while the user is mid-choice in a dropdown (closes the open
-    // <select>) or mid-drag of a window (interrupts the drag). Defer and redraw after.
-    if (this.isEditingSelect() || isDraggingWindow()) {
-      this.renderPending = true;
-      return;
-    }
-    this.renderPending = false;
-    this.pruneView(state);
-    renderGame(this.root, state, this.view, this);
-  }
-
-  /** Drop selection/expansion of disciples that have left or died. */
-  private pruneView(state: GameState): void {
-    const alive = new Set(state.disciples.map((d) => d.id));
-    for (const id of this.view.selectedIds) if (!alive.has(id)) this.view.selectedIds.delete(id);
-    for (const id of this.view.expandedIds) if (!alive.has(id)) this.view.expandedIds.delete(id);
   }
 
   private startLoop(): void {
@@ -119,7 +72,7 @@ export class GameController implements GameActions {
     this.lastSave = Date.now();
   }
 
-  // --- GameActions ---
+  // --- Lifecycle ---
 
   newGame(sect: SectType): void {
     this.rng = new Rng(randomSeed());
@@ -137,6 +90,8 @@ export class GameController implements GameActions {
     this.store.setState(null);
   }
 
+  // --- Time ---
+
   setSpeed(speed: Speed): void {
     this.store.update((s) => {
       s.settings.speed = speed;
@@ -152,6 +107,8 @@ export class GameController implements GameActions {
     this.saveNow();
   }
 
+  // --- Buildings & economy ---
+
   upgradePavilion(key: PavilionKey): void {
     this.store.update((s) => {
       upgradePavilion(s, key);
@@ -162,28 +119,6 @@ export class GameController implements GameActions {
   upgradeSect(): void {
     this.store.update((s) => {
       upgradeSect(s);
-    });
-    this.saveNow();
-  }
-
-  setDiscipleAction(discipleId: number, slot: number, activity: Activity): void {
-    this.store.update((s) => {
-      const d = s.disciples.find((x) => x.id === discipleId);
-      if (d && slot >= 0 && slot < 3) d.actions[slot] = activity;
-    });
-    this.saveNow();
-  }
-
-  acceptApplicant(id: number): void {
-    this.store.update((s) => {
-      acceptApplicant(s, id);
-    });
-    this.saveNow();
-  }
-
-  denyApplicant(id: number): void {
-    this.store.update((s) => {
-      denyApplicant(s, id);
     });
     this.saveNow();
   }
@@ -208,58 +143,22 @@ export class GameController implements GameActions {
     this.saveNow();
   }
 
-  // --- View / navigation (UI-only state, no save) ---
+  // --- Disciples ---
 
-  setTab(tab: Tab): void {
-    this.view.tab = tab;
-    this.render();
+  setDiscipleAction(discipleId: number, slot: number, activity: Activity): void {
+    this.store.update((s) => {
+      const d = s.disciples.find((x) => x.id === discipleId);
+      if (d && slot >= 0 && slot < 3) d.actions[slot] = activity;
+    });
+    this.saveNow();
   }
 
-  resetWindowLayout(): void {
-    resetWindowLayoutStore();
-    this.render();
-  }
-
-  setDiscipleSort(sort: DiscipleSort): void {
-    this.view.sort = sort;
-    this.render();
-  }
-
-  toggleDiscipleSelected(id: number): void {
-    if (this.view.selectedIds.has(id)) this.view.selectedIds.delete(id);
-    else this.view.selectedIds.add(id);
-    this.render();
-  }
-
-  toggleDiscipleExpanded(id: number): void {
-    if (this.view.expandedIds.has(id)) this.view.expandedIds.delete(id);
-    else this.view.expandedIds.add(id);
-    this.render();
-  }
-
-  selectDisciplePortion(fraction: number): void {
-    const state = this.store.getState();
-    if (!state) return;
-    this.view.selectedIds.clear();
-    if (fraction > 0) {
-      const ordered = orderedDisciples(state, this.view.sort);
-      const count = Math.ceil(fraction * ordered.length);
-      for (let i = 0; i < count; i++) this.view.selectedIds.add(ordered[i].id);
-    }
-    this.render();
-  }
-
-  setBulkActivity(activity: Activity): void {
-    this.view.bulkActivity = activity;
-    this.render();
-  }
-
-  // --- Disciples — bulk (mutate game state) ---
-
-  applyActionToSelected(slot: SlotTarget, activity: Activity): void {
+  /** Bulk: apply an activity to the given disciples at a slot (or all 3 slots). */
+  setActionsForDisciples(ids: number[], slot: SlotTarget, activity: Activity): void {
+    const set = new Set(ids);
     this.store.update((s) => {
       for (const d of s.disciples) {
-        if (!this.view.selectedIds.has(d.id)) continue;
+        if (!set.has(d.id)) continue;
         if (slot === "all") d.actions = [activity, activity, activity];
         else d.actions[slot] = activity;
       }
@@ -267,9 +166,24 @@ export class GameController implements GameActions {
     this.saveNow();
   }
 
-  applyPresetToAll(activity: Activity): void {
+  /** Preset: set every disciple's whole day to one activity. */
+  setAllActions(activity: Activity): void {
     this.store.update((s) => {
       for (const d of s.disciples) d.actions = [activity, activity, activity];
+    });
+    this.saveNow();
+  }
+
+  acceptApplicant(id: number): void {
+    this.store.update((s) => {
+      acceptApplicant(s, id);
+    });
+    this.saveNow();
+  }
+
+  denyApplicant(id: number): void {
+    this.store.update((s) => {
+      denyApplicant(s, id);
     });
     this.saveNow();
   }
@@ -315,11 +229,6 @@ export class GameController implements GameActions {
     this.saveNow();
   }
 
-  openInvestigation(invId: InvestigationId | null): void {
-    this.view.openInvestigationId = invId;
-    this.render();
-  }
-
   submitInvestigation(invId: InvestigationId, accusation: string): void {
     this.store.update((s) => {
       const inv = getInvestigationById(invId);
@@ -339,7 +248,9 @@ export class GameController implements GameActions {
         result.success ? "good" : "info",
       );
     });
-    this.view.openInvestigationId = null;
     this.saveNow();
   }
 }
+
+/** The action surface React components call (everything but the store plumbing). */
+export type GameActions = Omit<GameEngine, "subscribe" | "getState" | "getVersion" | "boot">;
