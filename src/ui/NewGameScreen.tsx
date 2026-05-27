@@ -2,6 +2,7 @@
 
 import { useActions } from "./engineContext";
 import { SECT_TYPES, SECT_ICON, SECT_LABEL, SECT_DESCRIPTION } from "../domain/sect/sectTypes";
+import { SaveLoad } from "./SaveLoad";
 
 export function NewGameScreen(): JSX.Element {
   const actions = useActions();
@@ -17,6 +18,10 @@ export function NewGameScreen(): JSX.Element {
             <span className="sect-card-desc">{SECT_DESCRIPTION[type]}</span>
           </button>
         ))}
+      </div>
+      <div className="new-game-load">
+        <span className="muted">Already have a save code?</span>
+        <SaveLoad />
       </div>
     </div>
   );

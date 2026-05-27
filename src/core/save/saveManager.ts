@@ -63,3 +63,32 @@ export function hasSave(): boolean {
     return false;
   }
 }
+
+// --- Portable export/import: base64-encoded JSON, for moving a save between devices ---
+
+/** btoa over UTF-8 (handles non-ASCII disciple names etc.). */
+function toBase64(s: string): string {
+  return btoa(encodeURIComponent(s).replace(/%([0-9A-F]{2})/g, (_, h) => String.fromCharCode(parseInt(h, 16))));
+}
+function fromBase64(b64: string): string {
+  return decodeURIComponent(
+    Array.prototype.map
+      .call(atob(b64), (c: string) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+      .join(""),
+  );
+}
+
+/** Serialize a save to a portable base64 code. */
+export function encodeSave(state: GameState): string {
+  return toBase64(JSON.stringify(state));
+}
+
+/** Decode + validate a pasted save code; returns the migrated state or null if unusable. */
+export function decodeSave(code: string): GameState | null {
+  try {
+    const parsed = JSON.parse(fromBase64(code.trim())) as GameState;
+    return migrate(parsed);
+  } catch {
+    return null;
+  }
+}

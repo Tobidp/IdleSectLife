@@ -6,7 +6,7 @@ import { Store } from "../state/store";
 import { Rng, randomSeed } from "./rng/rng";
 import { GameLoop } from "./loop/gameLoop";
 import { createNewGame, type GameState, type Speed } from "../state/gameState";
-import { saveGame, loadGame, clearSave } from "./save/saveManager";
+import { saveGame, loadGame, clearSave, encodeSave, decodeSave } from "./save/saveManager";
 import type { SectType } from "../domain/sect/sectTypes";
 import { upgradePavilion, type PavilionKey } from "../domain/buildings/buildings";
 import { upgradeSect } from "../domain/sect/sect";
@@ -88,6 +88,23 @@ export class GameEngine {
     this.loop = null;
     clearSave();
     this.store.setState(null);
+  }
+
+  /** Export the current game as a portable base64 code, or null if no game is active. */
+  exportSave(): string | null {
+    const state = this.store.getState();
+    if (!state) return null;
+    state.rngSeed = this.rng.state; // capture the live RNG position before encoding
+    return encodeSave(state);
+  }
+
+  /** Replace the current game with a decoded save code. Returns false if the code is invalid. */
+  importSave(code: string): boolean {
+    const state = decodeSave(code);
+    if (!state) return false;
+    this.resume(state);
+    this.saveNow();
+    return true;
   }
 
   // --- Time ---

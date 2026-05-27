@@ -48,14 +48,6 @@ export function SectDashboard({ state }: { state: GameState }): JSX.Element {
 
   return (
     <div className="windows-wrap">
-      <div className="windows-toolbar">
-        <span className="muted">
-          Drag a panel by its title bar; resize from the corner. Windows snap to the grid.
-        </span>
-        <button className="reset-layout" onClick={reset}>
-          Reset layout
-        </button>
-      </div>
       <Grid
         className="layout-grid"
         layout={layout}
@@ -81,6 +73,14 @@ export function SectDashboard({ state }: { state: GameState }): JSX.Element {
           </div>
         ))}
       </Grid>
+      <div className="windows-toolbar">
+        <span className="muted">
+          Drag a panel by its title bar; resize from the corner. Windows snap to the grid.
+        </span>
+        <button className="reset-layout" onClick={reset}>
+          Reset layout
+        </button>
+      </div>
     </div>
   );
 }

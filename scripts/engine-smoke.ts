@@ -63,5 +63,14 @@ check(engine.getState()!.autoSell.wood === 40, "setAutoSell stores the percentag
 engine.setAutoSell("wood", 999);
 check(engine.getState()!.autoSell.wood === 100, "setAutoSell clamps to 0–100");
 
+// Export/import round-trip: a base64 code restores the game and rejects garbage.
+const code = engine.exportSave();
+check(typeof code === "string" && code!.length > 0, "exportSave returns a base64 code");
+engine.newGame("bow"); // replace the current game to prove import overwrites it
+check(engine.getState()!.sect.type === "bow", "newGame switched sect before import");
+check(engine.importSave(code!), "importSave accepts a valid code");
+check(engine.getState()!.sect.type === "sword", "importSave restored the original game");
+check(engine.importSave("not valid base64 !!") === false, "importSave rejects an invalid code");
+
 console.log(failures === 0 ? "\n✓ ENGINE OK" : `\n✗ ${failures} CHECK(S) FAILED`);
 process.exit(failures === 0 ? 0 : 1);
