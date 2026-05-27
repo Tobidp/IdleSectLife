@@ -5,19 +5,23 @@ import { createInitialNarrativeState } from "../../state/narrative";
 
 const SAVE_KEY = "idle-sect-life:save:v1";
 
+/** Backfill fields added after v3 onto a save (idempotent). */
+function backfill(save: GameState): void {
+  if (!save.narrative) save.narrative = createInitialNarrativeState();
+  if (!save.buildings.merchant) save.buildings.merchant = { level: 0 };
+  if (!save.autoSell) save.autoSell = {};
+  if (typeof save.goldArrears !== "number") save.goldArrears = 0;
+}
+
 /**
  * Forward-migrate an older save in place so a version bump doesn't wipe progress.
  * Returns null only when the save is too old (or newer) to safely upgrade.
  */
 function migrate(save: GameState): GameState | null {
-  if (save.version === SAVE_VERSION) {
-    // Defensive backfill in case a current-version save predates a sub-field.
-    if (!save.narrative) save.narrative = createInitialNarrativeState();
-    return save;
-  }
-  // v3 → v4: the narrative slice was added; everything else is unchanged.
-  if (save.version === 3) {
-    save.narrative = createInitialNarrativeState();
+  // v3 added the narrative slice; v5 added merchant/autoSell/goldArrears. The deltas are all
+  // additive, so any save from v3 onward can be brought up to date by backfilling.
+  if (save.version >= 3 && save.version <= SAVE_VERSION) {
+    backfill(save);
     save.version = SAVE_VERSION;
     return save;
   }

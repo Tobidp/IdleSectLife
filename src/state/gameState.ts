@@ -9,7 +9,7 @@ import { STARTING_RESOURCES, STARTING_DISCIPLES } from "../data/baseStats";
 import type { LogEntry } from "./log";
 import { createInitialNarrativeState, type NarrativeState } from "./narrative";
 
-export const SAVE_VERSION = 4;
+export const SAVE_VERSION = 5;
 
 export type Speed = 1 | 2 | 4;
 
@@ -20,6 +20,8 @@ export interface BuildingState {
 export interface BuildingsState {
   quarters: BuildingState;
   warehouse: BuildingState;
+  /** Optional. level 0 = not built; level >= 1 enables auto-selling surplus. */
+  merchant: BuildingState;
 }
 
 export interface SectState {
@@ -43,6 +45,10 @@ export interface GameState {
   applicants: Disciple[];
   buildings: BuildingsState;
   fame: number;
+  /** Auto-sell percentage (0–100) per resource; applied when the resource hits its cap (needs the Merchant Pavilion). */
+  autoSell: Partial<Record<ResourceType, number>>;
+  /** Consecutive months the gold upkeep ("wages") went unpaid. */
+  goldArrears: number;
   log: LogEntry[];
   nextId: number;
   settings: Settings;
@@ -63,8 +69,11 @@ export function createNewGame(sect: SectType, rng: Rng): GameState {
     buildings: {
       quarters: { level: 1 },
       warehouse: { level: 1 },
+      merchant: { level: 0 },
     },
     fame: 0,
+    autoSell: {},
+    goldArrears: 0,
     log: [],
     nextId: 1,
     settings: { speed: 1, paused: false },

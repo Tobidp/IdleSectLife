@@ -51,5 +51,17 @@ engine.setActionsForDisciples([firstId], 0, "idle");
 const first = engine.getState()!.disciples.find((d) => d.id === firstId)!;
 check(first.actions[0] === "idle" && first.actions[1] === "train", "setActionsForDisciples targets one slot of selected disciples");
 
+// Merchant pavilion + auto-sell config.
+check(engine.getState()!.buildings.merchant.level === 0, "merchant starts unbuilt");
+const st = engine.getState()!;
+st.resources.wood = 300;
+st.resources.stone = 300;
+engine.upgradePavilion("merchant");
+check(engine.getState()!.buildings.merchant.level === 1, "merchant pavilion can be built");
+engine.setAutoSell("wood", 40);
+check(engine.getState()!.autoSell.wood === 40, "setAutoSell stores the percentage");
+engine.setAutoSell("wood", 999);
+check(engine.getState()!.autoSell.wood === 100, "setAutoSell clamps to 0–100");
+
 console.log(failures === 0 ? "\n✓ ENGINE OK" : `\n✗ ${failures} CHECK(S) FAILED`);
 process.exit(failures === 0 ? 0 : 1);

@@ -1,22 +1,34 @@
 // Pavilions (Quarters, Warehouse): capacities and upgrades.
 
-import { QUARTERS, WAREHOUSE, scaledCost, type Cost } from "../../data/costs";
-import { FAME_BURST_PER_PAVILION_LEVEL } from "../../data/balance";
+import { QUARTERS, WAREHOUSE, MERCHANT, scaledCost, type Cost } from "../../data/costs";
+import { FAME_BURST_PER_PAVILION_LEVEL, MERCHANT_SELL_BONUS_PER_LEVEL } from "../../data/balance";
 import { spend } from "../resources/resources";
 import { pushLog } from "../../state/log";
 import type { GameState } from "../../state/gameState";
 
-export type PavilionKey = "quarters" | "warehouse";
+export type PavilionKey = "quarters" | "warehouse" | "merchant";
 
 export const PAVILION_LABEL: Record<PavilionKey, string> = {
   quarters: "Quarters",
   warehouse: "Warehouse",
+  merchant: "Merchant Pavilion",
 };
 
 const PAVILION_BASE_COST: Record<PavilionKey, Cost> = {
   quarters: QUARTERS.baseCost,
   warehouse: WAREHOUSE.baseCost,
+  merchant: MERCHANT.baseCost,
 };
+
+/** Auto-selling is unlocked once the Merchant Pavilion exists. */
+export function merchantBuilt(state: GameState): boolean {
+  return state.buildings.merchant.level >= 1;
+}
+
+/** Auto-sell price multiplier from the merchant's level (level 1 = ×1). */
+export function merchantSellMultiplier(level: number): number {
+  return 1 + Math.max(0, level - 1) * MERCHANT_SELL_BONUS_PER_LEVEL;
+}
 
 export function quartersCapacity(level: number): number {
   return QUARTERS.baseCapacity + (level - 1) * QUARTERS.capacityPerLevel;

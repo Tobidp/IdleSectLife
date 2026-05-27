@@ -1039,3 +1039,38 @@ button:disabled {
   border-color: var(--gold);
   color: var(--gold);
 }
+
+/* ---------- Market auto-sell ---------- */
+.autosell {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-soft);
+}
+.autosell-head {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+.autosell-hint {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-soft);
+  font-size: 12px;
+}
+.autosell-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  margin-bottom: 3px;
+}
+.autosell-pct {
+  width: 56px;
+  background: var(--bg-panel-2);
+  color: var(--ink);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 2px 4px;
+}

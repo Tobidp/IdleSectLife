@@ -26,7 +26,15 @@ export const WAREHOUSE = {
 
 export const SECT = {
   baseCost: { stone: 400, wood: 400, gold: 200 } as Cost,
-  maintenancePerLevel: { gold: 5 } as Cost,
+  maintenancePerLevel: { gold: 5 } as Cost, // the monthly "wages" paid in gold
+};
+
+// Optional building: once built (level >= 1) it enables auto-selling surplus resources for
+// gold. Materials-only cost so it can be bootstrapped before you have much gold. No upkeep —
+// it's the gold faucet. Higher levels fetch better auto-sell prices.
+export const MERCHANT = {
+  baseCost: { wood: 150, stone: 150 } as Cost,
+  maintenancePerLevel: {} as Cost,
 };
 
 /** Scale a base cost by the exponential multiplier for the given current level. */

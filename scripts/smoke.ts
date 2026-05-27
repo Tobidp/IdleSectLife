@@ -140,5 +140,28 @@ const log = fixed.find((it) => it.i === "log");
 const defLog = defaultLayout().find((it) => it.i === "log");
 check(log?.x === defLog?.x && log?.y === defLog?.y, "a missing panel falls back to its default slot");
 
+// Gold upkeep consequence: broke + high upkeep -> arrears, morale hit, and structural decay.
+const grng = new Rng(7);
+const gg = createNewGame("sword", grng);
+gg.resources.gold = 0;
+gg.sect.level = 3; // wages = 15 gold/month, far above the +1 passive trickle
+for (let i = 0; i < 30; i++) advanceDay(gg, grng); // cross one month boundary
+check(gg.goldArrears >= 1, "unpaid gold upkeep accrues arrears");
+check(gg.log.some((e) => /wages/i.test(e.text)), "a wages-unpaid event is logged");
+for (let i = 0; i < 150; i++) advanceDay(gg, grng); // let the debt drag on past the grace period
+check(gg.sect.level < 3, "persistent unpaid wages decay a structure");
+
+// Merchant auto-sell: a full store is partially sold for gold once the pavilion is built.
+const arng = new Rng(11);
+const ag = createNewGame("sword", arng);
+ag.buildings.merchant.level = 1;
+ag.autoSell.wood = 50;
+const woodCap = warehouseCap(ag.buildings.warehouse.level);
+ag.resources.wood = woodCap;
+const goldBefore = ag.resources.gold;
+advanceDay(ag, arng);
+check(ag.resources.wood < woodCap, "auto-sell offloads a full store");
+check(ag.resources.gold > goldBefore, "auto-sell converts surplus into gold");
+
 console.log(failures === 0 ? "\n✓ ALL INVARIANTS PASSED" : `\n✗ ${failures} CHECK(S) FAILED`);
 process.exit(failures === 0 ? 0 : 1);

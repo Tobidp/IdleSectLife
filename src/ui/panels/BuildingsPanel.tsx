@@ -11,6 +11,7 @@ import {
   pavilionUpgradeCost,
   quartersCapacity,
   disciplesCapacity,
+  merchantSellMultiplier,
   type PavilionKey,
 } from "../../domain/buildings/buildings";
 import { sectUpgradeCost } from "../../domain/sect/sect";
@@ -23,6 +24,7 @@ function BuildingRow({
   effect,
   cost,
   onUpgrade,
+  actionLabel = "Upgrade",
 }: {
   state: GameState;
   name: string;
@@ -30,23 +32,45 @@ function BuildingRow({
   effect: string;
   cost: Cost;
   onUpgrade: () => void;
+  actionLabel?: string;
 }): JSX.Element {
   const affordable = canAfford(state, cost);
   return (
     <div className="building-row">
       <div className="building-info">
         <div className="building-name">
-          {name} · Lv {level}
+          {name}
+          {level > 0 ? ` · Lv ${level}` : ""}
         </div>
         <div className="building-effect muted">{effect}</div>
       </div>
       <div className="building-upgrade">
         <div className="building-cost">{formatCost(cost)}</div>
         <button disabled={!affordable} title={affordable ? "" : "Not enough resources"} onClick={onUpgrade}>
-          Upgrade
+          {actionLabel}
         </button>
       </div>
     </div>
+  );
+}
+
+function MerchantRow({ state }: { state: GameState }): JSX.Element {
+  const actions = useActions();
+  const level = state.buildings.merchant.level;
+  const effect =
+    level === 0
+      ? "Build to auto-sell surplus resources for gold (configure in Market)"
+      : `Auto-sell price ×${merchantSellMultiplier(level).toFixed(1)} → ×${merchantSellMultiplier(level + 1).toFixed(1)} next`;
+  return (
+    <BuildingRow
+      state={state}
+      name={PAVILION_LABEL.merchant}
+      level={level}
+      effect={effect}
+      cost={pavilionUpgradeCost("merchant", level)}
+      actionLabel={level === 0 ? "Build" : "Upgrade"}
+      onUpgrade={() => actions.upgradePavilion("merchant")}
+    />
   );
 }
 
@@ -77,6 +101,7 @@ export function BuildingsPanel({ state }: { state: GameState }): JSX.Element {
     <Panel title="Buildings" className="buildings">
       <PavilionRow state={state} pkey="quarters" />
       <PavilionRow state={state} pkey="warehouse" />
+      <MerchantRow state={state} />
       <BuildingRow
         state={state}
         name="Sect"

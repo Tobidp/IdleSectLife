@@ -13,8 +13,10 @@ import { addXp, effectiveLevel } from "../disciples/attributes";
 import { sectAttribute } from "../sect/sect";
 import { monthlyFameGain } from "../fame/fame";
 import { applyMonthlyMaintenance } from "../buildings/maintenance";
+import { applyAutoSell } from "../market/autoSell";
 import { progressNarrative } from "./storyEvents";
 import { STORY_ENABLED } from "../../config/featureFlags";
+import { PASSIVE_GOLD_PER_MONTH } from "../../data/balance";
 import { ATTRIBUTE_LABEL } from "../sect/sectTypes";
 import { seasonMultiplier, SEASON_LABEL } from "../../data/seasons";
 import { COLLECT_XP, rankName } from "../../data/progression";
@@ -117,10 +119,11 @@ export function advanceDay(state: GameState, rng: Rng): void {
     for (const d of leaving) pushLog(state, `${d.name} grew unhappy and left the sect.`, "bad");
   }
 
-  // 6. Advance calendar; monthly fame + upkeep + recruitment roll + season notices.
+  // 6. Advance calendar; monthly fame + gold + upkeep + recruitment roll + season notices.
   const result = advanceOneDay(state.time);
   if (result.monthChanged) {
     state.fame += monthlyFameGain(state);
+    state.resources.gold += PASSIVE_GOLD_PER_MONTH;
     applyMonthlyMaintenance(state);
     rollMonthlyApplicant(state, rng);
   }
@@ -134,4 +137,7 @@ export function advanceDay(state: GameState, rng: Rng): void {
 
   // 8. Keep stores within warehouse caps.
   clampAllResources(state);
+
+  // 9. Merchant auto-sells the configured share of any store that is now full.
+  applyAutoSell(state);
 }

@@ -143,6 +143,15 @@ export class GameEngine {
     this.saveNow();
   }
 
+  /** Set the auto-sell percentage (0–100) for a resource (needs the Merchant Pavilion). */
+  setAutoSell(resource: ResourceType, percent: number): void {
+    const clamped = Math.max(0, Math.min(100, Math.round(percent)));
+    this.store.update((s) => {
+      s.autoSell[resource] = clamped;
+    });
+    this.saveNow();
+  }
+
   // --- Disciples ---
 
   setDiscipleAction(discipleId: number, slot: number, activity: Activity): void {

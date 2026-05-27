@@ -8,6 +8,8 @@ import { collectResourceOf } from "../disciples/actions";
 import { effectiveLevel } from "../disciples/attributes";
 import { currentSeason } from "../../core/time/timeEngine";
 import { seasonMultiplier } from "../../data/seasons";
+import { monthlyMaintenance } from "../buildings/maintenance";
+import { PASSIVE_GOLD_PER_MONTH } from "../../data/balance";
 
 /** Net resource change expected per day from disciple activity (gross collection minus food eaten). */
 export function dailyNet(state: GameState): Record<ResourceType, number> {
@@ -27,4 +29,10 @@ export function dailyNet(state: GameState): Record<ResourceType, number> {
 
   net.food -= foodNeed(state);
   return net;
+}
+
+/** Predictable monthly gold change: tiny passive income minus the gold upkeep ("wages").
+ *  Auto-sell income is excluded (it only fires when a store is full). */
+export function monthlyGoldNet(state: GameState): number {
+  return PASSIVE_GOLD_PER_MONTH - (monthlyMaintenance(state).gold ?? 0);
 }

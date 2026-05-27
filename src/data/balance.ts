@@ -45,6 +45,14 @@ export const RECRUIT_FAME_DIVISOR = 150; // chance/month = min(cap, fame / divis
 export const RECRUIT_CHANCE_CAP = 0.9;
 export const MAX_APPLICANTS = 5; // queue cap for pending applicants
 
+// --- Gold upkeep (wages) & arrears ---
+// Gold pays the monthly sect upkeep ("wages"). When it can't be covered, morale drops that
+// month; if the debt drags on past the grace period, structures begin to decay.
+export const WAGE_ARREARS_HAPPINESS_PENALTY = 8; // happiness lost by every disciple per unpaid month
+export const WAGE_ARREARS_GRACE_MONTHS = 2; // consecutive unpaid months tolerated before decay starts
+export const PASSIVE_GOLD_PER_MONTH = 1; // tiny passive gold trickle (deliberately almost nothing)
+export const MERCHANT_SELL_BONUS_PER_LEVEL = 0.1; // auto-sell price x (1 + (level-1) * this)
+
 // --- HP pool (maxHp = HP_BASE + (healthLevel + vitalityLevel) * HP_PER_LEVEL) ---
 export const HP_BASE = 20;
 export const HP_PER_LEVEL = 5;

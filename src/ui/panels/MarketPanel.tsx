@@ -5,9 +5,42 @@ import type { GameState } from "../../state/gameState";
 import { useActions } from "../engineContext";
 import { MARKET_PRICES } from "../../data/prices";
 import { RESOURCE_ICON, RESOURCE_LABEL, type ResourceType } from "../../domain/resources/resourceTypes";
+import { merchantBuilt } from "../../domain/buildings/buildings";
+import { AUTOSELLABLE } from "../../domain/market/autoSell";
 
 const TRADE_ORDER: ResourceType[] = ["stone", "wood", "food", "cloth"];
 const QTY = 10;
+
+function AutoSellConfig({ state }: { state: GameState }): JSX.Element {
+  const actions = useActions();
+  if (!merchantBuilt(state)) {
+    return (
+      <p className="muted autosell-hint">
+        Build the Merchant Pavilion to auto-sell surplus when a store fills up.
+      </p>
+    );
+  }
+  return (
+    <div className="autosell">
+      <div className="autosell-head">Auto-sell when full</div>
+      {AUTOSELLABLE.map((res) => (
+        <div className="autosell-row" key={res}>
+          <span className="res-icon">{RESOURCE_ICON[res]}</span>
+          <span className="res-name">{RESOURCE_LABEL[res]}</span>
+          <input
+            type="number"
+            className="autosell-pct"
+            min={0}
+            max={100}
+            value={state.autoSell[res] ?? 0}
+            onChange={(e) => actions.setAutoSell(res, Number(e.target.value) || 0)}
+          />
+          <span className="muted">% of cap</span>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export function MarketPanel({ state }: { state: GameState }): JSX.Element {
   const actions = useActions();
@@ -47,6 +80,7 @@ export function MarketPanel({ state }: { state: GameState }): JSX.Element {
           </div>
         );
       })}
+      <AutoSellConfig state={state} />
     </Panel>
   );
 }
