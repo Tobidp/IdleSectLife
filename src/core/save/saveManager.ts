@@ -11,6 +11,8 @@ function backfill(save: GameState): void {
   if (!save.buildings.merchant) save.buildings.merchant = { level: 0 };
   if (!save.autoSell) save.autoSell = {};
   if (typeof save.goldArrears !== "number") save.goldArrears = 0;
+  // Default to "now" so an old save isn't treated as having been away forever.
+  if (typeof save.lastPlayed !== "number") save.lastPlayed = Date.now();
 }
 
 /**
@@ -30,6 +32,7 @@ function migrate(save: GameState): GameState | null {
 
 export function saveGame(state: GameState): void {
   try {
+    state.lastPlayed = Date.now();
     localStorage.setItem(SAVE_KEY, JSON.stringify(state));
   } catch (err) {
     console.warn("Sect: Ascendant: failed to save game", err);

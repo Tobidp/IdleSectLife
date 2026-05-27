@@ -21,6 +21,7 @@ import { getInvestigationById } from "../domain/investigations/investigation";
 import { validateInvestigation } from "../domain/investigations/validator";
 import { formatDateShort } from "./time/timeEngine";
 import { pushLog } from "../state/log";
+import { simulateOffline, type OfflineSummary } from "../domain/simulation/offline";
 import type { QuestId, NPCId, InvestigationId } from "../domain/narrative/types";
 
 /** A daily slot index, or "all" to apply to the whole day. */
@@ -33,17 +34,31 @@ export class GameEngine {
   private rng = new Rng(randomSeed());
   private loop: GameLoop | null = null;
   private lastSave = 0;
+  private offlineSummary: OfflineSummary | null = null;
 
   // External-store API for React.useSyncExternalStore (stable identities — Store uses arrows).
   readonly subscribe = this.store.subscribe;
   readonly getState = this.store.getState;
   readonly getVersion = this.store.getVersion;
 
-  /** Resume a save if one exists, otherwise stay on the sect-selection screen. */
+  /** Resume a save if one exists (accruing offline progress), otherwise show sect selection. */
   boot(): void {
     const saved = loadGame();
-    if (saved) this.resume(saved);
-    else this.store.setState(null);
+    if (!saved) {
+      this.store.setState(null);
+      return;
+    }
+    this.rng = new Rng(saved.rngSeed);
+    this.offlineSummary = simulateOffline(saved, this.rng);
+    saved.rngSeed = this.rng.state;
+    this.store.setState(saved);
+    this.startLoop();
+    this.saveNow();
+  }
+
+  /** The "welcome back" summary from offline progress on this boot, if any. */
+  getOfflineSummary(): OfflineSummary | null {
+    return this.offlineSummary;
   }
 
   private startLoop(): void {

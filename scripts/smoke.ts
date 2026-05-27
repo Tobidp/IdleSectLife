@@ -17,6 +17,7 @@ import { validateInvestigation } from "../src/domain/investigations/validator";
 import { canAcceptQuest } from "../src/domain/quests/quest";
 import { sanitizeLayout, defaultLayout, PANEL_IDS } from "../src/ui/windows/gridLayout";
 import { fmt } from "../src/ui/components/format";
+import { offlineDaysFor, simulateOffline } from "../src/domain/simulation/offline";
 
 let failures = 0;
 function check(cond: boolean, msg: string): void {
@@ -163,6 +164,18 @@ const goldBefore = ag.resources.gold;
 advanceDay(ag, arng);
 check(ag.resources.wood < woodCap, "auto-sell offloads a full store");
 check(ag.resources.gold > goldBefore, "auto-sell converts surplus into gold");
+
+// Offline progress: reduced rate, capped, and replayed deterministically.
+check(offlineDaysFor(0) === 0, "offlineDaysFor: no elapsed time -> 0 days");
+check(offlineDaysFor(3000 * 100) === 50, "offlineDaysFor: reduced rate (100 day-equiv -> 50)");
+check(offlineDaysFor(3000 * 100000) === 180, "offlineDaysFor: capped at OFFLINE_MAX_DAYS");
+const orng = new Rng(99);
+const og = createNewGame("sword", orng);
+og.lastPlayed = Date.now() - 3000 * 100000; // a long time ago
+const day0 = og.time.totalDays;
+const offline = simulateOffline(og, orng);
+check(offline !== null && offline.days === 180, "simulateOffline returns the capped day count");
+check(og.time.totalDays - day0 === 180, "simulateOffline advanced exactly the capped days");
 
 // Compact number formatting.
 check(fmt(950) === "950", "fmt keeps small numbers plain");

@@ -1227,3 +1227,11 @@ button:disabled {
     transform: translateX(0);
   }
 }
+
+/* ---------- Welcome back (offline summary) ---------- */
+.welcome-gains {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--jade);
+  margin: 4px 0 2px;
+}

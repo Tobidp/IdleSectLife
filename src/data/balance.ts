@@ -53,6 +53,12 @@ export const WAGE_ARREARS_GRACE_MONTHS = 2; // consecutive unpaid months tolerat
 export const PASSIVE_GOLD_PER_MONTH = 1; // tiny passive gold trickle (deliberately almost nothing)
 export const MERCHANT_SELL_BONUS_PER_LEVEL = 0.1; // auto-sell price x (1 + (level-1) * this)
 
+// --- Offline progress (applied on return) ---
+// Time away accrues at a reduced rate, capped, so closing the game isn't punished but also
+// can't fast-forward years (a day is only ~3s of real time).
+export const OFFLINE_RATE = 0.5; // fraction of the active day-rate earned while away
+export const OFFLINE_MAX_DAYS = 180; // hard ceiling on simulated offline days (~6 months)
+
 // --- HP pool (maxHp = HP_BASE + (healthLevel + vitalityLevel) * HP_PER_LEVEL) ---
 export const HP_BASE = 20;
 export const HP_PER_LEVEL = 5;
