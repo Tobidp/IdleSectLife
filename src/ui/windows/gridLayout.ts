@@ -15,7 +15,7 @@ export const PANEL_IDS: PanelId[] = ["overview", "resources", "buildings", "mark
 const DEFAULT_LAYOUT: Layout[] = [
   { i: "overview", x: 0, y: 0, w: 4, h: 6 },
   { i: "resources", x: 0, y: 6, w: 4, h: 9 },
-  { i: "buildings", x: 4, y: 0, w: 4, h: 7 },
+  { i: "buildings", x: 4, y: 0, w: 4, h: 9 },
   { i: "market", x: 4, y: 7, w: 4, h: 8 },
   { i: "log", x: 8, y: 0, w: 4, h: 15 },
 ];
