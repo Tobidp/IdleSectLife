@@ -1,15 +1,17 @@
 // Wires interact.js drag onto the Sect-dashboard windows. interact is bound by SELECTOR
 // (".window"), so it keeps working across the controller's full-DOM re-renders without
-// re-initialising. On release, the window edge-snaps to its neighbors. interact itself is
-// loaded lazily (dynamic import) so the headless tests never pull it in.
+// re-initialising. While dragging, the window follows the pointer (a transform offset from
+// its flow slot); on release it drops into the NEAREST column at the vertical position where
+// it was let go, then the columns relayout via native CSS flow (consistent gaps, no overlap).
+// interact is loaded lazily so the headless tests never pull it in.
 
 import {
-  getWindowPos,
-  setWindowPos,
+  getLayout,
+  setLayout,
   saveWindowLayout,
+  computeReorder,
   type WindowId,
 } from "./windowLayout";
-import { computeSnap, type Rect } from "./snap";
 
 let dragging = false;
 let installed = false;
@@ -22,38 +24,45 @@ export function isDraggingWindow(): boolean {
 /** Dragging is a desktop/pointer affordance; narrow or touch screens use the stacked fallback. */
 export function windowsEnabled(): boolean {
   if (typeof window === "undefined" || typeof window.matchMedia !== "function") return false;
-  return window.matchMedia("(min-width: 961px) and (pointer: fine)").matches;
+  // Three fluid columns need a roomy viewport; below this, fall back to the stacked layout.
+  return window.matchMedia("(min-width: 980px) and (pointer: fine)").matches;
 }
 
-function readPos(el: HTMLElement): { x: number; y: number } {
-  return {
-    x: parseFloat(el.dataset.x ?? "0") || 0,
-    y: parseFloat(el.dataset.y ?? "0") || 0,
-  };
+function centerOf(rect: DOMRect): { x: number; y: number } {
+  return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
 }
 
-function applyPos(el: HTMLElement, x: number, y: number): void {
-  el.dataset.x = String(x);
-  el.dataset.y = String(y);
-  el.style.transform = `translate(${x}px, ${y}px)`;
-}
+/** Work out which column/slot the dropped window landed in, then commit the reorder. */
+function dropIntoSlot(el: HTMLElement): void {
+  const id = el.dataset.windowId as WindowId | undefined;
+  const canvas = el.closest(".window-canvas");
+  if (!id || !canvas) return;
 
-/** Snap the just-dragged window's edges against its sibling windows. */
-function snapAgainstSiblings(el: HTMLElement): { x: number; y: number } {
-  const pos = readPos(el);
-  const moving: Rect = { x: pos.x, y: pos.y, w: el.offsetWidth, h: el.offsetHeight };
-  const targets: Rect[] = [];
-  const canvas = el.parentElement;
-  if (canvas) {
-    for (const other of Array.from(canvas.querySelectorAll<HTMLElement>(".window"))) {
-      if (other === el) continue;
-      const oid = other.dataset.windowId as WindowId | undefined;
-      if (!oid) continue;
-      const p = getWindowPos(oid);
-      targets.push({ x: p.x, y: p.y, w: other.offsetWidth, h: other.offsetHeight });
+  const moving = centerOf(el.getBoundingClientRect());
+  const columns = Array.from(canvas.querySelectorAll<HTMLElement>(".window-col"));
+
+  // Nearest column by horizontal center.
+  let targetCol = 0;
+  let bestDx = Infinity;
+  columns.forEach((colEl, ci) => {
+    const dx = Math.abs(centerOf(colEl.getBoundingClientRect()).x - moving.x);
+    if (dx < bestDx) {
+      bestDx = dx;
+      targetCol = ci;
     }
+  });
+
+  // Insertion index: how many windows in the target column sit above the drop point.
+  const others = Array.from(columns[targetCol].querySelectorAll<HTMLElement>(".window")).filter(
+    (w) => w !== el,
+  );
+  let insertIndex = 0;
+  for (const w of others) {
+    if (moving.y > centerOf(w.getBoundingClientRect()).y) insertIndex++;
   }
-  return computeSnap(moving, targets);
+
+  setLayout(computeReorder(getLayout(), id, targetCol, insertIndex));
+  saveWindowLayout();
 }
 
 /** Install drag handling once. `onCommit` runs after a drag ends so the app can re-render. */
@@ -64,24 +73,28 @@ export function installWindowDragging(onCommit: () => void): void {
     interact(".window").draggable({
       allowFrom: ".panel-title",
       listeners: {
-        start() {
+        start(event) {
           dragging = true;
+          const el = event.target as HTMLElement;
+          el.classList.add("is-dragging");
+          el.dataset.x = "0";
+          el.dataset.y = "0";
         },
         move(event) {
           const el = event.target as HTMLElement;
-          const pos = readPos(el);
-          applyPos(el, pos.x + event.dx, pos.y + event.dy);
+          const x = (parseFloat(el.dataset.x ?? "0") || 0) + event.dx;
+          const y = (parseFloat(el.dataset.y ?? "0") || 0) + event.dy;
+          el.dataset.x = String(x);
+          el.dataset.y = String(y);
+          el.style.transform = `translate(${x}px, ${y}px)`;
         },
         end(event) {
           const el = event.target as HTMLElement;
           dragging = false;
-          const id = el.dataset.windowId as WindowId | undefined;
-          if (id) {
-            const snapped = snapAgainstSiblings(el);
-            applyPos(el, snapped.x, snapped.y);
-            setWindowPos(id, snapped);
-            saveWindowLayout();
-          }
+          dropIntoSlot(el);
+          // Clear the drag offset; the re-render places the window in its new flow slot.
+          el.style.transform = "";
+          el.classList.remove("is-dragging");
           onCommit();
         },
       },

@@ -1,54 +1,109 @@
-// Persisted positions for the draggable Sect-dashboard windows. This is the source of
-// truth for where each window sits and is re-applied on every render (the UI is rebuilt
-// each tick, so positions can't live in the DOM alone). Stored in its own localStorage key
-// — separate from the game save — so it never touches save versioning.
+// Slot-based layout for the Sect-dashboard windows. Each window belongs to a COLUMN
+// (0 = left, 1 = center, 2 = right) and has an ORDER within that column. Positions are NOT
+// stored as free x/y — the columns are laid out with native CSS flow + gaps, so spacing is
+// always consistent and windows can never overlap. Persisted in its own localStorage key,
+// separate from the game save.
 
 export type WindowId = "overview" | "resources" | "buildings" | "market" | "log";
 
 export const WINDOW_IDS: WindowId[] = ["overview", "resources", "buildings", "market", "log"];
 
-/** Windows share a fixed width so edges line up cleanly when snapped. */
-export const WINDOW_WIDTH = 320;
+export const COLUMN_COUNT = 3;
 
-export interface WindowPos {
-  x: number;
-  y: number;
+export interface WindowSlot {
+  col: number; // 0..COLUMN_COUNT-1
+  order: number; // position within the column, ascending
 }
 
-const STORAGE_KEY = "idle-sect-life:windows:v1";
+export type Layout = Record<WindowId, WindowSlot>;
 
-// Default two-column arrangement mirroring the original static dashboard layout.
-const DEFAULT_LAYOUT: Record<WindowId, WindowPos> = {
-  overview: { x: 0, y: 0 },
-  resources: { x: 0, y: 168 },
-  buildings: { x: 0, y: 360 },
-  market: { x: 0, y: 560 },
-  log: { x: 340, y: 0 },
+// Bumped to v2: the shape changed from {x,y} to {col,order}; old data is ignored.
+const STORAGE_KEY = "idle-sect-life:windows:v2";
+
+// Default three-column arrangement.
+const DEFAULT_LAYOUT: Layout = {
+  overview: { col: 0, order: 0 },
+  resources: { col: 0, order: 1 },
+  buildings: { col: 1, order: 0 },
+  market: { col: 1, order: 1 },
+  log: { col: 2, order: 0 },
 };
 
-let layout: Record<WindowId, WindowPos> = structuredClone(DEFAULT_LAYOUT);
+let layout: Layout = structuredClone(DEFAULT_LAYOUT);
+
+export function getLayout(): Layout {
+  return layout;
+}
+
+export function setLayout(next: Layout): void {
+  layout = next;
+}
+
+/** The window ids in a column, in display order. */
+export function orderedColumn(src: Layout, col: number): WindowId[] {
+  return WINDOW_IDS.filter((id) => src[id].col === col).sort((a, b) => src[a].order - src[b].order);
+}
+
+/**
+ * Pure: produce a new layout with `id` moved into `targetCol` at `insertIndex`, with both
+ * the target and source columns renumbered to stay contiguous. No window ever shares a slot.
+ */
+export function computeReorder(
+  src: Layout,
+  id: WindowId,
+  targetCol: number,
+  insertIndex: number,
+): Layout {
+  const next = structuredClone(src);
+
+  const target = WINDOW_IDS.filter((w) => w !== id && next[w].col === targetCol).sort(
+    (a, b) => next[a].order - next[b].order,
+  );
+  const idx = Math.max(0, Math.min(insertIndex, target.length));
+  target.splice(idx, 0, id);
+  target.forEach((w, i) => {
+    next[w] = { col: targetCol, order: i };
+  });
+
+  // Renumber the other columns so their orders remain contiguous after the move.
+  for (let c = 0; c < COLUMN_COUNT; c++) {
+    if (c === targetCol) continue;
+    WINDOW_IDS.filter((w) => next[w].col === c)
+      .sort((a, b) => next[a].order - next[b].order)
+      .forEach((w, i) => {
+        next[w] = { col: c, order: i };
+      });
+  }
+  return next;
+}
 
 export function loadWindowLayout(): void {
   layout = structuredClone(DEFAULT_LAYOUT);
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return;
-    const saved = JSON.parse(raw) as Partial<Record<WindowId, WindowPos>>;
+    const saved = JSON.parse(raw) as Partial<Record<WindowId, WindowSlot>>;
     for (const id of WINDOW_IDS) {
-      const p = saved[id];
-      if (p && Number.isFinite(p.x) && Number.isFinite(p.y)) layout[id] = { x: p.x, y: p.y };
+      const s = saved[id];
+      if (
+        s &&
+        Number.isInteger(s.col) &&
+        s.col >= 0 &&
+        s.col < COLUMN_COUNT &&
+        Number.isFinite(s.order)
+      ) {
+        layout[id] = { col: s.col, order: s.order };
+      }
+    }
+    // Normalise orders to contiguous integers per column.
+    for (let c = 0; c < COLUMN_COUNT; c++) {
+      orderedColumn(layout, c).forEach((id, i) => {
+        layout[id] = { col: c, order: i };
+      });
     }
   } catch (err) {
     console.warn("IdleSectLife: failed to load window layout", err);
   }
-}
-
-export function getWindowPos(id: WindowId): WindowPos {
-  return layout[id] ?? { x: 0, y: 0 };
-}
-
-export function setWindowPos(id: WindowId, pos: WindowPos): void {
-  layout[id] = pos;
 }
 
 export function saveWindowLayout(): void {

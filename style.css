@@ -525,16 +525,32 @@ button:disabled {
   border-color: var(--gold);
   color: var(--gold);
 }
+/* Three columns laid out with native flow + gaps: spacing is always consistent and
+   windows can never overlap (no absolute positioning). */
 .window-canvas {
-  position: relative;
-  min-height: 820px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px; /* spacing between the left/center/right columns */
+}
+.window-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* spacing between windows within a column */
+  flex: 1 1 0; /* the three columns share the available width evenly */
+  min-width: 0;
+  min-height: 40px; /* keep an empty column droppable */
 }
 .window {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 320px;
+  width: 100%;
   touch-action: none; /* let interact.js own the pointer gesture */
+  transition: transform 0.12s ease;
+}
+/* While dragging: follow the pointer instantly (no transition) and float above the rest. */
+.window.is-dragging {
+  transition: none;
+  z-index: 50;
+  opacity: 0.92;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
 }
 /* The panel title doubles as the drag handle. */
 .window .panel-title {

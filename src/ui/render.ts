@@ -14,7 +14,7 @@ import { disciplesView } from "./views/disciplesView";
 import { storyView } from "./views/storyView";
 import { STORY_ENABLED } from "../config/featureFlags";
 import { windowsEnabled } from "./windows/draggableWindows";
-import { getWindowPos, type WindowId } from "./windows/windowLayout";
+import { COLUMN_COUNT, getLayout, orderedColumn, type WindowId } from "./windows/windowLayout";
 
 function tabButton(
   view: ViewState,
@@ -37,34 +37,37 @@ function tabButton(
   ]);
 }
 
-/** Wrap a panel in an absolutely-positioned, draggable window seeded from the saved layout. */
+/** Wrap a panel in a draggable window (a normal-flow block inside its column). */
 function windowEl(id: WindowId, content: HTMLElement): HTMLElement {
-  const pos = getWindowPos(id);
   const win = el("div", { class: "window" }, [content]);
   win.dataset.windowId = id;
-  win.dataset.x = String(pos.x);
-  win.dataset.y = String(pos.y);
-  win.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
   return win;
 }
 
 function sectDashboard(state: GameState, actions: GameActions): HTMLElement {
-  const overview = sectOverviewPanel(state);
-  const resources = resourcesPanel(state, actions);
-  const buildings = buildingsPanel(state, actions);
-  const market = marketPanel(state, actions);
-  const log = eventLogPanel(state);
+  const panelById: Record<WindowId, HTMLElement> = {
+    overview: sectOverviewPanel(state),
+    resources: resourcesPanel(state, actions),
+    buildings: buildingsPanel(state, actions),
+    market: marketPanel(state, actions),
+    log: eventLogPanel(state),
+  };
 
   // Mobile/touch/narrow: keep the original tidy two-column layout (no dragging).
   if (!windowsEnabled()) {
     return el("div", { class: "layout" }, [
-      el("div", { class: "col col-left" }, [overview, resources, buildings, market]),
-      el("div", { class: "col col-right" }, [log]),
+      el("div", { class: "col col-left" }, [
+        panelById.overview,
+        panelById.resources,
+        panelById.buildings,
+        panelById.market,
+      ]),
+      el("div", { class: "col col-right" }, [panelById.log]),
     ]);
   }
 
   const toolbar = el("div", { class: "windows-toolbar" }, [
-    el("span", { class: "muted", text: "Drag a panel by its title bar — it snaps to the others." }),
+    el("span", { class: "muted", text: "Drag a panel by its title bar; drop it into any column." }),
     el("button", {
       class: "reset-layout",
       text: "Reset layout",
@@ -72,13 +75,19 @@ function sectDashboard(state: GameState, actions: GameActions): HTMLElement {
       onClick: () => actions.resetWindowLayout(),
     }),
   ]);
-  const canvas = el("div", { class: "window-canvas" }, [
-    windowEl("overview", overview),
-    windowEl("resources", resources),
-    windowEl("buildings", buildings),
-    windowEl("market", market),
-    windowEl("log", log),
-  ]);
+
+  const layout = getLayout();
+  const columns: HTMLElement[] = [];
+  for (let c = 0; c < COLUMN_COUNT; c++) {
+    columns.push(
+      el(
+        "div",
+        { class: "window-col" },
+        orderedColumn(layout, c).map((id) => windowEl(id, panelById[id])),
+      ),
+    );
+  }
+  const canvas = el("div", { class: "window-canvas" }, columns);
   return el("div", { class: "windows-wrap" }, [toolbar, canvas]);
 }
 
