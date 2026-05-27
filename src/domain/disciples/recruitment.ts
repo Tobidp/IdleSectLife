@@ -17,7 +17,7 @@ export function rollMonthlyApplicant(state: GameState, rng: Rng): void {
   const preferred = rng.pick(SECT_TYPES);
   const applicant = createDisciple(state.nextId++, preferred, state.sect.type, rng);
   state.applicants.push(applicant);
-  pushLog(state, `A wandering cultivator, ${applicant.name}, seeks to join the sect.`, "info");
+  pushLog(state, `A wandering cultivator, ${applicant.name}, seeks to join the sect.`, "good");
 }
 
 /** Accept an applicant into the sect if there's room. Returns whether it succeeded. */

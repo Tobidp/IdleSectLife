@@ -8,6 +8,7 @@ import { NewGameScreen } from "./NewGameScreen";
 import { Topbar } from "./Topbar";
 import { UpdateBanner } from "./UpdateBanner";
 import { SaveLoad } from "./SaveLoad";
+import { Toasts } from "./Toasts";
 
 // Tab bodies are code-split: the dashboard chunk (React Grid Layout + Motion) loads only
 // once a game is in play, keeping the sect-selection screen + initial load lean.
@@ -59,6 +60,7 @@ export function App(): JSX.Element {
   return (
     <>
       {state ? <Game state={state} /> : <NewGameScreen />}
+      <Toasts />
       <UpdateBanner />
     </>
   );

@@ -16,6 +16,7 @@ import { progressNarrative } from "../src/domain/simulation/storyEvents";
 import { validateInvestigation } from "../src/domain/investigations/validator";
 import { canAcceptQuest } from "../src/domain/quests/quest";
 import { sanitizeLayout, defaultLayout, PANEL_IDS } from "../src/ui/windows/gridLayout";
+import { fmt } from "../src/ui/components/format";
 
 let failures = 0;
 function check(cond: boolean, msg: string): void {
@@ -162,6 +163,12 @@ const goldBefore = ag.resources.gold;
 advanceDay(ag, arng);
 check(ag.resources.wood < woodCap, "auto-sell offloads a full store");
 check(ag.resources.gold > goldBefore, "auto-sell converts surplus into gold");
+
+// Compact number formatting.
+check(fmt(950) === "950", "fmt keeps small numbers plain");
+check(fmt(12345) === "12.3K", "fmt compacts thousands to K");
+check(fmt(1_500_000) === "1.5M", "fmt compacts millions to M");
+check(fmt(2_000_000_000) === "2B", "fmt drops a trailing .0 (2B not 2.0B)");
 
 console.log(failures === 0 ? "\n✓ ALL INVARIANTS PASSED" : `\n✗ ${failures} CHECK(S) FAILED`);
 process.exit(failures === 0 ? 0 : 1);

@@ -1185,3 +1185,45 @@ button:disabled {
 .file-label input {
   display: none;
 }
+
+/* ---------- Toast notifications ---------- */
+.toasts {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 320px;
+  pointer-events: none;
+}
+.toast {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-left-width: 3px;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  animation: toast-in 0.18s ease-out;
+}
+.toast-good {
+  border-left-color: var(--jade);
+}
+.toast-bad {
+  border-left-color: var(--crimson);
+}
+.toast-info {
+  border-left-color: var(--blue);
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
