@@ -32,7 +32,7 @@ export function saveGame(state: GameState): void {
   try {
     localStorage.setItem(SAVE_KEY, JSON.stringify(state));
   } catch (err) {
-    console.warn("IdleSectLife: failed to save game", err);
+    console.warn("Sect: Ascendant: failed to save game", err);
   }
 }
 
@@ -43,7 +43,7 @@ export function loadGame(): GameState | null {
     const parsed = JSON.parse(raw) as GameState;
     return migrate(parsed);
   } catch (err) {
-    console.warn("IdleSectLife: failed to load save", err);
+    console.warn("Sect: Ascendant: failed to load save", err);
     return null;
   }
 }
@@ -52,7 +52,7 @@ export function clearSave(): void {
   try {
     localStorage.removeItem(SAVE_KEY);
   } catch (err) {
-    console.warn("IdleSectLife: failed to clear save", err);
+    console.warn("Sect: Ascendant: failed to clear save", err);
   }
 }
 

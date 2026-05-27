@@ -16,7 +16,7 @@ export function UpdateBanner(): JSX.Element | null {
       <div className="update-modal">
         <div className="update-title">New version available</div>
         <p className="update-text">
-          A new version of IdleSectLife has been released. Refresh the page to play the latest
+          A new version of Sect: Ascendant has been released. Refresh the page to play the latest
           version.
         </p>
         <div className="update-actions">

@@ -1,4 +1,4 @@
-// IdleSectLife — entry point. Boots the engine, mounts the React UI, and watches for new deploys.
+// Sect: Ascendant — entry point. Boots the engine, mounts the React UI, and watches for new deploys.
 
 import { createRoot } from "react-dom/client";
 import "react-grid-layout/css/styles.css";
@@ -13,7 +13,7 @@ engine.boot();
 
 const container = document.getElementById("app");
 if (!container) {
-  throw new Error("IdleSectLife: #app container not found");
+  throw new Error("Sect: Ascendant: #app container not found");
 }
 
 createRoot(container).render(

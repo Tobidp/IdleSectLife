@@ -56,7 +56,7 @@ const topHtml = renderToStaticMarkup(
     </ViewProvider>
   </EngineProvider>,
 );
-check(topHtml.includes("IdleSectLife"), "topbar shows the brand");
+check(topHtml.includes("Sect: Ascendant"), "topbar shows the brand");
 check(count(topHtml, /tab-btn/g) === 3, "three tabs render (Sect, Disciples, Story)");
 check(topHtml.includes("disabled"), "the Story tab is disabled while the feature is off");
 

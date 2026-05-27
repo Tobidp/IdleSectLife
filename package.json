@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "IdleSectLife — idle/incremental wuxia sect management game (React + Vite)",
+  "description": "Sect: Ascendant — idle/incremental wuxia sect management game (React + Vite)",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",

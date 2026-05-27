@@ -34,7 +34,7 @@ function TabButton({
 export function Topbar({ state }: { state: GameState }): JSX.Element {
   return (
     <header className="topbar">
-      <span className="brand">IdleSectLife</span>
+      <span className="brand">Sect: Ascendant</span>
       <nav className="tabs">
         <TabButton tab="sect" label="Sect" />
         <TabButton tab="disciples" label={`Disciples (${state.disciples.length})`} />

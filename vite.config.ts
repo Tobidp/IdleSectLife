@@ -1,7 +1,7 @@
 import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 
-// IdleSectLife — React UI over a framework-free game engine.
+// Sect: Ascendant — React UI over a framework-free game engine.
 // A unique version per build lets the running app detect that a newer deploy is live.
 const buildVersion = String(Date.now());
 

@@ -7,7 +7,7 @@ export function NewGameScreen(): JSX.Element {
   const actions = useActions();
   return (
     <div className="new-game">
-      <h1 className="title">IdleSectLife</h1>
+      <h1 className="title">Sect: Ascendant</h1>
       <p className="subtitle">Found your martial sect. Choose your founding discipline:</p>
       <div className="sect-cards">
         {SECT_TYPES.map((type) => (
