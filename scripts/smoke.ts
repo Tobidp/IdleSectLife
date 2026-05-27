@@ -15,6 +15,7 @@ import { MAX_APPLICANTS } from "../src/data/balance";
 import { progressNarrative } from "../src/domain/simulation/storyEvents";
 import { validateInvestigation } from "../src/domain/investigations/validator";
 import { canAcceptQuest } from "../src/domain/quests/quest";
+import { computeSnap } from "../src/ui/windows/snap";
 
 let failures = 0;
 function check(cond: boolean, msg: string): void {
@@ -123,6 +124,15 @@ check(
   "investigation succeeds with all clues + correct suspect",
 );
 console.log(`\nNarrative probe: clues=${ng.narrative.discoveredClues.join(",")} pending=${ng.narrative.pendingEncounters.length}`);
+
+// Window snapping (pure math): a window dropped near a neighbor's edge clicks into alignment.
+const neighbor = { x: 0, y: 0, w: 320, h: 80 };
+const snapped = computeSnap({ x: 6, y: 100, w: 320, h: 150 }, [neighbor]);
+check(snapped.x === 0, "window snaps its left edge to a neighbor within threshold");
+const abut = computeSnap({ x: 0, y: 86, w: 320, h: 150 }, [neighbor]); // 6px below the neighbor's bottom
+check(abut.y === 80, "window abuts just below a neighbor when close");
+const farAway = computeSnap({ x: 50, y: 300, w: 320, h: 150 }, [neighbor]);
+check(farAway.x === 50 && farAway.y === 300, "window far from any edge does not snap");
 
 console.log(failures === 0 ? "\n✓ ALL INVARIANTS PASSED" : `\n✗ ${failures} CHECK(S) FAILED`);
 process.exit(failures === 0 ? 0 : 1);

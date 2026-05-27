@@ -19,6 +19,11 @@ import type { Activity } from "../domain/disciples/disciple";
 import { createViewState, type Tab, type DiscipleSort } from "../ui/viewState";
 import type { SlotTarget } from "../ui/gameActions";
 import { orderedDisciples } from "../ui/views/disciplesView";
+import {
+  loadWindowLayout,
+  resetWindowLayout as resetWindowLayoutStore,
+} from "../ui/windows/windowLayout";
+import { installWindowDragging, isDraggingWindow } from "../ui/windows/draggableWindows";
 import { acceptQuest, completeQuest, getQuestById } from "../domain/quests/quest";
 import { updateNPCRelationship } from "../domain/npcs/relationships";
 import { getInvestigationById } from "../domain/investigations/investigation";
@@ -57,6 +62,8 @@ export class GameController implements GameActions {
 
   /** Resume a save if one exists, otherwise show sect selection. */
   boot(): void {
+    loadWindowLayout();
+    installWindowDragging(() => this.render());
     const saved = loadGame();
     if (saved) this.resume(saved);
     else this.store.setState(null);
@@ -68,9 +75,9 @@ export class GameController implements GameActions {
       renderNewGameScreen(this.root, this);
       return;
     }
-    // Don't rebuild the DOM while the user is mid-choice in a dropdown —
-    // it would close the open <select>. Defer and redraw when focus leaves it.
-    if (this.isEditingSelect()) {
+    // Don't rebuild the DOM while the user is mid-choice in a dropdown (closes the open
+    // <select>) or mid-drag of a window (interrupts the drag). Defer and redraw after.
+    if (this.isEditingSelect() || isDraggingWindow()) {
       this.renderPending = true;
       return;
     }
@@ -205,6 +212,11 @@ export class GameController implements GameActions {
 
   setTab(tab: Tab): void {
     this.view.tab = tab;
+    this.render();
+  }
+
+  resetWindowLayout(): void {
+    resetWindowLayoutStore();
     this.render();
   }
 

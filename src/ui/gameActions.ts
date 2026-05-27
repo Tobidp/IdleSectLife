@@ -36,6 +36,8 @@ export interface GameActions {
 
   // View / navigation
   setTab(tab: Tab): void;
+  /** Restore the default draggable-window arrangement on the Sect tab. */
+  resetWindowLayout(): void;
   setDiscipleSort(sort: DiscipleSort): void;
   toggleDiscipleSelected(id: number): void;
   toggleDiscipleExpanded(id: number): void;

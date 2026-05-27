@@ -13,6 +13,8 @@ import { eventLogPanel } from "./panels/eventLogPanel";
 import { disciplesView } from "./views/disciplesView";
 import { storyView } from "./views/storyView";
 import { STORY_ENABLED } from "../config/featureFlags";
+import { windowsEnabled } from "./windows/draggableWindows";
+import { getWindowPos, type WindowId } from "./windows/windowLayout";
 
 function tabButton(
   view: ViewState,
@@ -35,16 +37,49 @@ function tabButton(
   ]);
 }
 
+/** Wrap a panel in an absolutely-positioned, draggable window seeded from the saved layout. */
+function windowEl(id: WindowId, content: HTMLElement): HTMLElement {
+  const pos = getWindowPos(id);
+  const win = el("div", { class: "window" }, [content]);
+  win.dataset.windowId = id;
+  win.dataset.x = String(pos.x);
+  win.dataset.y = String(pos.y);
+  win.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
+  return win;
+}
+
 function sectDashboard(state: GameState, actions: GameActions): HTMLElement {
-  return el("div", { class: "layout" }, [
-    el("div", { class: "col col-left" }, [
-      sectOverviewPanel(state),
-      resourcesPanel(state, actions),
-      buildingsPanel(state, actions),
-      marketPanel(state, actions),
-    ]),
-    el("div", { class: "col col-right" }, [eventLogPanel(state)]),
+  const overview = sectOverviewPanel(state);
+  const resources = resourcesPanel(state, actions);
+  const buildings = buildingsPanel(state, actions);
+  const market = marketPanel(state, actions);
+  const log = eventLogPanel(state);
+
+  // Mobile/touch/narrow: keep the original tidy two-column layout (no dragging).
+  if (!windowsEnabled()) {
+    return el("div", { class: "layout" }, [
+      el("div", { class: "col col-left" }, [overview, resources, buildings, market]),
+      el("div", { class: "col col-right" }, [log]),
+    ]);
+  }
+
+  const toolbar = el("div", { class: "windows-toolbar" }, [
+    el("span", { class: "muted", text: "Drag a panel by its title bar — it snaps to the others." }),
+    el("button", {
+      class: "reset-layout",
+      text: "Reset layout",
+      title: "Restore the default window arrangement",
+      onClick: () => actions.resetWindowLayout(),
+    }),
   ]);
+  const canvas = el("div", { class: "window-canvas" }, [
+    windowEl("overview", overview),
+    windowEl("resources", resources),
+    windowEl("buildings", buildings),
+    windowEl("market", market),
+    windowEl("log", log),
+  ]);
+  return el("div", { class: "windows-wrap" }, [toolbar, canvas]);
 }
 
 export function renderGame(

@@ -45,6 +45,7 @@ const actions: GameActions = {
   acceptApplicant: noop,
   denyApplicant: noop,
   setTab: noop,
+  resetWindowLayout: noop,
   setDiscipleSort: noop,
   toggleDiscipleSelected: noop,
   toggleDiscipleExpanded: noop,
