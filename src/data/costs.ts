@@ -20,7 +20,10 @@ export const QUARTERS = {
 export const WAREHOUSE = {
   baseCost: { stone: 30, wood: 20 } as Cost, // unchanged on purpose (see note above)
   baseCapacity: 200,
-  capacityPerLevel: 150, // lvl 1 = 200, lvl 2 = 350, ...
+  // Capacity grows EXPONENTIALLY at this multiplier per level — comfortably outpaces the
+  // 1.5x cost multiplier so the next upgrade always fits inside the current cap. Old saves
+  // get more storage at level >= 3; very-low levels lose a sliver (Lv 2: 320 vs old 350).
+  capacityMultPerLevel: 1.6,
   maintenancePerLevel: { stone: 2 } as Cost,
 };
 
@@ -44,9 +47,12 @@ export const INFIRMARY = {
 };
 
 // Optional building: each level adds a flat XP bonus (capped). Stacks with mentors.
+// Hard-capped at the level where the base XP bonus hits TRAINING_HALL_XP_CAP — further
+// upgrades wouldn't add base effect (worker capacity is already at the cap level too).
 export const TRAINING_HALL = {
   baseCost: { wood: 100, stone: 100, gold: 20 } as Cost,
   maintenancePerLevel: { gold: 1 } as Cost,
+  maxLevel: 5,
 };
 
 // Optional building: passively grows herbs per day (a new resource that feeds alchemy later).

@@ -12,7 +12,9 @@ import type { CollectableResource } from "./resourceTypes";
 import type { GameState } from "../../state/gameState";
 
 export function warehouseCap(level: number): number {
-  return WAREHOUSE.baseCapacity + (level - 1) * WAREHOUSE.capacityPerLevel;
+  return Math.round(
+    WAREHOUSE.baseCapacity * Math.pow(WAREHOUSE.capacityMultPerLevel, Math.max(0, level - 1)),
+  );
 }
 
 /** Storage cap for a resource. Gold is uncapped in v1 (Vault is a v2 building). */

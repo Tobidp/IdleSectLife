@@ -290,6 +290,11 @@ function Toolbar({ state }: { state: GameState }): JSX.Element {
     dispatch({ type: "setSelected", ids: ordered.slice(0, count).map((d) => d.id) });
   };
 
+  const invertSelection = (): void => {
+    const inverted = state.disciples.filter((d) => !view.selectedIds.has(d.id)).map((d) => d.id);
+    dispatch({ type: "setSelected", ids: inverted });
+  };
+
   const selectedIds = (): number[] => state.disciples.filter((d) => view.selectedIds.has(d.id)).map((d) => d.id);
 
   const slots: { label: string; target: SlotTarget }[] = [
@@ -309,6 +314,12 @@ function Toolbar({ state }: { state: GameState }): JSX.Element {
           </button>
         ))}
         <button onClick={() => selectPortion(0)}>None</button>
+        <button
+          onClick={invertSelection}
+          title="Flip the current selection — selected become unselected and vice versa"
+        >
+          Invert
+        </button>
         <span className="tool-count">
           {selectedCount} / {total} selected
         </span>

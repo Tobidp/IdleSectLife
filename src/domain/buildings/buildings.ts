@@ -12,6 +12,11 @@ import {
   scaledCost,
   type Cost,
 } from "../../data/costs";
+
+/** Hard upgrade caps. Buildings absent from this map have no max level. */
+const PAVILION_MAX_LEVEL: Partial<Record<PavilionKey, number>> = {
+  trainingHall: TRAINING_HALL.maxLevel,
+};
 import {
   FAME_BURST_PER_PAVILION_LEVEL,
   MERCHANT_SELL_BONUS_PER_LEVEL,
@@ -133,7 +138,19 @@ export function pavilionUpgradeCost(key: PavilionKey, level: number): Cost {
   return scaledCost(PAVILION_BASE_COST[key], level);
 }
 
+/** Hard max level for `key`, or null if there's no cap. */
+export function pavilionMaxLevel(key: PavilionKey): number | null {
+  return PAVILION_MAX_LEVEL[key] ?? null;
+}
+
+/** True once the pavilion has hit its hard cap (only meaningful for capped pavilions). */
+export function pavilionMaxed(state: GameState, key: PavilionKey): boolean {
+  const max = pavilionMaxLevel(key);
+  return max !== null && state.buildings[key].level >= max;
+}
+
 export function upgradePavilion(state: GameState, key: PavilionKey): boolean {
+  if (pavilionMaxed(state, key)) return false;
   const level = state.buildings[key].level;
   const cost = pavilionUpgradeCost(key, level);
   if (!spend(state, cost)) return false;

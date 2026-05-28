@@ -9,6 +9,8 @@ import { canAfford, warehouseCap } from "../../domain/resources/resources";
 import {
   PAVILION_LABEL,
   pavilionUpgradeCost,
+  pavilionMaxLevel,
+  pavilionMaxed,
   quartersCapacity,
   disciplesCapacity,
   merchantSellMultiplier,
@@ -65,22 +67,30 @@ function BuildingRow({
   onUpgrade: () => void;
   actionLabel?: string;
 }): JSX.Element {
+  const maxed = pkey ? pavilionMaxed(state, pkey) : false;
+  const max = pkey ? pavilionMaxLevel(pkey) : null;
   const affordable = canAfford(state, cost);
   return (
     <div className="building-row">
       <div className="building-info">
         <div className="building-name">
           {name}
-          {level > 0 ? ` · Lv ${level}` : ""}
+          {level > 0 ? ` · Lv ${level}${max !== null ? ` / ${max}` : ""}` : ""}
           {pkey && <WorkersTag state={state} pkey={pkey} />}
         </div>
         <div className="building-effect muted">{effect}</div>
       </div>
       <div className="building-upgrade">
-        <div className="building-cost">{formatCost(cost)}</div>
-        <button disabled={!affordable} title={affordable ? "" : "Not enough resources"} onClick={onUpgrade}>
-          {actionLabel}
-        </button>
+        <div className="building-cost">{maxed ? "—" : formatCost(cost)}</div>
+        {maxed ? (
+          <button disabled title={`${name} is at its hard cap (Lv ${max}).`}>
+            Maxed
+          </button>
+        ) : (
+          <button disabled={!affordable} title={affordable ? "" : "Not enough resources"} onClick={onUpgrade}>
+            {actionLabel}
+          </button>
+        )}
       </div>
     </div>
   );
