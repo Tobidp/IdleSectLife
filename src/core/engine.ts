@@ -183,7 +183,7 @@ export class GameEngine {
   /** Craft a pill from its recipe (needs the Alchemy Lab + the resources). */
   craftPill(pillId: PillId): void {
     this.store.update((s) => {
-      craftPill(s, pillId);
+      craftPill(s, pillId, this.rng);
     });
     this.saveNow();
   }

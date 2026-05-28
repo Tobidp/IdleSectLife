@@ -1590,3 +1590,20 @@ button.equip-slot:hover {
   border-color: var(--gold);
   background: var(--bg-panel);
 }
+
+/* Workers badge next to a building's name (B8 jobs). */
+.workers-tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 6px;
+  font-size: 11px;
+  color: var(--ink-dim);
+  background: var(--bg-panel-2);
+  border-radius: 8px;
+  vertical-align: middle;
+  cursor: help;
+}
+.workers-tag.over {
+  color: var(--bg-panel);
+  background: var(--gold);
+}

@@ -9,7 +9,14 @@ import type { SlotTarget } from "../../core/engine";
 import { useView, useViewDispatch, DISCIPLE_SORT_LABEL, type DiscipleSort } from "../viewContext";
 import { maxHp, type Activity, type Disciple } from "../../domain/disciples/disciple";
 import { progressFraction, type AttrProgress } from "../../domain/disciples/attributes";
-import { ACTIVITY_LABEL, ACTIVITY_OPTIONS } from "../../domain/disciples/actions";
+import {
+  ACTIVITY_LABEL,
+  ACTIVITY_OPTIONS,
+  ACTIVITY_GROUP,
+  ACTIVITY_GROUP_LABEL,
+  jobBuildingOf,
+  type ActivityGroup,
+} from "../../domain/disciples/actions";
 import { disciplesCapacity } from "../../domain/buildings/buildings";
 import {
   ATTRIBUTE_LABEL,
@@ -36,6 +43,35 @@ import { BLUEPRINT_BY_ID } from "../../data/blueprints";
 
 const ATTR_ORDER: Attribute[] = ["health", "strength", "dexterity", "vitality"];
 const SLOT_LABELS = ["Morning", "Afternoon", "Night"];
+const GROUP_ORDER: ActivityGroup[] = ["collect", "study", "work"];
+
+/** All current Activity options grouped for an optgroup-style <select>, hiding job
+ *  options that target an unbuilt pavilion (so the player doesn't pick a no-op). */
+function availableActivityGroups(state: GameState): { group: ActivityGroup; options: Activity[] }[] {
+  const buckets: Record<ActivityGroup, Activity[]> = { collect: [], study: [], work: [] };
+  for (const opt of ACTIVITY_OPTIONS) {
+    const building = jobBuildingOf(opt);
+    if (building && state.buildings[building].level === 0) continue;
+    buckets[ACTIVITY_GROUP[opt]].push(opt);
+  }
+  return GROUP_ORDER.filter((g) => buckets[g].length > 0).map((g) => ({ group: g, options: buckets[g] }));
+}
+
+function ActivityOptions({ groups }: { groups: { group: ActivityGroup; options: Activity[] }[] }): JSX.Element {
+  return (
+    <>
+      {groups.map(({ group, options }) => (
+        <optgroup key={group} label={ACTIVITY_GROUP_LABEL[group]}>
+          {options.map((opt) => (
+            <option key={opt} value={opt}>
+              {ACTIVITY_LABEL[opt]}
+            </option>
+          ))}
+        </optgroup>
+      ))}
+    </>
+  );
+}
 const PRESETS: { label: string; activity: Activity }[] = [
   { label: "All Train", activity: "train" },
   { label: "All Food", activity: "collect_food" },
@@ -206,11 +242,7 @@ function DiscipleRow({ state, d }: { state: GameState; d: Disciple }): JSX.Eleme
                   value={d.actions[slot]}
                   onChange={(e) => actions.setDiscipleAction(d.id, slot, e.target.value as Activity)}
                 >
-                  {ACTIVITY_OPTIONS.map((opt) => (
-                    <option key={opt} value={opt}>
-                      {ACTIVITY_LABEL[opt]}
-                    </option>
-                  ))}
+                  <ActivityOptions groups={availableActivityGroups(state)} />
                 </select>
               ))}
             </div>
@@ -290,11 +322,7 @@ function Toolbar({ state }: { state: GameState }): JSX.Element {
           value={view.bulkActivity}
           onChange={(e) => dispatch({ type: "setBulkActivity", activity: e.target.value as Activity })}
         >
-          {ACTIVITY_OPTIONS.map((opt) => (
-            <option key={opt} value={opt}>
-              {ACTIVITY_LABEL[opt]}
-            </option>
-          ))}
+          <ActivityOptions groups={availableActivityGroups(state)} />
         </select>
         {slots.map((s) => (
           <button

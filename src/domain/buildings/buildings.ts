@@ -19,10 +19,15 @@ import {
   TRAINING_HALL_XP_PER_LEVEL,
   TRAINING_HALL_XP_CAP,
   HERB_PER_LEVEL_PER_DAY,
+  HERB_PER_WORKER_LEVEL,
+  INFIRMARY_HEAL_PER_WORKER_LEVEL,
+  TRAINING_HALL_XP_PER_WORKER_LEVEL,
+  MERCHANT_SELL_PER_WORKER_LEVEL,
 } from "../../data/balance";
 import { spend } from "../resources/resources";
 import { pushLog } from "../../state/log";
 import type { GameState } from "../../state/gameState";
+import { sumWorkerLevels } from "./jobs";
 
 export type PavilionKey =
   | "quarters"
@@ -61,27 +66,43 @@ export function merchantBuilt(state: GameState): boolean {
   return state.buildings.merchant.level >= 1;
 }
 
-/** Auto-sell price multiplier from the merchant's level (level 1 = ×1). */
+/** Auto-sell price multiplier from the merchant's *base* level (UI per-level preview). */
 export function merchantSellMultiplier(level: number): number {
   return 1 + Math.max(0, level - 1) * MERCHANT_SELL_BONUS_PER_LEVEL;
 }
 
-/** Extra HP regenerated per day from the infirmary. */
-export function infirmaryHealBonus(state: GameState): number {
-  return state.buildings.infirmary.level * INFIRMARY_HEAL_PER_LEVEL;
-}
-
-/** Fractional XP boost from the training hall (capped). */
-export function trainingHallXpBonus(state: GameState): number {
-  return Math.min(
-    TRAINING_HALL_XP_CAP,
-    state.buildings.trainingHall.level * TRAINING_HALL_XP_PER_LEVEL,
+/** Full auto-sell multiplier including any Trader workers' Dexterity contribution. */
+export function merchantSellMultiplierFor(state: GameState): number {
+  return (
+    merchantSellMultiplier(state.buildings.merchant.level) +
+    sumWorkerLevels(state, "merchant") * MERCHANT_SELL_PER_WORKER_LEVEL
   );
 }
 
-/** Herbs grown per day by the spirit herb garden. */
+/** Extra HP regenerated per day from the infirmary (base + Healer workers' Vitality). */
+export function infirmaryHealBonus(state: GameState): number {
+  return (
+    state.buildings.infirmary.level * INFIRMARY_HEAL_PER_LEVEL +
+    sumWorkerLevels(state, "infirmary") * INFIRMARY_HEAL_PER_WORKER_LEVEL
+  );
+}
+
+/** Fractional XP boost from the training hall: capped per-level base + uncapped worker addition. */
+export function trainingHallXpBonus(state: GameState): number {
+  const base = Math.min(
+    TRAINING_HALL_XP_CAP,
+    state.buildings.trainingHall.level * TRAINING_HALL_XP_PER_LEVEL,
+  );
+  const worker = sumWorkerLevels(state, "trainingHall") * TRAINING_HALL_XP_PER_WORKER_LEVEL;
+  return base + worker;
+}
+
+/** Herbs grown per day: passive level production + Gardener workers' Vitality. */
 export function herbProductionPerDay(state: GameState): number {
-  return state.buildings.herbGarden.level * HERB_PER_LEVEL_PER_DAY;
+  return (
+    state.buildings.herbGarden.level * HERB_PER_LEVEL_PER_DAY +
+    sumWorkerLevels(state, "herbGarden") * HERB_PER_WORKER_LEVEL
+  );
 }
 
 /** Crafting pills requires the Alchemy Lab. */

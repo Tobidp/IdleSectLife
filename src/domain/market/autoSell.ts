@@ -4,7 +4,7 @@
 
 import { MARKET_PRICES } from "../../data/prices";
 import { capFor } from "../resources/resources";
-import { merchantBuilt, merchantSellMultiplier } from "../buildings/buildings";
+import { merchantBuilt, merchantSellMultiplierFor } from "../buildings/buildings";
 import { pushLog } from "../../state/log";
 import { RESOURCE_LABEL, type ResourceType } from "../resources/resourceTypes";
 import type { GameState } from "../../state/gameState";
@@ -17,7 +17,7 @@ export const AUTOSELLABLE: ResourceType[] = (Object.keys(MARKET_PRICES) as Resou
 /** Sell the configured share of any capped resource that is currently full. */
 export function applyAutoSell(state: GameState): void {
   if (!merchantBuilt(state)) return;
-  const mult = merchantSellMultiplier(state.buildings.merchant.level);
+  const mult = merchantSellMultiplierFor(state);
 
   for (const res of AUTOSELLABLE) {
     const pct = state.autoSell[res] ?? 0;

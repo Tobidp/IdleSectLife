@@ -14,6 +14,7 @@ import {
   merchantSellMultiplier,
   type PavilionKey,
 } from "../../domain/buildings/buildings";
+import { assignedSlotCount, isJobBuilding } from "../../domain/buildings/jobs";
 import { sectUpgradeCost } from "../../domain/sect/sect";
 import {
   FAME_BURST_PER_SECT_LEVEL,
@@ -24,8 +25,30 @@ import {
   HERB_PER_LEVEL_PER_DAY,
 } from "../../data/balance";
 
+/** Per-pavilion "workers X/Y" badge for buildings that accept jobs (B8). */
+function WorkersTag({ state, pkey }: { state: GameState; pkey: PavilionKey }): JSX.Element | null {
+  if (!isJobBuilding(pkey)) return null;
+  const cap = state.buildings[pkey].level;
+  if (cap === 0) return null;
+  const assigned = assignedSlotCount(state, pkey);
+  const over = assigned > cap;
+  return (
+    <span
+      className={`workers-tag ${over ? "over" : ""}`.trim()}
+      title={
+        over
+          ? `${assigned} job slots assigned but capacity is ${cap} — extras are dropped`
+          : `${assigned} of ${cap} worker slot${cap === 1 ? "" : "s"} filled`
+      }
+    >
+      👷 {assigned}/{cap}
+    </span>
+  );
+}
+
 function BuildingRow({
   state,
+  pkey,
   name,
   level,
   effect,
@@ -34,6 +57,7 @@ function BuildingRow({
   actionLabel = "Upgrade",
 }: {
   state: GameState;
+  pkey?: PavilionKey;
   name: string;
   level: number;
   effect: string;
@@ -48,6 +72,7 @@ function BuildingRow({
         <div className="building-name">
           {name}
           {level > 0 ? ` · Lv ${level}` : ""}
+          {pkey && <WorkersTag state={state} pkey={pkey} />}
         </div>
         <div className="building-effect muted">{effect}</div>
       </div>
@@ -71,6 +96,7 @@ function MerchantRow({ state }: { state: GameState }): JSX.Element {
   return (
     <BuildingRow
       state={state}
+      pkey="merchant"
       name={PAVILION_LABEL.merchant}
       level={level}
       effect={effect}
@@ -93,6 +119,7 @@ function InfirmaryRow({ state }: { state: GameState }): JSX.Element {
   return (
     <BuildingRow
       state={state}
+      pkey="infirmary"
       name={PAVILION_LABEL.infirmary}
       level={level}
       effect={effect}
@@ -113,6 +140,7 @@ function AlchemyLabRow({ state }: { state: GameState }): JSX.Element {
   return (
     <BuildingRow
       state={state}
+      pkey="alchemyLab"
       name={PAVILION_LABEL.alchemyLab}
       level={level}
       effect={effect}
@@ -133,6 +161,7 @@ function ForgeRow({ state }: { state: GameState }): JSX.Element {
   return (
     <BuildingRow
       state={state}
+      pkey="forge"
       name={PAVILION_LABEL.forge}
       level={level}
       effect={effect}
@@ -155,6 +184,7 @@ function HerbGardenRow({ state }: { state: GameState }): JSX.Element {
   return (
     <BuildingRow
       state={state}
+      pkey="herbGarden"
       name={PAVILION_LABEL.herbGarden}
       level={level}
       effect={effect}
@@ -180,6 +210,7 @@ function TrainingHallRow({ state }: { state: GameState }): JSX.Element {
   return (
     <BuildingRow
       state={state}
+      pkey="trainingHall"
       name={PAVILION_LABEL.trainingHall}
       level={level}
       effect={effect}
@@ -201,6 +232,7 @@ function PavilionRow({ state, pkey }: { state: GameState; pkey: PavilionKey }): 
   return (
     <BuildingRow
       state={state}
+      pkey={pkey}
       name={PAVILION_LABEL[pkey]}
       level={level}
       effect={effect}

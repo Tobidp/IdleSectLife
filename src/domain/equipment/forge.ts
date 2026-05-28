@@ -6,6 +6,7 @@ import type { Rng } from "../../core/rng/rng";
 import type { Attribute } from "../sect/sectTypes";
 import { spend } from "../resources/resources";
 import { forgeLevel } from "../buildings/buildings";
+import { sumWorkerLevels } from "../buildings/jobs";
 import { BLUEPRINT_BY_ID } from "../../data/blueprints";
 import {
   ITEM_TIER_LABEL,
@@ -13,7 +14,7 @@ import {
   type EquippedItem,
   type ItemTier,
 } from "../../data/equipment";
-import { ITEM_TIER_WEIGHTS } from "../../data/balance";
+import { ITEM_TIER_WEIGHTS, FORGE_TIER_SHIFT_PER_LEVEL } from "../../data/balance";
 import { pushLog } from "../../state/log";
 
 /** Player has the blueprint, the forge level, and the resources to craft it. */
@@ -34,7 +35,7 @@ export function craftBlueprint(state: GameState, blueprintId: string, rng: Rng):
   const bp = BLUEPRINT_BY_ID[blueprintId];
   if (!spend(state, bp.craftCost)) return null;
 
-  const tier = rollItemTier(rng);
+  const tier = rollItemTier(rng, state);
   const mult = ITEM_TIER_XP_MULT[tier];
   const xpBonuses: Partial<Record<Attribute, number>> = {};
   for (const k of Object.keys(bp.baseAttrXpBonus) as Attribute[]) {
@@ -47,14 +48,31 @@ export function craftBlueprint(state: GameState, blueprintId: string, rng: Rng):
   return item;
 }
 
-/** Weighted random pick from ITEM_TIER_WEIGHTS. */
-function rollItemTier(rng: Rng): ItemTier {
-  const tiers = Object.keys(ITEM_TIER_WEIGHTS) as ItemTier[];
-  const total = tiers.reduce((s, t) => s + ITEM_TIER_WEIGHTS[t], 0);
+/** Weighted random pick from the base tier weights, shifted up by Smith workers. */
+function rollItemTier(rng: Rng, state: GameState): ItemTier {
+  const weights = adjustedTierWeights(state);
+  const tiers = Object.keys(weights) as ItemTier[];
+  const total = tiers.reduce((s, t) => s + weights[t], 0);
   let pick = rng.next() * total;
   for (const t of tiers) {
-    pick -= ITEM_TIER_WEIGHTS[t];
+    pick -= weights[t];
     if (pick <= 0) return t;
   }
   return "common";
+}
+
+/**
+ * Tier weights with the Smith worker boost folded in. Each smith-strength-level shifts
+ * FORGE_TIER_SHIFT_PER_LEVEL points away from "common" and splits 60/40 into uncommon/rare.
+ * Epic and legendary weights are untouched in v1 to keep top tiers genuinely rare.
+ */
+function adjustedTierWeights(state: GameState): Record<ItemTier, number> {
+  const shift = sumWorkerLevels(state, "forge") * FORGE_TIER_SHIFT_PER_LEVEL;
+  return {
+    common: Math.max(0, ITEM_TIER_WEIGHTS.common - shift),
+    uncommon: ITEM_TIER_WEIGHTS.uncommon + shift * 0.6,
+    rare: ITEM_TIER_WEIGHTS.rare + shift * 0.4,
+    epic: ITEM_TIER_WEIGHTS.epic,
+    legendary: ITEM_TIER_WEIGHTS.legendary,
+  };
 }

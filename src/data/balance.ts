@@ -72,6 +72,20 @@ export const INSIGHT_XP_PER_ATTR = 80;
 // breakthrough attempt by this factor (0.5 = halved). Consumed regardless of outcome.
 export const TRIBULATION_AID_FAIL_MULT = 0.5;
 
+// --- Jobs (workers assigned via daily slots to a building) ---
+// Each "Work · X" slot contributes its relevant-attribute level multiplied by the
+// per-building constant below. Constants are tuned to roughly match one level of the
+// building's base effect at ~20 worker-attribute-levels (mid-Foundation territory).
+export const HERB_PER_WORKER_LEVEL = 0.03; // gardener's vitality * this = extra herbs/day
+export const INFIRMARY_HEAL_PER_WORKER_LEVEL = 0.1; // healer's vitality * this = extra HP/day
+export const TRAINING_HALL_XP_PER_WORKER_LEVEL = 0.003; // instructor's strength * this = extra XP fraction
+export const MERCHANT_SELL_PER_WORKER_LEVEL = 0.005; // trader's dexterity * this = extra sell multiplier
+// Smith bonus shifts the Forge's tier-roll weights up. Each smith-strength-level moves
+// FORGE_TIER_SHIFT_PER_LEVEL points from "common" into "uncommon" + "rare" (split 60/40).
+export const FORGE_TIER_SHIFT_PER_LEVEL = 0.4;
+// Apothecary bonus: chance to craft an extra pill on each Alchemy craft.
+export const ALCHEMY_DOUBLE_CHANCE_PER_WORKER_LEVEL = 0.005;
+
 // --- Forge / equipment ---
 // Probability weights for the tier rolled on a craft (sum doesn't need to be 100 — relative).
 // Tuned so common dominates early; legendary is a special event. Higher forge levels will

@@ -19,7 +19,13 @@ export type Activity =
   | "collect_stone"
   | "collect_wood"
   | "collect_food"
-  | "collect_ore";
+  | "collect_ore"
+  | "work_forge"
+  | "work_herbGarden"
+  | "work_alchemyLab"
+  | "work_trainingHall"
+  | "work_infirmary"
+  | "work_merchant";
 
 export type Attributes = Record<Attribute, AttrProgress>;
 

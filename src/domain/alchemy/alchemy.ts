@@ -1,13 +1,18 @@
 // Alchemy: craft pills from recipes (consumes resources), and use them on a chosen target.
 
 import type { GameState } from "../../state/gameState";
+import type { Rng } from "../../core/rng/rng";
 import { spend } from "../resources/resources";
 import { alchemyLabLevel } from "../buildings/buildings";
+import { sumWorkerLevels } from "../buildings/jobs";
 import { maxHp } from "../disciples/disciple";
 import { addXp } from "../disciples/attributes";
 import { ATTRIBUTES } from "../sect/sectTypes";
 import { PILL_BY_ID, type PillId } from "../../data/pills";
-import { INSIGHT_XP_PER_ATTR } from "../../data/balance";
+import {
+  INSIGHT_XP_PER_ATTR,
+  ALCHEMY_DOUBLE_CHANCE_PER_WORKER_LEVEL,
+} from "../../data/balance";
 import { pushLog } from "../../state/log";
 
 /** True when the alchemy lab is high enough level and the recipe is affordable. */
@@ -21,13 +26,29 @@ export function canCraftPill(state: GameState, pillId: PillId): boolean {
   return true;
 }
 
-/** Deduct the recipe and add one pill to the inventory. Returns whether it succeeded. */
-export function craftPill(state: GameState, pillId: PillId): boolean {
+/**
+ * Deduct the recipe and add one pill to the inventory. With an Apothecary worker at the
+ * Alchemy Lab, there's a chance the craft yields TWO pills instead of one — chance scales
+ * with the worker's Vitality level. `rng` is required to roll that bonus.
+ */
+export function craftPill(state: GameState, pillId: PillId, rng: Rng): boolean {
   if (!canCraftPill(state, pillId)) return false;
   const def = PILL_BY_ID[pillId];
   if (!spend(state, def.recipe)) return false;
-  state.pills[pillId] = (state.pills[pillId] ?? 0) + 1;
-  pushLog(state, `Crafted a ${def.name}.`, "good");
+
+  const doubleChance = Math.min(
+    1,
+    sumWorkerLevels(state, "alchemyLab") * ALCHEMY_DOUBLE_CHANCE_PER_WORKER_LEVEL,
+  );
+  const yieldCount = doubleChance > 0 && rng.chance(doubleChance) ? 2 : 1;
+  state.pills[pillId] = (state.pills[pillId] ?? 0) + yieldCount;
+  pushLog(
+    state,
+    yieldCount === 2
+      ? `Crafted 2 ${def.name}s — the Apothecary's touch.`
+      : `Crafted a ${def.name}.`,
+    "good",
+  );
   return true;
 }
 
