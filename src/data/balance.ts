@@ -45,6 +45,7 @@ export const FAME_BURST_PER_SECT_LEVEL = 20;
 export const RECRUIT_FAME_DIVISOR = 150; // chance/month = min(cap, fame / divisor)
 export const RECRUIT_CHANCE_CAP = 0.9;
 export const MAX_APPLICANTS = 5; // queue cap for pending applicants
+export const APPLICANT_EXPIRY_DAYS = 30; // applicants leave if not Accept/Deny'd within a month
 
 // --- Gold upkeep (wages) & arrears ---
 // Gold pays the monthly sect upkeep ("wages"). When it can't be covered, morale drops that

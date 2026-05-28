@@ -29,6 +29,7 @@ import { TALENT_BY_ID, TALENT_TIER_CLASS } from "../../data/talent";
 import { TRAIT_BY_ID } from "../../data/traits";
 import { PATH_LABEL } from "../../domain/disciples/paths";
 import { ageInYears } from "../../domain/disciples/aging";
+import { applicantDaysLeft } from "../../domain/disciples/recruitment";
 import { orderedDisciples, groupKey, groupLabel } from "./discipleOrder";
 import {
   EQUIPMENT_SLOTS,
@@ -382,25 +383,35 @@ function ApplicantsSection({ state }: { state: GameState }): JSX.Element | null 
       <div className="d-group applicants-header">
         Awaiting approval ({state.applicants.length}){full ? " — quarters full" : ""}
       </div>
-      {state.applicants.map((a) => (
-        <div className="applicant-row" key={a.id}>
-          <span className="d-sect" title="Attributes are hidden until accepted">
-            ❔
-          </span>
-          <span className="d-name">{a.name}</span>
-          <button
-            className="accept-btn"
-            disabled={full}
-            title={full ? "Quarters are full — upgrade or deny someone first" : "Accept into the sect"}
-            onClick={() => actions.acceptApplicant(a.id)}
-          >
-            Accept
-          </button>
-          <button className="deny-btn" title="Turn this applicant away" onClick={() => actions.denyApplicant(a.id)}>
-            Deny
-          </button>
-        </div>
-      ))}
+      {state.applicants.map((a) => {
+        const left = applicantDaysLeft(state, a.arrivedOnDay);
+        const urgent = left <= 5;
+        return (
+          <div className="applicant-row" key={a.id}>
+            <span className="d-sect" title="Attributes are hidden until accepted">
+              ❔
+            </span>
+            <span className="d-name">{a.name}</span>
+            <span
+              className={`applicant-timer ${urgent ? "urgent" : ""}`.trim()}
+              title={`Leaves on their own in ${left} day${left === 1 ? "" : "s"} if not Accepted or Denied`}
+            >
+              ⏳ {left}d left
+            </span>
+            <button
+              className="accept-btn"
+              disabled={full}
+              title={full ? "Quarters are full — upgrade or deny someone first" : "Accept into the sect"}
+              onClick={() => actions.acceptApplicant(a.id)}
+            >
+              Accept
+            </button>
+            <button className="deny-btn" title="Turn this applicant away" onClick={() => actions.denyApplicant(a.id)}>
+              Deny
+            </button>
+          </div>
+        );
+      })}
     </div>
   );
 }

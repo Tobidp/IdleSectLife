@@ -50,6 +50,8 @@ export interface Disciple {
   tribulationBuff?: boolean;
   /** Currently-equipped item per slot (or null when empty). XP bonuses are pre-computed. */
   equipment: Record<EquipmentSlot, EquippedItem | null>;
+  /** For applicants only: the totalDay they arrived. Used to expire them after a month. */
+  arrivedOnDay?: number;
   attributes: Attributes;
   hp: number;
   happiness: number;

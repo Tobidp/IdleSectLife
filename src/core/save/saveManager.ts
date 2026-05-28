@@ -40,6 +40,11 @@ function backfill(save: GameState): void {
       if (!d.equipment) d.equipment = emptyEquipment();
     }
   }
+  // Existing applicants get their timer reset to "just arrived" on load — fair grace for
+  // pre-feature saves rather than silently expiring everyone who was waiting at save time.
+  for (const a of save.applicants ?? []) {
+    if (typeof a.arrivedOnDay !== "number") a.arrivedOnDay = save.time.totalDays;
+  }
 }
 
 /**

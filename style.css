@@ -830,6 +830,17 @@ button:disabled {
   padding: 4px 8px;
   margin-bottom: 3px;
 }
+.applicant-timer {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--ink-dim);
+  font-variant-numeric: tabular-nums;
+  cursor: help;
+}
+.applicant-timer.urgent {
+  color: #e07c7c;
+  font-weight: 600;
+}
 .accept-btn:hover:not(:disabled) {
   border-color: var(--jade);
   color: var(--jade);

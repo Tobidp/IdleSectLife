@@ -16,7 +16,7 @@ import { infirmaryHealBonus, trainingHallXpBonus, herbProductionPerDay } from ".
 import { equipmentXpMult } from "../equipment/bonuses";
 import { maybeDropBlueprint } from "../equipment/drop";
 import { updateHappiness } from "../disciples/happiness";
-import { rollMonthlyApplicant } from "../disciples/recruitment";
+import { rollMonthlyApplicant, expireApplicants } from "../disciples/recruitment";
 import { maxHp, type Disciple } from "../disciples/disciple";
 import { addXp, effectiveLevel } from "../disciples/attributes";
 import { attemptBreakthrough, TRIBULATION_TIER_LABEL } from "../disciples/tribulation";
@@ -221,7 +221,9 @@ export function advanceDay(state: GameState, rng: Rng): void {
     mournLost(state, aged, (s, l) => `${s.name} mourns ${l.name}'s passing.`);
   }
 
-  // 6. Advance calendar; monthly fame + gold + upkeep + recruitment roll + season notices.
+  // 6. Expire stale applicants who waited longer than APPLICANT_EXPIRY_DAYS, then advance
+  //    the calendar — monthly fame + gold + upkeep + recruitment roll + season notices.
+  expireApplicants(state);
   const result = advanceOneDay(state.time);
   if (result.monthChanged) {
     state.fame += monthlyFameGain(state);
