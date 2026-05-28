@@ -1526,3 +1526,67 @@ button:disabled {
   padding: 1px 2px;
   cursor: help;
 }
+
+/* ---------- Forge modal ---------- */
+.forge-btn {
+  font-size: 12px;
+}
+.forge-btn:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.modal-wide {
+  max-width: 720px;
+}
+.forge-section {
+  margin-top: 12px;
+}
+.forge-section-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-dim);
+  margin-bottom: 6px;
+  border-bottom: 1px dotted var(--border-soft);
+  padding-bottom: 2px;
+}
+.inv-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.inv-row {
+  display: grid;
+  grid-template-columns: 24px 1fr auto auto auto;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  background: var(--bg-panel-2);
+  border-radius: 4px;
+  font-size: 12px;
+}
+.inv-icon {
+  font-size: 16px;
+  line-height: 1;
+  text-align: center;
+}
+.inv-name {
+  font-weight: 600;
+}
+.inv-bonus {
+  font-size: 11px;
+}
+.inv-target {
+  font-size: 11px;
+  padding: 1px 4px;
+}
+
+/* Filled equipment slot becomes a button (click to unequip). Override default button look. */
+button.equip-slot {
+  background: var(--bg-panel-2);
+  cursor: pointer;
+}
+button.equip-slot:hover {
+  border-color: var(--gold);
+  background: var(--bg-panel);
+}

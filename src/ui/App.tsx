@@ -14,6 +14,7 @@ import { Achievements } from "./Achievements";
 import { Stats } from "./Stats";
 import { Settings } from "./Settings";
 import { Alchemy } from "./Alchemy";
+import { Forge } from "./Forge";
 
 // Tab bodies are code-split: the dashboard chunk (React Grid Layout + Motion) loads only
 // once a game is in play, keeping the sect-selection screen + initial load lean.
@@ -49,6 +50,7 @@ function Game({ state }: { state: GameState }): JSX.Element {
       <footer className="footer">
         <Achievements />
         <Alchemy />
+        <Forge />
         <Stats />
         <SaveLoad />
         <Settings />

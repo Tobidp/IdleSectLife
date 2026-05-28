@@ -9,8 +9,10 @@ import { STARTING_RESOURCES, STARTING_DISCIPLES } from "../data/baseStats";
 import type { LogEntry } from "./log";
 import { createInitialNarrativeState, type NarrativeState } from "./narrative";
 import type { PillId } from "../data/pills";
+import type { EquippedItem } from "../data/equipment";
+import { STARTING_BLUEPRINTS } from "../data/blueprints";
 
-export const SAVE_VERSION = 15;
+export const SAVE_VERSION = 16;
 
 export type Speed = 1 | 2 | 4;
 
@@ -62,6 +64,8 @@ export interface GameState {
   pills: Partial<Record<PillId, number>>;
   /** Blueprint ids the player has discovered (unlocks them in the Forge). */
   blueprints: string[];
+  /** Crafted items waiting to be equipped onto a disciple. */
+  itemInventory: EquippedItem[];
   /** Consecutive months the gold upkeep ("wages") went unpaid. */
   goldArrears: number;
   log: LogEntry[];
@@ -98,7 +102,8 @@ export function createNewGame(sect: SectType, rng: Rng): GameState {
     fame: 0,
     autoSell: {},
     pills: {},
-    blueprints: [],
+    blueprints: [...STARTING_BLUEPRINTS],
+    itemInventory: [],
     goldArrears: 0,
     log: [],
     nextId: 1,

@@ -9,6 +9,9 @@ import { createNewGame, type GameState, type Speed } from "../state/gameState";
 import { saveGame, loadGame, clearSave, encodeSave, decodeSave } from "./save/saveManager";
 import { craftPill, usePill } from "../domain/alchemy/alchemy";
 import type { PillId } from "../data/pills";
+import { craftBlueprint } from "../domain/equipment/forge";
+import { equipFromInventory, unequipItem } from "../domain/equipment/equip";
+import type { EquipmentSlot } from "../data/equipment";
 import type { SectType } from "../domain/sect/sectTypes";
 import { upgradePavilion, type PavilionKey } from "../domain/buildings/buildings";
 import { upgradeSect } from "../domain/sect/sect";
@@ -189,6 +192,32 @@ export class GameEngine {
   usePill(pillId: PillId, discipleId: number): void {
     this.store.update((s) => {
       usePill(s, pillId, discipleId);
+    });
+    this.saveNow();
+  }
+
+  // --- Forge / equipment ---
+
+  /** Craft an item from a discovered blueprint. Tier is rolled by RNG. */
+  craftBlueprint(blueprintId: string): void {
+    this.store.update((s) => {
+      craftBlueprint(s, blueprintId, this.rng);
+    });
+    this.saveNow();
+  }
+
+  /** Equip the inventory item at `index` onto a disciple's slot (swaps any existing item). */
+  equipFromInventory(inventoryIndex: number, discipleId: number, slot: EquipmentSlot): void {
+    this.store.update((s) => {
+      equipFromInventory(s, inventoryIndex, discipleId, slot);
+    });
+    this.saveNow();
+  }
+
+  /** Move the disciple's current item in `slot` back to the shared inventory. */
+  unequipItem(discipleId: number, slot: EquipmentSlot): void {
+    this.store.update((s) => {
+      unequipItem(s, discipleId, slot);
     });
     this.saveNow();
   }

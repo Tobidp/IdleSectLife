@@ -20,6 +20,7 @@ import { maxHp, type Disciple } from "./disciple";
 import { addXp, effectiveLevel } from "./attributes";
 import { attemptBreakthrough, type BreakthroughResult } from "./tribulation";
 import { pathXpMultFor } from "./paths";
+import { equipmentXpMult } from "../equipment/bonuses";
 import type { Rng } from "../../core/rng/rng";
 
 /** How much of any XP gain a disciple keeps, based on happiness. */
@@ -62,7 +63,7 @@ export function trainOnce(
 
   for (const attr of ATTRIBUTES) {
     const bonus = attr === sectAttr ? TRAIN_XP_SECT_BONUS : 0;
-    const gain = (TRAIN_XP_ALL + bonus) * mult * pathXpMultFor(d.path, attr);
+    const gain = (TRAIN_XP_ALL + bonus) * mult * pathXpMultFor(d.path, attr) * equipmentXpMult(d, attr);
     if (addXp(d.attributes[attr], gain).readyToBreakthrough) {
       const failMult = d.tribulationBuff ? TRIBULATION_AID_FAIL_MULT : 1;
       const tr = attemptBreakthrough(

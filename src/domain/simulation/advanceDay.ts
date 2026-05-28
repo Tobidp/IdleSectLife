@@ -13,6 +13,7 @@ import { mentorBoost } from "../disciples/mentors";
 import { naturalDeathChance, ageInYears } from "../disciples/aging";
 import { rollMonthlyBond, mournLost } from "../disciples/bonds";
 import { infirmaryHealBonus, trainingHallXpBonus, herbProductionPerDay } from "../buildings/buildings";
+import { equipmentXpMult } from "../equipment/bonuses";
 import { updateHappiness } from "../disciples/happiness";
 import { rollMonthlyApplicant } from "../disciples/recruitment";
 import { maxHp, type Disciple } from "../disciples/disciple";
@@ -66,7 +67,7 @@ export function advanceDay(state: GameState, rng: Rng): void {
           resource,
           collectYield(resource, strLevel, seasonMultiplier(season, resource)) * bonus.collect,
         );
-        if (addXp(d.attributes.strength, COLLECT_XP * mult * pathXpMultFor(d.path, "strength")).readyToBreakthrough) {
+        if (addXp(d.attributes.strength, COLLECT_XP * mult * pathXpMultFor(d.path, "strength") * equipmentXpMult(d, "strength")).readyToBreakthrough) {
           const failMult = d.tribulationBuff ? TRIBULATION_AID_FAIL_MULT : 1;
           const tr = attemptBreakthrough(
             d.attributes.strength,

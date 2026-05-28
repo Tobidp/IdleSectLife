@@ -72,6 +72,21 @@ export const INSIGHT_XP_PER_ATTR = 80;
 // breakthrough attempt by this factor (0.5 = halved). Consumed regardless of outcome.
 export const TRIBULATION_AID_FAIL_MULT = 0.5;
 
+// --- Forge / equipment ---
+// Probability weights for the tier rolled on a craft (sum doesn't need to be 100 — relative).
+// Tuned so common dominates early; legendary is a special event. Higher forge levels will
+// bias toward better tiers later — for now the table is flat across levels.
+export const ITEM_TIER_WEIGHTS = {
+  common: 65,
+  uncommon: 22,
+  rare: 9,
+  epic: 3,
+  legendary: 1,
+} as const;
+// Chance to discover a new blueprint on a successful tribulation breakthrough. Discoveries
+// only fire when the catalog still has an undiscovered blueprint to surface.
+export const BLUEPRINT_DROP_CHANCE_ON_BREAKTHROUGH = 0.12;
+
 // --- Bonds (friendships between disciples) ---
 export const BOND_HAPPINESS_PER_BOND = 2; // each bond raises the disciple's happiness target
 export const BOND_HAPPINESS_TARGET_CAP = 20; // ceiling on how much bonds can shift the target

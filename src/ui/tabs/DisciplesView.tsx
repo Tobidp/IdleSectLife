@@ -27,9 +27,12 @@ import {
   EQUIPMENT_SLOTS,
   EQUIPMENT_SLOT_ICON,
   EQUIPMENT_SLOT_LABEL,
+  ITEM_TIER_CLASS,
+  ITEM_TIER_LABEL,
   type EquipmentSlot,
   type EquippedItem,
 } from "../../data/equipment";
+import { BLUEPRINT_BY_ID } from "../../data/blueprints";
 
 const ATTR_ORDER: Attribute[] = ["health", "strength", "dexterity", "vitality"];
 const SLOT_LABELS = ["Morning", "Afternoon", "Night"];
@@ -46,20 +49,34 @@ function happinessClass(h: number): string {
   return "unhappy";
 }
 
-function EquipmentSlotView({ slot, item }: { slot: EquipmentSlot; item: EquippedItem | null }): JSX.Element {
+function EquipmentSlotView({
+  slot,
+  item,
+  onUnequip,
+}: {
+  slot: EquipmentSlot;
+  item: EquippedItem | null;
+  onUnequip: () => void;
+}): JSX.Element {
   if (!item) {
     return (
-      <div className="equip-slot empty" title={`${EQUIPMENT_SLOT_LABEL[slot]} — empty`}>
+      <div className="equip-slot empty" title={`${EQUIPMENT_SLOT_LABEL[slot]} — empty (equip from the Forge)`}>
         <span className="equip-slot-icon">{EQUIPMENT_SLOT_ICON[slot]}</span>
         <span className="equip-slot-name">{EQUIPMENT_SLOT_LABEL[slot]}</span>
       </div>
     );
   }
+  const bp = BLUEPRINT_BY_ID[item.blueprintId];
+  const name = bp?.name ?? item.blueprintId;
   return (
-    <div className={`equip-slot filled`} title={`${EQUIPMENT_SLOT_LABEL[slot]} — ${item.blueprintId}`}>
+    <button
+      className={`equip-slot filled ${ITEM_TIER_CLASS[item.tier]}`.trim()}
+      title={`${name} (${ITEM_TIER_LABEL[item.tier]}) — click to unequip`}
+      onClick={onUnequip}
+    >
       <span className="equip-slot-icon">{EQUIPMENT_SLOT_ICON[slot]}</span>
-      <span className="equip-slot-name">{item.blueprintId}</span>
-    </div>
+      <span className="equip-slot-name">{name}</span>
+    </button>
   );
 }
 
@@ -209,7 +226,12 @@ function DiscipleRow({ state, d }: { state: GameState; d: Disciple }): JSX.Eleme
           </div>
           <div className="d-equipment" aria-label="Equipment">
             {EQUIPMENT_SLOTS.map((slot) => (
-              <EquipmentSlotView key={slot} slot={slot} item={d.equipment[slot]} />
+              <EquipmentSlotView
+                key={slot}
+                slot={slot}
+                item={d.equipment[slot]}
+                onUnequip={() => actions.unequipItem(d.id, slot)}
+              />
             ))}
           </div>
         </div>

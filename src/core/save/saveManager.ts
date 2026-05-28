@@ -21,6 +21,7 @@ function backfill(save: GameState): void {
   if (typeof save.resources.ore !== "number") save.resources.ore = 0;
   if (!save.pills) save.pills = {};
   if (!Array.isArray(save.blueprints)) save.blueprints = [];
+  if (!Array.isArray(save.itemInventory)) save.itemInventory = [];
   if (!save.autoSell) save.autoSell = {};
   if (typeof save.goldArrears !== "number") save.goldArrears = 0;
   // Default to "now" so an old save isn't treated as having been away forever.
