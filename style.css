@@ -597,14 +597,31 @@ button:disabled {
 .view-disciples {
   font-size: 13px;
 }
-.view-craft {
+/* Bag panel: pill list (compact) shares space with the equipment inventory list. */
+.pill-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  font-size: 13px;
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 12px 0;
+  gap: 4px;
+}
+.pill-row {
+  display: grid;
+  grid-template-columns: 1fr auto 2fr;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  background: var(--bg-panel-2);
+  border-radius: 4px;
+  font-size: 12px;
+}
+.pill-name {
+  font-weight: 600;
+}
+.pill-count {
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+.pill-desc {
+  font-size: 11px;
 }
 .disciples-toolbar {
   display: flex;

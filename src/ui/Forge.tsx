@@ -1,21 +1,14 @@
-// Forge panel: craft equipment from discovered blueprints + the shared item inventory.
-// Lives inside the Craft tab (no longer a footer modal).
+// Forge panel: craft equipment from discovered blueprints. Lives inside the Craft tab.
+// The crafted-item inventory now lives in the Bag panel (also Craft tab).
 
-import { useState } from "react";
 import { Panel } from "./components/Panel";
 import { useActions, useGameState } from "./engineContext";
 import { BLUEPRINTS, BLUEPRINT_BY_ID } from "../data/blueprints";
-import {
-  EQUIPMENT_SLOT_LABEL,
-  ITEM_TIER_CLASS,
-  ITEM_TIER_LABEL,
-  type EquippedItem,
-} from "../data/equipment";
+import { EQUIPMENT_SLOT_LABEL, type EquippedItem } from "../data/equipment";
 import { canCraftBlueprint } from "../domain/equipment/forge";
 import { forgeLevel } from "../domain/buildings/buildings";
 import { formatCost } from "./components/format";
 import { ATTRIBUTES, ATTRIBUTE_LABEL } from "../domain/sect/sectTypes";
-import type { Disciple } from "../domain/disciples/disciple";
 
 function formatXpBonuses(b: EquippedItem["xpBonuses"]): string {
   const parts: string[] = [];
@@ -66,54 +59,6 @@ function BlueprintRow({ blueprintId }: { blueprintId: string }): JSX.Element | n
   );
 }
 
-function InventoryRow({
-  item,
-  index,
-  disciples,
-}: {
-  item: EquippedItem;
-  index: number;
-  disciples: Disciple[];
-}): JSX.Element | null {
-  const actions = useActions();
-  const bp = BLUEPRINT_BY_ID[item.blueprintId];
-  const [target, setTarget] = useState<number>(disciples[0]?.id ?? -1);
-  if (!bp) return null;
-  return (
-    <div className="inv-row">
-      <span className="inv-slot muted">{EQUIPMENT_SLOT_LABEL[bp.slot]}</span>
-      <span className={`inv-name ${ITEM_TIER_CLASS[item.tier]}`}>
-        {ITEM_TIER_LABEL[item.tier]} {bp.name}
-      </span>
-      <span className="inv-bonus muted">{formatXpBonuses(item.xpBonuses)}</span>
-      <select
-        className="inv-target"
-        value={target}
-        onChange={(e) => setTarget(parseInt(e.target.value, 10))}
-        disabled={disciples.length === 0}
-        title="Disciple to equip"
-      >
-        {disciples.length === 0 ? (
-          <option value={-1}>No disciples</option>
-        ) : (
-          disciples.map((d) => (
-            <option key={d.id} value={d.id}>
-              {d.name}
-            </option>
-          ))
-        )}
-      </select>
-      <button
-        disabled={disciples.length === 0 || target < 0}
-        title={`Equip into the ${EQUIPMENT_SLOT_LABEL[bp.slot]} slot (swaps with current)`}
-        onClick={() => actions.equipFromInventory(index, target, bp.slot)}
-      >
-        Equip
-      </button>
-    </div>
-  );
-}
-
 export function ForgePanel(): JSX.Element | null {
   const state = useGameState();
   if (!state) return null;
@@ -126,7 +71,7 @@ export function ForgePanel(): JSX.Element | null {
     <Panel title={`Forge${built ? ` · Lv ${level}` : ""}`} className="craft-forge">
       <p className="muted">
         {built
-          ? "Craft equipment from your discovered blueprints. Items roll a random quality tier; better tiers grant larger XP bonuses."
+          ? "Craft equipment from your discovered blueprints. Items roll a random quality tier; finished items go into your Bag."
           : "Build the Forge from the Buildings panel to start crafting equipment."}
       </p>
 
@@ -138,24 +83,6 @@ export function ForgePanel(): JSX.Element | null {
           <div className="recipe-list">
             {ownedBlueprints.map((b) => (
               <BlueprintRow key={b.id} blueprintId={b.id} />
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="forge-section">
-        <div className="forge-section-title">Inventory ({state.itemInventory.length})</div>
-        {state.itemInventory.length === 0 ? (
-          <p className="muted">No items waiting to be equipped.</p>
-        ) : (
-          <div className="inv-list">
-            {state.itemInventory.map((item, idx) => (
-              <InventoryRow
-                key={idx}
-                item={item}
-                index={idx}
-                disciples={state.disciples}
-              />
             ))}
           </div>
         )}
