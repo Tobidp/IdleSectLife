@@ -14,6 +14,7 @@ import { naturalDeathChance, ageInYears } from "../disciples/aging";
 import { rollMonthlyBond, mournLost } from "../disciples/bonds";
 import { infirmaryHealBonus, trainingHallXpBonus, herbProductionPerDay } from "../buildings/buildings";
 import { equipmentXpMult } from "../equipment/bonuses";
+import { maybeDropBlueprint } from "../equipment/drop";
 import { updateHappiness } from "../disciples/happiness";
 import { rollMonthlyApplicant } from "../disciples/recruitment";
 import { maxHp, type Disciple } from "../disciples/disciple";
@@ -90,6 +91,7 @@ export function advanceDay(state: GameState, rng: Rng): void {
               if (newPath) {
                 pushLog(state, `${d.name} embraces the ${PATH_LABEL[newPath]} path.`, "good");
               }
+              maybeDropBlueprint(state, rng, d.name);
             } else {
               if (tr.hpDamageFraction) {
                 d.hp -= Math.round(maxHp(d) * tr.hpDamageFraction);
@@ -123,6 +125,7 @@ export function advanceDay(state: GameState, rng: Rng): void {
             if (newPath) {
               pushLog(state, `${d.name} embraces the ${PATH_LABEL[newPath]} path.`, "good");
             }
+            maybeDropBlueprint(state, rng, d.name);
           } else {
             pushLog(
               state,
