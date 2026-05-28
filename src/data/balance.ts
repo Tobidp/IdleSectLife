@@ -53,6 +53,18 @@ export const WAGE_ARREARS_GRACE_MONTHS = 2; // consecutive unpaid months tolerat
 export const PASSIVE_GOLD_PER_MONTH = 1; // tiny passive gold trickle (deliberately almost nothing)
 export const MERCHANT_SELL_BONUS_PER_LEVEL = 0.1; // auto-sell price x (1 + (level-1) * this)
 
+// --- Mentors (any disciple with any attribute rank >= 3 mentors the rest) ---
+export const MENTOR_RANK_THRESHOLD = 3;
+export const MENTOR_BONUS_PER = 0.05; // +5% XP per qualifying mentor
+export const MENTOR_BONUS_CAP = 0.25; // capped at +25%
+
+// --- Aging (cultivation extends lifespan; eventually disciples pass naturally) ---
+export const LIFESPAN_BASE_DAYS = 18000; // ~50 in-game years for a mortal
+export const LIFESPAN_PER_RANK_DAYS = 1800; // +5 years per highest attribute rank above 0
+export const NATURAL_DEATH_FLOOR = 0.001; // daily chance once past lifespan
+export const NATURAL_DEATH_RAMP = 0.005; // chance += overage_fraction * this
+export const NATURAL_DEATH_CAP = 0.2; // ceiling on the daily chance
+
 // --- Tribulation (rank-up trial): progressive severity by the rank you're entering ---
 // Tier 0 = light (entering ranks 1–2), 1 = medium (3–5), 2 = heavy (6+).
 export const TRIBULATION_BASE_FAIL = [0.05, 0.2, 0.4] as const; // base fail chance per tier

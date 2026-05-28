@@ -7,6 +7,10 @@ import { collectYield, foodNeed, addResource, clampAllResources } from "../resou
 import { collectResourceOf } from "../disciples/actions";
 import { trainOnce, happinessGainMultiplier } from "../disciples/training";
 import { talentXpMult } from "../../data/talent";
+import { traitXpMult } from "../../data/traits";
+import { pathXpMultFor, maybeAssignPath, PATH_LABEL } from "../disciples/paths";
+import { mentorBoost } from "../disciples/mentors";
+import { naturalDeathChance, ageInYears } from "../disciples/aging";
 import { updateHappiness } from "../disciples/happiness";
 import { rollMonthlyApplicant } from "../disciples/recruitment";
 import { maxHp, type Disciple } from "../disciples/disciple";
@@ -38,11 +42,16 @@ export function advanceDay(state: GameState, rng: Rng): void {
   const season = currentSeason(state.time);
   const sectAttr = sectAttribute(state);
   const bonus = achievementMultipliers(state);
+  const mentor = 1 + mentorBoost(state);
 
   // 1. Resolve each active disciple's 3 daily actions.
   for (const d of state.disciples) {
     if (d.status !== "active") continue;
-    const mult = happinessGainMultiplier(d.happiness) * talentXpMult(d.talent);
+    const mult =
+      happinessGainMultiplier(d.happiness) *
+      talentXpMult(d.talent) *
+      traitXpMult(d.trait) *
+      mentor;
     for (const action of d.actions) {
       const resource = collectResourceOf(action);
       if (resource) {
@@ -52,7 +61,7 @@ export function advanceDay(state: GameState, rng: Rng): void {
           resource,
           collectYield(resource, strLevel, seasonMultiplier(season, resource)) * bonus.collect,
         );
-        if (addXp(d.attributes.strength, COLLECT_XP * mult).readyToBreakthrough) {
+        if (addXp(d.attributes.strength, COLLECT_XP * mult * pathXpMultFor(d.path, "strength")).readyToBreakthrough) {
           const tr = attemptBreakthrough(
             d.attributes.strength,
             effectiveLevel(d.attributes.vitality),
@@ -65,6 +74,10 @@ export function advanceDay(state: GameState, rng: Rng): void {
                 `${d.name} ascends to ${rankName(d.attributes.strength.rank)} in ${ATTRIBUTE_LABEL.strength}!`,
                 "good",
               );
+              const newPath = maybeAssignPath(d);
+              if (newPath) {
+                pushLog(state, `${d.name} embraces the ${PATH_LABEL[newPath]} path.`, "good");
+              }
             } else {
               if (tr.hpDamageFraction) {
                 d.hp -= Math.round(maxHp(d) * tr.hpDamageFraction);
@@ -83,7 +96,7 @@ export function advanceDay(state: GameState, rng: Rng): void {
           }
         }
       } else if (action === "train") {
-        const result = trainOnce(d, sectAttr, rng);
+        const result = trainOnce(d, sectAttr, rng, mentor);
         for (const ev of result.breakthroughs) {
           if (ev.result.success) {
             pushLog(
@@ -91,6 +104,10 @@ export function advanceDay(state: GameState, rng: Rng): void {
               `${d.name} ascends to ${rankName(d.attributes[ev.attr].rank)} in ${ATTRIBUTE_LABEL[ev.attr]}!`,
               "good",
             );
+            const newPath = maybeAssignPath(d);
+            if (newPath) {
+              pushLog(state, `${d.name} embraces the ${PATH_LABEL[newPath]} path.`, "good");
+            }
           } else {
             pushLog(
               state,
@@ -165,6 +182,21 @@ export function advanceDay(state: GameState, rng: Rng): void {
     const leavingIds = new Set(leaving.map((d) => d.id));
     state.disciples = state.disciples.filter((d) => !leavingIds.has(d.id));
     for (const d of leaving) pushLog(state, `${d.name} grew unhappy and left the sect.`, "bad");
+  }
+
+  // 5b. Aging tick: everyone ages one day; beyond their lifespan, natural death may take them.
+  const aged: Disciple[] = [];
+  for (const d of state.disciples) {
+    d.age += 1;
+    const chance = naturalDeathChance(d);
+    if (chance > 0 && rng.chance(chance)) aged.push(d);
+  }
+  if (aged.length > 0) {
+    const agedIds = new Set(aged.map((d) => d.id));
+    state.disciples = state.disciples.filter((d) => !agedIds.has(d.id));
+    for (const d of aged) {
+      pushLog(state, `${d.name} passed peacefully at age ${ageInYears(d)}.`, "info");
+    }
   }
 
   // 6. Advance calendar; monthly fame + gold + upkeep + recruitment roll + season notices.

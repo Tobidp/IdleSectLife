@@ -19,6 +19,9 @@ import {
 } from "../../domain/sect/sectTypes";
 import { STARS_PER_RANK, rankName, rankTierClass } from "../../data/progression";
 import { TALENT_BY_ID, TALENT_TIER_CLASS } from "../../data/talent";
+import { TRAIT_BY_ID } from "../../data/traits";
+import { PATH_LABEL } from "../../domain/disciples/paths";
+import { ageInYears } from "../../domain/disciples/aging";
 import { orderedDisciples, groupKey, groupLabel } from "./discipleOrder";
 
 const ATTR_ORDER: Attribute[] = ["health", "strength", "dexterity", "vitality"];
@@ -88,6 +91,20 @@ function DiscipleRow({ state, d }: { state: GameState; d: Disciple }): JSX.Eleme
           title={`Spirit root: ${TALENT_BY_ID[d.talent].label} (×${TALENT_BY_ID[d.talent].xpMult} XP)`}
         >
           ◈
+        </span>
+        <span
+          className={`d-trait trait-${d.trait}`}
+          title={`${TRAIT_BY_ID[d.trait].label} — ${TRAIT_BY_ID[d.trait].description}`}
+        >
+          {TRAIT_BY_ID[d.trait].label[0]}
+        </span>
+        {d.path && (
+          <span className={`d-path path-${d.path}`} title={PATH_LABEL[d.path]}>
+            {d.path === "body" ? "⚔" : "✦"}
+          </span>
+        )}
+        <span className="d-age muted" title={`Age (in-game years)`}>
+          {ageInYears(d)}y
         </span>
         <span className={`d-joy ${happinessClass(d.happiness)}`} title="Happiness">
           ♥ {fmt(d.happiness)}

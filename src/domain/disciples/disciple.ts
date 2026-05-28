@@ -8,6 +8,8 @@ import { HP_BASE, HP_PER_LEVEL } from "../../data/balance";
 import { createAttr, effectiveLevel, type AttrProgress } from "./attributes";
 import { generateName } from "./names";
 import { rollTalent, type TalentTier } from "../../data/talent";
+import { rollTrait, type TraitId } from "../../data/traits";
+import type { Path } from "./paths";
 
 /** One of the 3 daily action slots. */
 export type Activity = "idle" | "train" | "collect_stone" | "collect_wood" | "collect_food";
@@ -23,6 +25,12 @@ export interface Disciple {
   preferredSect: SectType;
   /** Spirit-root tier rolled at creation; scales every XP gain. */
   talent: TalentTier;
+  /** Personality trait rolled at creation; scales XP and injury risk. */
+  trait: TraitId;
+  /** Cultivation path; auto-assigned once any attribute reaches rank 2. */
+  path: Path | null;
+  /** Age in simulated days; rises with the daily tick. */
+  age: number;
   attributes: Attributes;
   hp: number;
   happiness: number;
@@ -61,6 +69,9 @@ export function createDisciple(
     name: generateName(rng),
     preferredSect,
     talent: rollTalent(rng),
+    trait: rollTrait(rng),
+    path: null,
+    age: rng.int(360 * 14, 360 * 22), // recruits arrive as young adults (14–22 in-game years)
     attributes: freshAttributes(),
     hp: 0,
     happiness: matches ? HAPPINESS_START_MATCH : HAPPINESS_START_MISMATCH,

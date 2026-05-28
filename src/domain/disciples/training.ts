@@ -13,10 +13,12 @@ import {
 } from "../../data/balance";
 import { TRAIN_XP_ALL, TRAIN_XP_SECT_BONUS } from "../../data/progression";
 import { talentXpMult } from "../../data/talent";
+import { traitXpMult, traitInjuryMult } from "../../data/traits";
 import { ATTRIBUTES, type Attribute } from "../sect/sectTypes";
 import { maxHp, type Disciple } from "./disciple";
 import { addXp, effectiveLevel } from "./attributes";
 import { attemptBreakthrough, type BreakthroughResult } from "./tribulation";
+import { pathXpMultFor } from "./paths";
 import type { Rng } from "../../core/rng/rng";
 
 /** How much of any XP gain a disciple keeps, based on happiness. */
@@ -42,14 +44,21 @@ export interface TrainResult {
 }
 
 /** Apply one Train action: XP to every attribute (+bonus on the sect's), tribulation rolls on
- * any attribute that hit 10★ this tick, then the usual injury roll. */
-export function trainOnce(d: Disciple, sectAttr: Attribute, rng: Rng): TrainResult {
-  const mult = happinessGainMultiplier(d.happiness) * talentXpMult(d.talent);
+ * any attribute that hit 10★ this tick, then the usual injury roll. `extraMult` lets the
+ * caller fold in environmental boosts (mentors). */
+export function trainOnce(
+  d: Disciple,
+  sectAttr: Attribute,
+  rng: Rng,
+  extraMult = 1,
+): TrainResult {
+  const mult =
+    happinessGainMultiplier(d.happiness) * talentXpMult(d.talent) * traitXpMult(d.trait) * extraMult;
   const breakthroughs: TrainBreakthrough[] = [];
 
   for (const attr of ATTRIBUTES) {
     const bonus = attr === sectAttr ? TRAIN_XP_SECT_BONUS : 0;
-    const gain = (TRAIN_XP_ALL + bonus) * mult;
+    const gain = (TRAIN_XP_ALL + bonus) * mult * pathXpMultFor(d.path, attr);
     if (addXp(d.attributes[attr], gain).readyToBreakthrough) {
       const tr = attemptBreakthrough(
         d.attributes[attr],
@@ -70,7 +79,8 @@ export function trainOnce(d: Disciple, sectAttr: Attribute, rng: Rng): TrainResu
   }
 
   let injured = false;
-  if (d.status === "active" && rng.chance(injuryChance(effectiveLevel(d.attributes.dexterity)))) {
+  const baseInjury = injuryChance(effectiveLevel(d.attributes.dexterity));
+  if (d.status === "active" && rng.chance(baseInjury * traitInjuryMult(d.trait))) {
     injured = true;
     const damage = Math.max(1, Math.round(maxHp(d) * INJURY_DAMAGE_FRACTION));
     d.hp -= damage;

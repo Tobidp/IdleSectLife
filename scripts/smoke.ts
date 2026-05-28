@@ -12,6 +12,10 @@ import { STORABLE_RESOURCES } from "../src/domain/resources/resourceTypes";
 import { effectiveLevel, createAttr, addXp } from "../src/domain/disciples/attributes";
 import { attemptBreakthrough, tribulationTier } from "../src/domain/disciples/tribulation";
 import { rollTalent, talentXpMult } from "../src/data/talent";
+import { traitXpMult, traitInjuryMult } from "../src/data/traits";
+import { mentorBoost } from "../src/domain/disciples/mentors";
+import { maybeAssignPath, pathXpMultFor } from "../src/domain/disciples/paths";
+import { lifespan, naturalDeathChance } from "../src/domain/disciples/aging";
 import { rankName } from "../src/data/progression";
 import { MAX_APPLICANTS } from "../src/data/balance";
 import { progressNarrative } from "../src/domain/simulation/storyEvents";
@@ -193,6 +197,44 @@ const day0 = og.time.totalDays;
 const offline = simulateOffline(og, orng);
 check(offline !== null && offline.days === 180, "simulateOffline returns the capped day count");
 check(og.time.totalDays - day0 === 180, "simulateOffline advanced exactly the capped days");
+
+// Traits: xp + injury orderings match the design intent.
+check(traitXpMult("lazy") < traitXpMult("balanced"), "lazy gains less xp than balanced");
+check(traitXpMult("diligent") > traitXpMult("balanced"), "diligent gains more xp than balanced");
+check(traitInjuryMult("patient") < traitInjuryMult("balanced"), "patient takes fewer injuries");
+check(traitInjuryMult("hotheaded") > traitInjuryMult("balanced"), "hot-headed is more injury-prone");
+
+// Mentors: zero with no high-rank disciples; +5% per disciple at any attribute >= rank 3.
+const mentRng = new Rng(13);
+const mentG = createNewGame("sword", mentRng);
+check(mentorBoost(mentG) === 0, "no mentor boost from fresh recruits");
+mentG.disciples[0].attributes.strength.rank = 3;
+check(Math.abs(mentorBoost(mentG) - 0.05) < 1e-9, "one rank-3 disciple yields a +5% boost");
+
+// Path auto-assignment: needs any attribute >= rank 2; body when body attrs lead.
+const pRng = new Rng(99);
+const pg = createNewGame("sword", pRng);
+const subject = pg.disciples[0];
+subject.path = null;
+check(maybeAssignPath(subject) === null, "no path before any attribute reaches rank 2");
+subject.attributes.strength.rank = 2;
+const assignedPath = maybeAssignPath(subject);
+check(assignedPath === "body", "leading body attribute -> body path");
+check(
+  pathXpMultFor("body", "strength") > 1 && pathXpMultFor("body", "dexterity") < 1,
+  "body path boosts body attributes and dampens dexterity",
+);
+check(
+  pathXpMultFor("qi", "dexterity") > 1 && pathXpMultFor("qi", "strength") < 1,
+  "qi path inverts the body/qi balance",
+);
+
+// Aging: no natural death before lifespan; ramps once past it.
+const oldD = pg.disciples[1] ?? pg.disciples[0];
+oldD.age = 0;
+check(naturalDeathChance(oldD) === 0, "no natural death before lifespan");
+oldD.age = lifespan(oldD) * 2;
+check(naturalDeathChance(oldD) > 0, "natural death chance ramps once past lifespan");
 
 // Talent (spirit-root): weighted roll yields a sensible distribution; xpMult ordering holds.
 const trng = new Rng(7);

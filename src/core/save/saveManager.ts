@@ -15,9 +15,13 @@ function backfill(save: GameState): void {
   if (typeof save.lastPlayed !== "number") save.lastPlayed = Date.now();
   if (!Array.isArray(save.achievements)) save.achievements = [];
   // Pre-A2 disciples + applicants had no talent; default to "common".
+  // Pre-Phase-3-closeout disciples lacked trait / path / age.
   for (const list of [save.disciples, save.applicants]) {
     for (const d of list ?? []) {
       if (!d.talent) d.talent = "common";
+      if (!d.trait) d.trait = "balanced";
+      if (d.path === undefined) d.path = null;
+      if (typeof d.age !== "number") d.age = 360 * 18; // assume a generic young adult
     }
   }
 }
