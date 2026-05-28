@@ -72,6 +72,15 @@ export const ITEM_TIER_XP_MULT: Record<ItemTier, number> = {
   legendary: 5,
 };
 
+/** Gold paid by the merchant when the player sells a crafted item from the Bag. */
+export const ITEM_TIER_SELL_PRICE: Record<ItemTier, number> = {
+  common: 20,
+  uncommon: 50,
+  rare: 150,
+  epic: 500,
+  legendary: 2000,
+};
+
 /**
  * A blueprint the player has discovered. Crafting consumes `craftCost`, requires the Forge
  * to be at `minForgeLevel`, and rolls an item with bonuses = baseAttrXpBonus * tier multiplier.

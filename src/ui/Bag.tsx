@@ -10,6 +10,7 @@ import {
   EQUIPMENT_SLOT_LABEL,
   ITEM_TIER_CLASS,
   ITEM_TIER_LABEL,
+  ITEM_TIER_SELL_PRICE,
   type EquippedItem,
 } from "../data/equipment";
 import { ATTRIBUTES, ATTRIBUTE_LABEL } from "../domain/sect/sectTypes";
@@ -39,6 +40,7 @@ function EquipmentRow({
   const bp = BLUEPRINT_BY_ID[item.blueprintId];
   const [target, setTarget] = useState<number>(disciples[0]?.id ?? -1);
   if (!bp) return null;
+  const sellPrice = ITEM_TIER_SELL_PRICE[item.tier];
   return (
     <div className="inv-row">
       <span className="inv-slot muted">{EQUIPMENT_SLOT_LABEL[bp.slot]}</span>
@@ -69,6 +71,13 @@ function EquipmentRow({
         onClick={() => actions.equipFromInventory(index, target, bp.slot)}
       >
         Equip
+      </button>
+      <button
+        className="inv-sell"
+        title={`Sell to the merchant for ${sellPrice} gold (cannot be undone)`}
+        onClick={() => actions.sellItem(index)}
+      >
+        Sell · {sellPrice}🪙
       </button>
     </div>
   );

@@ -1632,13 +1632,21 @@ button:disabled {
 }
 .inv-row {
   display: grid;
-  grid-template-columns: 70px 1fr auto auto auto;
+  grid-template-columns: 70px 1fr auto auto auto auto;
   align-items: center;
   gap: 8px;
   padding: 4px 6px;
   background: var(--bg-panel-2);
   border-radius: 4px;
   font-size: 12px;
+}
+.inv-sell {
+  color: var(--gold);
+  border-color: rgba(217, 178, 90, 0.4);
+}
+.inv-sell:hover:not(:disabled) {
+  border-color: var(--gold);
+  background: rgba(217, 178, 90, 0.08);
 }
 .inv-slot {
   font-size: 10px;

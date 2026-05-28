@@ -12,7 +12,7 @@ import type { HiddenBehavior } from "../ui/prefsContext";
 import { craftPill, usePill } from "../domain/alchemy/alchemy";
 import type { PillId } from "../data/pills";
 import { craftBlueprint } from "../domain/equipment/forge";
-import { equipFromInventory, unequipItem } from "../domain/equipment/equip";
+import { equipFromInventory, unequipItem, sellItem } from "../domain/equipment/equip";
 import type { EquipmentSlot } from "../data/equipment";
 import type { SectType } from "../domain/sect/sectTypes";
 import { upgradePavilion, type PavilionKey } from "../domain/buildings/buildings";
@@ -266,6 +266,14 @@ export class GameEngine {
   unequipItem(discipleId: number, slot: EquipmentSlot): void {
     this.store.update((s) => {
       unequipItem(s, discipleId, slot);
+    });
+    this.saveNow();
+  }
+
+  /** Sell an inventory item for gold (price scales with quality tier). */
+  sellItem(inventoryIndex: number): void {
+    this.store.update((s) => {
+      sellItem(s, inventoryIndex);
     });
     this.saveNow();
   }
