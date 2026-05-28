@@ -6,6 +6,7 @@ import { advanceOneDay, currentSeason } from "../../core/time/timeEngine";
 import { collectYield, foodNeed, addResource, clampAllResources } from "../resources/resources";
 import { collectResourceOf } from "../disciples/actions";
 import { trainOnce, happinessGainMultiplier } from "../disciples/training";
+import { talentXpMult } from "../../data/talent";
 import { updateHappiness } from "../disciples/happiness";
 import { rollMonthlyApplicant } from "../disciples/recruitment";
 import { maxHp, type Disciple } from "../disciples/disciple";
@@ -41,7 +42,7 @@ export function advanceDay(state: GameState, rng: Rng): void {
   // 1. Resolve each active disciple's 3 daily actions.
   for (const d of state.disciples) {
     if (d.status !== "active") continue;
-    const mult = happinessGainMultiplier(d.happiness);
+    const mult = happinessGainMultiplier(d.happiness) * talentXpMult(d.talent);
     for (const action of d.actions) {
       const resource = collectResourceOf(action);
       if (resource) {

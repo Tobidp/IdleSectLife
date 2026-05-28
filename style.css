@@ -1321,3 +1321,28 @@ button:disabled {
   font-variant-numeric: tabular-nums;
   text-align: right;
 }
+
+/* ---------- Talent badge (spirit-root rarity) ---------- */
+.d-talent {
+  font-size: 14px;
+  line-height: 1;
+  width: 16px;
+  text-align: center;
+  cursor: help;
+}
+.d-talent.rank-gray {
+  color: #9a9a9a;
+}
+.d-talent.rank-green {
+  color: #6fbf73;
+}
+.d-talent.rank-blue {
+  color: var(--blue);
+}
+.d-talent.rank-purple {
+  color: #9b6fc4;
+}
+.d-talent.rank-gold {
+  color: var(--gold);
+  text-shadow: 0 0 6px rgba(217, 178, 90, 0.6);
+}

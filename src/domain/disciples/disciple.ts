@@ -7,6 +7,7 @@ import { HAPPINESS_START_MATCH, HAPPINESS_START_MISMATCH } from "../../data/base
 import { HP_BASE, HP_PER_LEVEL } from "../../data/balance";
 import { createAttr, effectiveLevel, type AttrProgress } from "./attributes";
 import { generateName } from "./names";
+import { rollTalent, type TalentTier } from "../../data/talent";
 
 /** One of the 3 daily action slots. */
 export type Activity = "idle" | "train" | "collect_stone" | "collect_wood" | "collect_food";
@@ -20,6 +21,8 @@ export interface Disciple {
   id: number;
   name: string;
   preferredSect: SectType;
+  /** Spirit-root tier rolled at creation; scales every XP gain. */
+  talent: TalentTier;
   attributes: Attributes;
   hp: number;
   happiness: number;
@@ -57,6 +60,7 @@ export function createDisciple(
     id,
     name: generateName(rng),
     preferredSect,
+    talent: rollTalent(rng),
     attributes: freshAttributes(),
     hp: 0,
     happiness: matches ? HAPPINESS_START_MATCH : HAPPINESS_START_MISMATCH,

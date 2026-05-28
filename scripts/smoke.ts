@@ -11,6 +11,7 @@ import { acceptApplicant } from "../src/domain/disciples/recruitment";
 import { STORABLE_RESOURCES } from "../src/domain/resources/resourceTypes";
 import { effectiveLevel, createAttr, addXp } from "../src/domain/disciples/attributes";
 import { attemptBreakthrough, tribulationTier } from "../src/domain/disciples/tribulation";
+import { rollTalent, talentXpMult } from "../src/data/talent";
 import { rankName } from "../src/data/progression";
 import { MAX_APPLICANTS } from "../src/data/balance";
 import { progressNarrative } from "../src/domain/simulation/storyEvents";
@@ -192,6 +193,26 @@ const day0 = og.time.totalDays;
 const offline = simulateOffline(og, orng);
 check(offline !== null && offline.days === 180, "simulateOffline returns the capped day count");
 check(og.time.totalDays - day0 === 180, "simulateOffline advanced exactly the capped days");
+
+// Talent (spirit-root): weighted roll yields a sensible distribution; xpMult ordering holds.
+const trng = new Rng(7);
+const counts: Record<string, number> = {};
+for (let i = 0; i < 10000; i++) {
+  const t = rollTalent(trng);
+  counts[t] = (counts[t] ?? 0) + 1;
+}
+check((counts.mundane ?? 0) > 4000, "rollTalent: mundane is the most common tier");
+check(
+  (counts.heavenly ?? 0) >= 1 && (counts.heavenly ?? 0) <= 250,
+  "rollTalent: heavenly is rare but achievable (~1% over 10k rolls)",
+);
+check(
+  talentXpMult("mundane") < talentXpMult("common") &&
+    talentXpMult("common") < talentXpMult("bright") &&
+    talentXpMult("bright") < talentXpMult("brilliant") &&
+    talentXpMult("brilliant") < talentXpMult("heavenly"),
+  "talentXpMult is monotonically increasing across tiers",
+);
 
 // Achievements: unlock once when a condition is met; multipliers stack from unlocked bonuses.
 const achRng = new Rng(33);

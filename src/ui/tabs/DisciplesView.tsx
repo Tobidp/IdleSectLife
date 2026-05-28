@@ -18,6 +18,7 @@ import {
   type Attribute,
 } from "../../domain/sect/sectTypes";
 import { STARS_PER_RANK, rankName, rankTierClass } from "../../data/progression";
+import { TALENT_BY_ID, TALENT_TIER_CLASS } from "../../data/talent";
 import { orderedDisciples, groupKey, groupLabel } from "./discipleOrder";
 
 const ATTR_ORDER: Attribute[] = ["health", "strength", "dexterity", "vitality"];
@@ -82,6 +83,12 @@ function DiscipleRow({ state, d }: { state: GameState; d: Disciple }): JSX.Eleme
           {SECT_ICON[d.preferredSect]}
         </span>
         <span className="d-name">{d.name}</span>
+        <span
+          className={`d-talent ${TALENT_TIER_CLASS[d.talent]}`}
+          title={`Spirit root: ${TALENT_BY_ID[d.talent].label} (×${TALENT_BY_ID[d.talent].xpMult} XP)`}
+        >
+          ◈
+        </span>
         <span className={`d-joy ${happinessClass(d.happiness)}`} title="Happiness">
           ♥ {fmt(d.happiness)}
         </span>

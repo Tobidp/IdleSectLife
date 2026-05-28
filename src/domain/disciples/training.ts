@@ -12,6 +12,7 @@ import {
   INJURY_DAMAGE_FRACTION,
 } from "../../data/balance";
 import { TRAIN_XP_ALL, TRAIN_XP_SECT_BONUS } from "../../data/progression";
+import { talentXpMult } from "../../data/talent";
 import { ATTRIBUTES, type Attribute } from "../sect/sectTypes";
 import { maxHp, type Disciple } from "./disciple";
 import { addXp, effectiveLevel } from "./attributes";
@@ -43,7 +44,7 @@ export interface TrainResult {
 /** Apply one Train action: XP to every attribute (+bonus on the sect's), tribulation rolls on
  * any attribute that hit 10★ this tick, then the usual injury roll. */
 export function trainOnce(d: Disciple, sectAttr: Attribute, rng: Rng): TrainResult {
-  const mult = happinessGainMultiplier(d.happiness);
+  const mult = happinessGainMultiplier(d.happiness) * talentXpMult(d.talent);
   const breakthroughs: TrainBreakthrough[] = [];
 
   for (const attr of ATTRIBUTES) {

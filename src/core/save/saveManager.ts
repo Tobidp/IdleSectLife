@@ -14,6 +14,12 @@ function backfill(save: GameState): void {
   // Default to "now" so an old save isn't treated as having been away forever.
   if (typeof save.lastPlayed !== "number") save.lastPlayed = Date.now();
   if (!Array.isArray(save.achievements)) save.achievements = [];
+  // Pre-A2 disciples + applicants had no talent; default to "common".
+  for (const list of [save.disciples, save.applicants]) {
+    for (const d of list ?? []) {
+      if (!d.talent) d.talent = "common";
+    }
+  }
 }
 
 /**
