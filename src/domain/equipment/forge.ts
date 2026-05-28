@@ -10,6 +10,7 @@ import { sumWorkerLevels } from "../buildings/jobs";
 import { BLUEPRINT_BY_ID } from "../../data/blueprints";
 import {
   ITEM_TIER_LABEL,
+  ITEM_TIER_SELL_PRICE,
   ITEM_TIER_XP_MULT,
   type EquippedItem,
   type ItemTier,
@@ -43,8 +44,19 @@ export function craftBlueprint(state: GameState, blueprintId: string, rng: Rng):
     if (typeof v === "number") xpBonuses[k] = v * mult;
   }
   const item: EquippedItem = { blueprintId, tier, xpBonuses };
-  state.itemInventory.push(item);
-  pushLog(state, `Forged a ${ITEM_TIER_LABEL[tier]} ${bp.name}.`, "good");
+  if (state.autoSellItems[tier]) {
+    // Player set this tier to auto-sell — credit gold immediately and skip the inventory.
+    const price = ITEM_TIER_SELL_PRICE[tier];
+    state.resources.gold += price;
+    pushLog(
+      state,
+      `Forged a ${ITEM_TIER_LABEL[tier]} ${bp.name} — auto-sold for ${price} gold.`,
+      "good",
+    );
+  } else {
+    state.itemInventory.push(item);
+    pushLog(state, `Forged a ${ITEM_TIER_LABEL[tier]} ${bp.name}.`, "good");
+  }
   return item;
 }
 

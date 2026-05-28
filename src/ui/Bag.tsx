@@ -8,13 +8,16 @@ import { PILLS } from "../data/pills";
 import { BLUEPRINT_BY_ID } from "../data/blueprints";
 import {
   EQUIPMENT_SLOT_LABEL,
+  ITEM_TIERS,
   ITEM_TIER_CLASS,
   ITEM_TIER_LABEL,
   ITEM_TIER_SELL_PRICE,
   type EquippedItem,
+  type ItemTier,
 } from "../data/equipment";
 import { ATTRIBUTES, ATTRIBUTE_LABEL } from "../domain/sect/sectTypes";
 import type { Disciple } from "../domain/disciples/disciple";
+import type { GameState } from "../state/gameState";
 
 function formatXpBonuses(b: EquippedItem["xpBonuses"]): string {
   const parts: string[] = [];
@@ -114,6 +117,7 @@ export function BagPanel(): JSX.Element | null {
         <div className="forge-section-title">
           Equipment ({state.itemInventory.length})
         </div>
+        <BulkSellManager state={state} />
         {state.itemInventory.length === 0 ? (
           <p className="muted">No items waiting to be equipped.</p>
         ) : (
@@ -127,3 +131,50 @@ export function BagPanel(): JSX.Element | null {
     </Panel>
   );
 }
+
+function BulkSellManager({ state }: { state: GameState }): JSX.Element {
+  const actions = useActions();
+  const counts: Record<ItemTier, number> = {
+    common: 0,
+    uncommon: 0,
+    rare: 0,
+    epic: 0,
+    legendary: 0,
+  };
+  for (const item of state.itemInventory) counts[item.tier] += 1;
+
+  return (
+    <div className="bulk-manager">
+      <div className="bulk-manager-title muted">Bulk · Auto-sell per tier</div>
+      {ITEM_TIERS.map((tier) => {
+        const count = counts[tier];
+        const price = ITEM_TIER_SELL_PRICE[tier];
+        const auto = state.autoSellItems[tier] ?? false;
+        return (
+          <div className={`bulk-row ${ITEM_TIER_CLASS[tier]}`} key={tier}>
+            <span className="bulk-label">{ITEM_TIER_LABEL[tier]}</span>
+            <span className="bulk-count muted">{count} in bag</span>
+            <span className="bulk-price muted">{price}🪙 each</span>
+            <button
+              className="bulk-sell"
+              disabled={count === 0}
+              title={count === 0 ? "Nothing of this tier to sell" : `Sell all ${count} for ${price * count} gold`}
+              onClick={() => actions.sellAllByTier(tier)}
+            >
+              Sell all
+            </button>
+            <label className="bulk-auto" title="Auto-sell newly crafted items of this tier">
+              <input
+                type="checkbox"
+                checked={auto}
+                onChange={(e) => actions.setAutoSellTier(tier, e.target.checked)}
+              />
+              <span>Auto</span>
+            </label>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+

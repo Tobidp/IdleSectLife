@@ -1648,6 +1648,46 @@ button:disabled {
   border-color: var(--gold);
   background: rgba(217, 178, 90, 0.08);
 }
+
+/* Bulk / auto-sell manager: one compact row per tier above the inventory list. */
+.bulk-manager {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 8px;
+  padding: 6px 8px;
+  background: var(--bg-panel-2);
+  border-radius: 4px;
+}
+.bulk-manager-title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+.bulk-row {
+  display: grid;
+  grid-template-columns: 90px 70px 70px auto auto;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+.bulk-label {
+  font-weight: 600;
+}
+.bulk-sell {
+  padding: 1px 8px;
+  font-size: 11px;
+}
+.bulk-auto {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--ink-dim);
+  cursor: pointer;
+  justify-self: end;
+}
 .inv-slot {
   font-size: 10px;
   text-transform: uppercase;

@@ -9,10 +9,10 @@ import { STARTING_RESOURCES, STARTING_DISCIPLES } from "../data/baseStats";
 import type { LogEntry } from "./log";
 import { createInitialNarrativeState, type NarrativeState } from "./narrative";
 import type { PillId } from "../data/pills";
-import type { EquippedItem } from "../data/equipment";
+import type { EquippedItem, ItemTier } from "../data/equipment";
 import { STARTING_BLUEPRINTS } from "../data/blueprints";
 
-export const SAVE_VERSION = 16;
+export const SAVE_VERSION = 17;
 
 export type Speed = 1 | 2 | 4;
 
@@ -66,6 +66,9 @@ export interface GameState {
   blueprints: string[];
   /** Crafted items waiting to be equipped onto a disciple. */
   itemInventory: EquippedItem[];
+  /** Tiers the player chose to auto-sell — newly crafted items of these tiers are sold on the
+   *  spot, and enabling a tier sweeps any matching items already in the inventory. */
+  autoSellItems: Partial<Record<ItemTier, boolean>>;
   /** Consecutive months the gold upkeep ("wages") went unpaid. */
   goldArrears: number;
   log: LogEntry[];
@@ -104,6 +107,7 @@ export function createNewGame(sect: SectType, rng: Rng): GameState {
     pills: {},
     blueprints: [...STARTING_BLUEPRINTS],
     itemInventory: [],
+    autoSellItems: {},
     goldArrears: 0,
     log: [],
     nextId: 1,

@@ -12,8 +12,14 @@ import type { HiddenBehavior } from "../ui/prefsContext";
 import { craftPill, usePill } from "../domain/alchemy/alchemy";
 import type { PillId } from "../data/pills";
 import { craftBlueprint } from "../domain/equipment/forge";
-import { equipFromInventory, unequipItem, sellItem } from "../domain/equipment/equip";
-import type { EquipmentSlot } from "../data/equipment";
+import {
+  equipFromInventory,
+  unequipItem,
+  sellItem,
+  sellAllByTier,
+  setAutoSellTier,
+} from "../domain/equipment/equip";
+import type { EquipmentSlot, ItemTier } from "../data/equipment";
 import type { SectType } from "../domain/sect/sectTypes";
 import { upgradePavilion, type PavilionKey } from "../domain/buildings/buildings";
 import { upgradeSect } from "../domain/sect/sect";
@@ -274,6 +280,22 @@ export class GameEngine {
   sellItem(inventoryIndex: number): void {
     this.store.update((s) => {
       sellItem(s, inventoryIndex);
+    });
+    this.saveNow();
+  }
+
+  /** Sell every inventory item of a given tier in one go. */
+  sellAllByTier(tier: ItemTier): void {
+    this.store.update((s) => {
+      sellAllByTier(s, tier);
+    });
+    this.saveNow();
+  }
+
+  /** Toggle auto-sell for a tier; enabling sweeps current matching inventory. */
+  setAutoSellTier(tier: ItemTier, enabled: boolean): void {
+    this.store.update((s) => {
+      setAutoSellTier(s, tier, enabled);
     });
     this.saveNow();
   }

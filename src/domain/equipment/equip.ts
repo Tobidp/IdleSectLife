@@ -3,7 +3,12 @@
 
 import type { GameState } from "../../state/gameState";
 import { BLUEPRINT_BY_ID } from "../../data/blueprints";
-import { ITEM_TIER_LABEL, ITEM_TIER_SELL_PRICE, type EquipmentSlot } from "../../data/equipment";
+import {
+  ITEM_TIER_LABEL,
+  ITEM_TIER_SELL_PRICE,
+  type EquipmentSlot,
+  type ItemTier,
+} from "../../data/equipment";
 import { pushLog } from "../../state/log";
 
 /**
@@ -56,4 +61,37 @@ export function sellItem(state: GameState, inventoryIndex: number): boolean {
   const name = bp?.name ?? item.blueprintId;
   pushLog(state, `Sold ${ITEM_TIER_LABEL[item.tier]} ${name} for ${price} gold.`, "info");
   return true;
+}
+
+/** Drop every inventory item of `tier`, crediting their tier price as gold. Returns the
+ *  count sold so the engine action can quote a single log line. */
+export function sellAllByTier(state: GameState, tier: ItemTier): number {
+  const keep: typeof state.itemInventory = [];
+  let sold = 0;
+  let gold = 0;
+  for (const item of state.itemInventory) {
+    if (item.tier === tier) {
+      sold += 1;
+      gold += ITEM_TIER_SELL_PRICE[item.tier];
+    } else {
+      keep.push(item);
+    }
+  }
+  if (sold > 0) {
+    state.itemInventory = keep;
+    state.resources.gold += gold;
+    pushLog(state, `Sold ${sold} ${ITEM_TIER_LABEL[tier]} item${sold === 1 ? "" : "s"} for ${gold} gold.`, "info");
+  }
+  return sold;
+}
+
+/** Enable or disable auto-sell for a tier. Turning it ON also sweeps any existing matching
+ *  inventory items so the rule is consistently applied across past + future crafts. */
+export function setAutoSellTier(state: GameState, tier: ItemTier, enabled: boolean): void {
+  if (enabled) {
+    state.autoSellItems[tier] = true;
+    sellAllByTier(state, tier);
+  } else {
+    delete state.autoSellItems[tier];
+  }
 }
