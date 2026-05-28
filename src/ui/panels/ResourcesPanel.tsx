@@ -13,7 +13,7 @@ import {
 import { capFor } from "../../domain/resources/resources";
 import { dailyNet, monthlyGoldNet } from "../../domain/simulation/projection";
 
-const ROW_ORDER: ResourceType[] = ["stone", "wood", "food", "herb", "cloth", "gold"];
+const ROW_ORDER: ResourceType[] = ["stone", "wood", "food", "herb", "ore", "cloth", "gold"];
 
 function FlowSpan({ value, unit, title }: { value: number; unit: string; title: string }): JSX.Element {
   const rounded = Math.round(value);

@@ -15,6 +15,8 @@ function backfill(save: GameState): void {
   if (!save.buildings.alchemyLab) save.buildings.alchemyLab = { level: 0 };
   // Pre-B3 saves didn't have the herb resource.
   if (typeof save.resources.herb !== "number") save.resources.herb = 0;
+  // Pre-B5a saves didn't have the ore resource.
+  if (typeof save.resources.ore !== "number") save.resources.ore = 0;
   if (!save.pills) save.pills = {};
   if (!save.autoSell) save.autoSell = {};
   if (typeof save.goldArrears !== "number") save.goldArrears = 0;

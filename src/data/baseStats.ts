@@ -15,4 +15,5 @@ export const STARTING_RESOURCES = {
   gold: 20,
   cloth: 0,
   herb: 0,
+  ore: 0,
 } as const;

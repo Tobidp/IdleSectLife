@@ -24,6 +24,7 @@ export function dailyNet(state: GameState): Record<ResourceType, number> {
     gold: 0,
     cloth: 0,
     herb: 0,
+    ore: 0,
   };
 
   for (const d of state.disciples) {

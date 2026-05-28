@@ -8,6 +8,7 @@ export const ACTIVITY_OPTIONS: readonly Activity[] = [
   "collect_stone",
   "collect_wood",
   "collect_food",
+  "collect_ore",
   "train",
   "idle",
 ];
@@ -16,6 +17,7 @@ export const ACTIVITY_LABEL: Record<Activity, string> = {
   collect_stone: "Collect Stone",
   collect_wood: "Collect Wood",
   collect_food: "Collect Food",
+  collect_ore: "Collect Ore",
   train: "Train",
   idle: "Idle",
 };
@@ -29,6 +31,8 @@ export function collectResourceOf(activity: Activity): CollectableResource | nul
       return "wood";
     case "collect_food":
       return "food";
+    case "collect_ore":
+      return "ore";
     default:
       return null;
   }

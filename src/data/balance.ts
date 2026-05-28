@@ -3,10 +3,11 @@
 
 // --- Collection (per action: yield = COLLECT_BASE_BY_RESOURCE[r] + strengthLevel * COLLECT_PER_LEVEL, x season) ---
 // Deliberately small so warehouses don't fill instantly — the game should be a slow burn.
-export const COLLECT_BASE_BY_RESOURCE: Record<"stone" | "wood" | "food", number> = {
+export const COLLECT_BASE_BY_RESOURCE: Record<"stone" | "wood" | "food" | "ore", number> = {
   stone: 0.6,
   wood: 0.6,
   food: 0.3,
+  ore: 0.4, // Ore yields are between stone (plentiful) and food (low base) — feeds the Forge.
 };
 export const COLLECT_PER_LEVEL = 0.05;
 

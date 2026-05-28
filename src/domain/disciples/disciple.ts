@@ -12,7 +12,13 @@ import { rollTrait, type TraitId } from "../../data/traits";
 import type { Path } from "./paths";
 
 /** One of the 3 daily action slots. */
-export type Activity = "idle" | "train" | "collect_stone" | "collect_wood" | "collect_food";
+export type Activity =
+  | "idle"
+  | "train"
+  | "collect_stone"
+  | "collect_wood"
+  | "collect_food"
+  | "collect_ore";
 
 export type Attributes = Record<Attribute, AttrProgress>;
 

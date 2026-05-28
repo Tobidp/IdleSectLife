@@ -15,4 +15,5 @@ export const MARKET_PRICES: Record<ResourceType, MarketPrice> = {
   cloth: { sell: null, buy: 5 }, // buy-only in v1
   gold: { sell: null, buy: null }, // gold is the currency itself
   herb: { sell: 3, buy: null }, // herbs sell well; can't be bought (grow your own)
+  ore: { sell: 4, buy: null }, // mined manually; feeds the Forge — slightly pricier than herb
 };
