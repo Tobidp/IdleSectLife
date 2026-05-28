@@ -10,6 +10,7 @@ import { updateHappiness } from "../disciples/happiness";
 import { rollMonthlyApplicant } from "../disciples/recruitment";
 import { maxHp, type Disciple } from "../disciples/disciple";
 import { addXp, effectiveLevel } from "../disciples/attributes";
+import { attemptBreakthrough, TRIBULATION_TIER_LABEL } from "../disciples/tribulation";
 import { sectAttribute } from "../sect/sect";
 import { monthlyFameGain } from "../fame/fame";
 import { applyMonthlyMaintenance } from "../buildings/maintenance";
@@ -50,18 +51,58 @@ export function advanceDay(state: GameState, rng: Rng): void {
           resource,
           collectYield(resource, strLevel, seasonMultiplier(season, resource)) * bonus.collect,
         );
-        if (addXp(d.attributes.strength, COLLECT_XP * mult).rankedUp) {
-          pushLog(state, `${d.name}'s ${ATTRIBUTE_LABEL.strength} reached ${rankName(d.attributes.strength.rank)}!`, "good");
+        if (addXp(d.attributes.strength, COLLECT_XP * mult).readyToBreakthrough) {
+          const tr = attemptBreakthrough(
+            d.attributes.strength,
+            effectiveLevel(d.attributes.vitality),
+            rng,
+          );
+          if (tr.attempted) {
+            if (tr.success) {
+              pushLog(
+                state,
+                `${d.name} ascends to ${rankName(d.attributes.strength.rank)} in ${ATTRIBUTE_LABEL.strength}!`,
+                "good",
+              );
+            } else {
+              if (tr.hpDamageFraction) {
+                d.hp -= Math.round(maxHp(d) * tr.hpDamageFraction);
+                if (d.hp <= 0) {
+                  d.hp = 0;
+                  d.status = "down";
+                }
+              }
+              pushLog(
+                state,
+                `${d.name}'s ${TRIBULATION_TIER_LABEL[tr.tier]} tribulation in ${ATTRIBUTE_LABEL.strength} failed.`,
+                "bad",
+              );
+            }
+            if (d.hp <= 0) break;
+          }
         }
       } else if (action === "train") {
         const result = trainOnce(d, sectAttr, rng);
-        for (const attr of result.rankedUp) {
-          pushLog(state, `${d.name}'s ${ATTRIBUTE_LABEL[attr]} reached ${rankName(d.attributes[attr].rank)}!`, "good");
+        for (const ev of result.breakthroughs) {
+          if (ev.result.success) {
+            pushLog(
+              state,
+              `${d.name} ascends to ${rankName(d.attributes[ev.attr].rank)} in ${ATTRIBUTE_LABEL[ev.attr]}!`,
+              "good",
+            );
+          } else {
+            pushLog(
+              state,
+              `${d.name}'s ${TRIBULATION_TIER_LABEL[ev.result.tier]} tribulation in ${ATTRIBUTE_LABEL[ev.attr]} failed.`,
+              "bad",
+            );
+          }
         }
         if (result.injured && d.hp <= 0) {
           pushLog(state, `${d.name} was injured in training and is recovering.`, "bad");
-          break; // knocked down — no more actions today
+          break;
         }
+        if (d.hp <= 0) break; // tribulation knockdown
       }
     }
   }

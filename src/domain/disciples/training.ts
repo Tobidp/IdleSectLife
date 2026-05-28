@@ -15,6 +15,7 @@ import { TRAIN_XP_ALL, TRAIN_XP_SECT_BONUS } from "../../data/progression";
 import { ATTRIBUTES, type Attribute } from "../sect/sectTypes";
 import { maxHp, type Disciple } from "./disciple";
 import { addXp, effectiveLevel } from "./attributes";
+import { attemptBreakthrough, type BreakthroughResult } from "./tribulation";
 import type { Rng } from "../../core/rng/rng";
 
 /** How much of any XP gain a disciple keeps, based on happiness. */
@@ -29,24 +30,46 @@ export function injuryChance(dexterityLevel: number): number {
   return Math.max(INJURY_MIN_CHANCE, INJURY_BASE_CHANCE - dexterityLevel * INJURY_DEX_FACTOR);
 }
 
-export interface TrainResult {
-  injured: boolean;
-  rankedUp: Attribute[];
+export interface TrainBreakthrough {
+  attr: Attribute;
+  result: BreakthroughResult;
 }
 
-/** Apply one Train action: XP to every attribute (+bonus on the sect's), then an injury roll. */
+export interface TrainResult {
+  injured: boolean;
+  breakthroughs: TrainBreakthrough[];
+}
+
+/** Apply one Train action: XP to every attribute (+bonus on the sect's), tribulation rolls on
+ * any attribute that hit 10★ this tick, then the usual injury roll. */
 export function trainOnce(d: Disciple, sectAttr: Attribute, rng: Rng): TrainResult {
   const mult = happinessGainMultiplier(d.happiness);
-  const rankedUp: Attribute[] = [];
+  const breakthroughs: TrainBreakthrough[] = [];
 
   for (const attr of ATTRIBUTES) {
     const bonus = attr === sectAttr ? TRAIN_XP_SECT_BONUS : 0;
     const gain = (TRAIN_XP_ALL + bonus) * mult;
-    if (addXp(d.attributes[attr], gain).rankedUp) rankedUp.push(attr);
+    if (addXp(d.attributes[attr], gain).readyToBreakthrough) {
+      const tr = attemptBreakthrough(
+        d.attributes[attr],
+        effectiveLevel(d.attributes.vitality),
+        rng,
+      );
+      if (tr.attempted) {
+        breakthroughs.push({ attr, result: tr });
+        if (!tr.success && tr.hpDamageFraction) {
+          d.hp -= Math.round(maxHp(d) * tr.hpDamageFraction);
+          if (d.hp <= 0) {
+            d.hp = 0;
+            d.status = "down";
+          }
+        }
+      }
+    }
   }
 
   let injured = false;
-  if (rng.chance(injuryChance(effectiveLevel(d.attributes.dexterity)))) {
+  if (d.status === "active" && rng.chance(injuryChance(effectiveLevel(d.attributes.dexterity)))) {
     injured = true;
     const damage = Math.max(1, Math.round(maxHp(d) * INJURY_DAMAGE_FRACTION));
     d.hp -= damage;
@@ -56,5 +79,5 @@ export function trainOnce(d: Disciple, sectAttr: Attribute, rng: Rng): TrainResu
     }
   }
 
-  return { injured, rankedUp };
+  return { injured, breakthroughs };
 }

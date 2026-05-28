@@ -10,6 +10,7 @@ import { upgradePavilion } from "../src/domain/buildings/buildings";
 import { acceptApplicant } from "../src/domain/disciples/recruitment";
 import { STORABLE_RESOURCES } from "../src/domain/resources/resourceTypes";
 import { effectiveLevel, createAttr, addXp } from "../src/domain/disciples/attributes";
+import { attemptBreakthrough, tribulationTier } from "../src/domain/disciples/tribulation";
 import { rankName } from "../src/data/progression";
 import { MAX_APPLICANTS } from "../src/data/balance";
 import { progressNarrative } from "../src/domain/simulation/storyEvents";
@@ -85,17 +86,28 @@ check(state.fame > 0, "fame grew above 0");
 check(state.disciples.length >= 1, "at least one disciple survived");
 check(state.disciples.some((d) => effectiveLevel(d.attributes.strength) > 1), "at least one disciple gained strength");
 
-// Rank-up mechanic (deterministic): pump XP and confirm promotion + star reset + bounds.
+// Progression: addXp caps at 10★ (never auto-promotes); attemptBreakthrough handles the
+// rank-up as a separate, risky tribulation. Tier scales with the target rank.
+check(tribulationTier(1) === 0 && tribulationTier(3) === 1 && tribulationTier(6) === 2,
+  "tribulation tier scales with target rank (light → medium → heavy)");
+
 const a = createAttr();
-let promoted = false;
-let ok = true;
-for (let i = 0; i < 200000 && a.rank < 3; i++) {
-  if (addXp(a, 40).rankedUp) promoted = true;
-  if (a.star < 1 || a.star > 10) ok = false;
+for (let i = 0; i < 2000; i++) addXp(a, 40);
+check(a.rank === 0 && a.star === 10, "addXp alone never promotes rank — caps at 10★");
+check(addXp(a, 40).readyToBreakthrough, "addXp signals breakthrough readiness at 10★ + full xp");
+
+// Climb several ranks via deterministic tribulations (high vitality keeps fail chance at min).
+const probeRng = new Rng(1234);
+let okStars = true;
+let attempts = 0;
+while (a.rank < 3 && attempts < 200) {
+  if (addXp(a, 1000).readyToBreakthrough) attemptBreakthrough(a, 200, probeRng);
+  if (a.star < 1 || a.star > 10) okStars = false;
+  attempts++;
 }
-console.log(`\nRank-up probe: reached ${rankName(a.rank)} ${a.star}/10★ (eff ${effectiveLevel(a)})`);
-check(promoted && a.rank >= 3, "addXp promotes ranks (reached rank 3)");
-check(ok, "star stays within 1..10 across promotions");
+console.log(`\nTribulation probe: reached ${rankName(a.rank)} ${a.star}/10★ (eff ${effectiveLevel(a)})`);
+check(a.rank >= 3, "attemptBreakthrough advances ranks when seeded for success");
+check(okStars, "star stays within 1..10 across breakthroughs (success or setback)");
 
 // Narrative pipeline probe (deterministic — drive content unlocks by sect level + flags).
 const nrng = new Rng(42);

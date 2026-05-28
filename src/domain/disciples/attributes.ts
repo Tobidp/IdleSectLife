@@ -33,26 +33,28 @@ export function progressFraction(a: AttrProgress): number {
 }
 
 export interface XpResult {
-  rankedUp: boolean;
+  /** True when the disciple is at 10★ with a full XP bar, ready for the tribulation roll. */
+  readyToBreakthrough: boolean;
 }
 
-/** Add XP, resolving any star-ups and rank promotions. Returns whether a rank was gained. */
+/**
+ * Add XP, advancing stars within the current rank. **Does not promote rank** — at 10★ the XP
+ * caps at the breakthrough threshold and `readyToBreakthrough` flips on. The actual rank-up
+ * goes through `attemptBreakthrough` (a separate, risky check) so cultivation has a real trial.
+ */
 export function addXp(a: AttrProgress, amount: number): XpResult {
-  if (amount <= 0) return { rankedUp: false };
-  a.xp += amount;
-
-  let rankedUp = false;
-  let guard = 0;
-  while (a.xp >= xpForNextStar(a) && guard < 1000) {
-    a.xp -= xpForNextStar(a);
-    if (a.star >= STARS_PER_RANK) {
-      a.rank += 1;
-      a.star = 1;
-      rankedUp = true;
-    } else {
+  if (amount > 0) {
+    a.xp += amount;
+    let guard = 0;
+    while (a.star < STARS_PER_RANK && a.xp >= xpForNextStar(a) && guard < 1000) {
+      a.xp -= xpForNextStar(a);
       a.star += 1;
+      guard += 1;
     }
-    guard += 1;
+    // At top star, hold xp at the breakthrough threshold rather than letting it accumulate.
+    if (a.star === STARS_PER_RANK && a.xp > xpForNextStar(a)) {
+      a.xp = xpForNextStar(a);
+    }
   }
-  return { rankedUp };
+  return { readyToBreakthrough: a.star === STARS_PER_RANK && a.xp >= xpForNextStar(a) };
 }

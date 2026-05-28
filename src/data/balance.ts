@@ -53,6 +53,15 @@ export const WAGE_ARREARS_GRACE_MONTHS = 2; // consecutive unpaid months tolerat
 export const PASSIVE_GOLD_PER_MONTH = 1; // tiny passive gold trickle (deliberately almost nothing)
 export const MERCHANT_SELL_BONUS_PER_LEVEL = 0.1; // auto-sell price x (1 + (level-1) * this)
 
+// --- Tribulation (rank-up trial): progressive severity by the rank you're entering ---
+// Tier 0 = light (entering ranks 1–2), 1 = medium (3–5), 2 = heavy (6+).
+export const TRIBULATION_BASE_FAIL = [0.05, 0.2, 0.4] as const; // base fail chance per tier
+export const TRIBULATION_MIN_FAIL = 0.02; // failures stay possible even at high vitality
+export const TRIBULATION_VIT_FACTOR = 0.005; // each vitality level cuts fail chance by this
+export const TRIBULATION_HP_FRACTION = [0.33, 0.5, 0.75] as const; // hp lost (frac of max) on fail
+export const TRIBULATION_XP_ROLLBACK = [0.3, 0.4, 0.5] as const; // xp share lost on fail
+export const TRIBULATION_SETBACK_CHANCE = [0, 0.1, 0.25] as const; // chance of star/rank setback on fail
+
 // --- Offline progress (applied on return) ---
 // Time away accrues at a reduced rate, capped, so closing the game isn't punished but also
 // can't fast-forward years (a day is only ~3s of real time).
