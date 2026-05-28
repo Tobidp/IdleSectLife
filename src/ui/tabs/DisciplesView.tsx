@@ -250,23 +250,38 @@ function DiscipleRow({ state, d }: { state: GameState; d: Disciple }): JSX.Eleme
         )}
       </div>
       {expanded && (
-        <div className="d-expanded">
-          <div className="d-attrs">
-            {ATTR_ORDER.map((attr) => (
-              <AttrRow key={attr} a={d.attributes[attr]} attr={attr} isSectAttr={attr === sectAttr} />
-            ))}
+        <>
+          <div className="d-expanded">
+            <div className="d-attrs">
+              {ATTR_ORDER.map((attr) => (
+                <AttrRow key={attr} a={d.attributes[attr]} attr={attr} isSectAttr={attr === sectAttr} />
+              ))}
+            </div>
+            <div className="d-equipment" aria-label="Equipment">
+              {EQUIPMENT_SLOTS.map((slot) => (
+                <EquipmentSlotView
+                  key={slot}
+                  slot={slot}
+                  item={d.equipment[slot]}
+                  onUnequip={() => actions.unequipItem(d.id, slot)}
+                />
+              ))}
+            </div>
           </div>
-          <div className="d-equipment" aria-label="Equipment">
-            {EQUIPMENT_SLOTS.map((slot) => (
-              <EquipmentSlotView
-                key={slot}
-                slot={slot}
-                item={d.equipment[slot]}
-                onUnequip={() => actions.unequipItem(d.id, slot)}
-              />
-            ))}
+          <div className="d-expanded-footer">
+            <button
+              className="expel-btn"
+              title="Permanently remove this disciple from the sect (bonded friends will grieve)"
+              onClick={() => {
+                if (window.confirm(`Expel ${d.name} from the sect? This can't be undone.`)) {
+                  actions.expelDisciple(d.id);
+                }
+              }}
+            >
+              Expel from Sect
+            </button>
           </div>
-        </div>
+        </>
       )}
     </div>
   );

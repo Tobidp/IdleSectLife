@@ -19,7 +19,7 @@ import { upgradePavilion, type PavilionKey } from "../domain/buildings/buildings
 import { upgradeSect } from "../domain/sect/sect";
 import { addResource } from "../domain/resources/resources";
 import { sellResource, buyResource } from "../domain/market/market";
-import { acceptApplicant, denyApplicant } from "../domain/disciples/recruitment";
+import { acceptApplicant, denyApplicant, expelDisciple } from "../domain/disciples/recruitment";
 import type { ResourceType } from "../domain/resources/resourceTypes";
 import type { Activity } from "../domain/disciples/disciple";
 import { acceptQuest, completeQuest, getQuestById } from "../domain/quests/quest";
@@ -320,6 +320,14 @@ export class GameEngine {
   denyApplicant(id: number): void {
     this.store.update((s) => {
       denyApplicant(s, id);
+    });
+    this.saveNow();
+  }
+
+  /** Permanently remove a disciple from the sect (bonded survivors mourn). */
+  expelDisciple(id: number): void {
+    this.store.update((s) => {
+      expelDisciple(s, id);
     });
     this.saveNow();
   }

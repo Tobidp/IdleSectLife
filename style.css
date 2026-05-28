@@ -841,6 +841,25 @@ button:disabled {
   color: #e07c7c;
   font-weight: 600;
 }
+
+/* Expanded disciple footer: holds destructive controls like Expel. */
+.d-expanded-footer {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px dotted var(--border-soft);
+  display: flex;
+  justify-content: flex-end;
+}
+.expel-btn {
+  padding: 3px 10px;
+  font-size: 11px;
+  color: #e07c7c;
+  border-color: rgba(224, 124, 124, 0.4);
+}
+.expel-btn:hover:not(:disabled) {
+  border-color: #e07c7c;
+  background: rgba(224, 124, 124, 0.08);
+}
 .accept-btn:hover:not(:disabled) {
   border-color: var(--jade);
   color: var(--jade);

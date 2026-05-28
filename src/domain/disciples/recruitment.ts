@@ -5,6 +5,7 @@ import { SECT_TYPES } from "../sect/sectTypes";
 import { disciplesCapacity } from "../buildings/buildings";
 import { recruitChance } from "../fame/fame";
 import { MAX_APPLICANTS, APPLICANT_EXPIRY_DAYS } from "../../data/balance";
+import { mournLost } from "./bonds";
 import { pushLog } from "../../state/log";
 import type { GameState } from "../../state/gameState";
 import type { Rng } from "../../core/rng/rng";
@@ -58,4 +59,19 @@ export function denyApplicant(state: GameState, id: number): void {
   if (idx < 0) return;
   const [applicant] = state.applicants.splice(idx, 1);
   pushLog(state, `${applicant.name} was turned away.`, "info");
+}
+
+/**
+ * Expel a current disciple from the sect — the player's explicit removal, distinct from
+ * abandonment (low morale) or natural death. Bonded survivors mourn just like any other
+ * loss; the expelled disciple is dropped from the roster. Any equipped items vanish with
+ * them (v1 simplicity — could feed back into the Bag later).
+ */
+export function expelDisciple(state: GameState, id: number): boolean {
+  const idx = state.disciples.findIndex((d) => d.id === id);
+  if (idx < 0) return false;
+  const [expelled] = state.disciples.splice(idx, 1);
+  pushLog(state, `${expelled.name} was expelled from the sect.`, "bad");
+  mournLost(state, [expelled], (s, l) => `${s.name} grieves their bond with ${l.name}.`);
+  return true;
 }
