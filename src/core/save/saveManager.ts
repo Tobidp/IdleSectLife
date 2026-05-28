@@ -11,6 +11,9 @@ function backfill(save: GameState): void {
   if (!save.buildings.merchant) save.buildings.merchant = { level: 0 };
   if (!save.buildings.infirmary) save.buildings.infirmary = { level: 0 };
   if (!save.buildings.trainingHall) save.buildings.trainingHall = { level: 0 };
+  if (!save.buildings.herbGarden) save.buildings.herbGarden = { level: 0 };
+  // Pre-B3 saves didn't have the herb resource.
+  if (typeof save.resources.herb !== "number") save.resources.herb = 0;
   if (!save.autoSell) save.autoSell = {};
   if (typeof save.goldArrears !== "number") save.goldArrears = 0;
   // Default to "now" so an old save isn't treated as having been away forever.

@@ -14,4 +14,5 @@ export const MARKET_PRICES: Record<ResourceType, MarketPrice> = {
   food: { sell: 2, buy: 4 },
   cloth: { sell: null, buy: 5 }, // buy-only in v1
   gold: { sell: null, buy: null }, // gold is the currency itself
+  herb: { sell: 3, buy: null }, // herbs sell well; can't be bought (grow your own)
 };

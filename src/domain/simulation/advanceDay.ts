@@ -12,7 +12,7 @@ import { pathXpMultFor, maybeAssignPath, PATH_LABEL } from "../disciples/paths";
 import { mentorBoost } from "../disciples/mentors";
 import { naturalDeathChance, ageInYears } from "../disciples/aging";
 import { rollMonthlyBond, mournLost } from "../disciples/bonds";
-import { infirmaryHealBonus, trainingHallXpBonus } from "../buildings/buildings";
+import { infirmaryHealBonus, trainingHallXpBonus, herbProductionPerDay } from "../buildings/buildings";
 import { updateHappiness } from "../disciples/happiness";
 import { rollMonthlyApplicant } from "../disciples/recruitment";
 import { maxHp, type Disciple } from "../disciples/disciple";
@@ -224,6 +224,10 @@ export function advanceDay(state: GameState, rng: Rng): void {
   // 7. Narrative progression: discover clues, queue NPC encounters.
   // Gated while the Story feature is unreleased so no placeholder text reaches the log.
   if (STORY_ENABLED) progressNarrative(state);
+
+  // 7b. Herb garden grows herbs passively (before clamp so it caps cleanly).
+  const herbs = herbProductionPerDay(state);
+  if (herbs > 0) addResource(state, "herb", herbs);
 
   // 8. Keep stores within warehouse caps.
   clampAllResources(state);

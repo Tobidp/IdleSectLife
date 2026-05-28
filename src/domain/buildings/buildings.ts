@@ -6,6 +6,7 @@ import {
   MERCHANT,
   INFIRMARY,
   TRAINING_HALL,
+  HERB_GARDEN,
   scaledCost,
   type Cost,
 } from "../../data/costs";
@@ -15,12 +16,19 @@ import {
   INFIRMARY_HEAL_PER_LEVEL,
   TRAINING_HALL_XP_PER_LEVEL,
   TRAINING_HALL_XP_CAP,
+  HERB_PER_LEVEL_PER_DAY,
 } from "../../data/balance";
 import { spend } from "../resources/resources";
 import { pushLog } from "../../state/log";
 import type { GameState } from "../../state/gameState";
 
-export type PavilionKey = "quarters" | "warehouse" | "merchant" | "infirmary" | "trainingHall";
+export type PavilionKey =
+  | "quarters"
+  | "warehouse"
+  | "merchant"
+  | "infirmary"
+  | "trainingHall"
+  | "herbGarden";
 
 export const PAVILION_LABEL: Record<PavilionKey, string> = {
   quarters: "Quarters",
@@ -28,6 +36,7 @@ export const PAVILION_LABEL: Record<PavilionKey, string> = {
   merchant: "Merchant Pavilion",
   infirmary: "Infirmary",
   trainingHall: "Training Hall",
+  herbGarden: "Spirit Herb Garden",
 };
 
 const PAVILION_BASE_COST: Record<PavilionKey, Cost> = {
@@ -36,6 +45,7 @@ const PAVILION_BASE_COST: Record<PavilionKey, Cost> = {
   merchant: MERCHANT.baseCost,
   infirmary: INFIRMARY.baseCost,
   trainingHall: TRAINING_HALL.baseCost,
+  herbGarden: HERB_GARDEN.baseCost,
 };
 
 /** Auto-selling is unlocked once the Merchant Pavilion exists. */
@@ -59,6 +69,11 @@ export function trainingHallXpBonus(state: GameState): number {
     TRAINING_HALL_XP_CAP,
     state.buildings.trainingHall.level * TRAINING_HALL_XP_PER_LEVEL,
   );
+}
+
+/** Herbs grown per day by the spirit herb garden. */
+export function herbProductionPerDay(state: GameState): number {
+  return state.buildings.herbGarden.level * HERB_PER_LEVEL_PER_DAY;
 }
 
 export function quartersCapacity(level: number): number {

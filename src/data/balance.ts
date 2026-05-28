@@ -60,6 +60,9 @@ export const INFIRMARY_HEAL_PER_LEVEL = 2; // extra hp/day per infirmary level
 export const TRAINING_HALL_XP_PER_LEVEL = 0.05; // +5% xp per level
 export const TRAINING_HALL_XP_CAP = 0.25; // caps at +25%
 
+// --- Herb Garden (passive herb production) ---
+export const HERB_PER_LEVEL_PER_DAY = 0.5; // herbs grown per day per garden level
+
 // --- Bonds (friendships between disciples) ---
 export const BOND_HAPPINESS_PER_BOND = 2; // each bond raises the disciple's happiness target
 export const BOND_HAPPINESS_TARGET_CAP = 20; // ceiling on how much bonds can shift the target

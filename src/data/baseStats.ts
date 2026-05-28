@@ -14,4 +14,5 @@ export const STARTING_RESOURCES = {
   food: 30,
   gold: 20,
   cloth: 0,
+  herb: 0,
 } as const;

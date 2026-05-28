@@ -10,13 +10,21 @@ import { currentSeason } from "../../core/time/timeEngine";
 import { seasonMultiplier } from "../../data/seasons";
 import { monthlyMaintenance } from "../buildings/maintenance";
 import { achievementMultipliers } from "../achievements/achievements";
+import { herbProductionPerDay } from "../buildings/buildings";
 import { PASSIVE_GOLD_PER_MONTH } from "../../data/balance";
 
 /** Net resource change expected per day from disciple activity (gross collection minus food eaten). */
 export function dailyNet(state: GameState): Record<ResourceType, number> {
   const season = currentSeason(state.time);
   const bonus = achievementMultipliers(state).collect;
-  const net: Record<ResourceType, number> = { stone: 0, wood: 0, food: 0, gold: 0, cloth: 0 };
+  const net: Record<ResourceType, number> = {
+    stone: 0,
+    wood: 0,
+    food: 0,
+    gold: 0,
+    cloth: 0,
+    herb: 0,
+  };
 
   for (const d of state.disciples) {
     if (d.status !== "active") continue;
@@ -30,6 +38,7 @@ export function dailyNet(state: GameState): Record<ResourceType, number> {
   }
 
   net.food -= foodNeed(state);
+  net.herb += herbProductionPerDay(state);
   return net;
 }
 

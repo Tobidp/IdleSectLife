@@ -13,7 +13,7 @@ import {
 import { capFor } from "../../domain/resources/resources";
 import { dailyNet, monthlyGoldNet } from "../../domain/simulation/projection";
 
-const ROW_ORDER: ResourceType[] = ["stone", "wood", "food", "cloth", "gold"];
+const ROW_ORDER: ResourceType[] = ["stone", "wood", "food", "herb", "cloth", "gold"];
 
 function FlowSpan({ value, unit, title }: { value: number; unit: string; title: string }): JSX.Element {
   const rounded = Math.round(value);
@@ -38,8 +38,11 @@ function RateSpan({ state, type, rate }: { state: GameState; type: ResourceType;
       />
     );
   }
-  if (!isCollectable(type)) return <span className="res-rate flat">—</span>;
-  return <FlowSpan value={rate} unit="day" title="Net change per day (collection − consumption)" />;
+  // Show a daily flow for collectables AND any non-collectable currently producing (e.g. herbs).
+  if (isCollectable(type) || Math.abs(rate) > 0.001) {
+    return <FlowSpan value={rate} unit="day" title="Net change per day" />;
+  }
+  return <span className="res-rate flat">—</span>;
 }
 
 export function ResourcesPanel({ state }: { state: GameState }): JSX.Element {

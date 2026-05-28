@@ -9,7 +9,7 @@ import { STARTING_RESOURCES, STARTING_DISCIPLES } from "../data/baseStats";
 import type { LogEntry } from "./log";
 import { createInitialNarrativeState, type NarrativeState } from "./narrative";
 
-export const SAVE_VERSION = 11;
+export const SAVE_VERSION = 12;
 
 export type Speed = 1 | 2 | 4;
 
@@ -26,6 +26,8 @@ export interface BuildingsState {
   infirmary: BuildingState;
   /** Optional. Each level adds a flat XP bonus (capped). */
   trainingHall: BuildingState;
+  /** Optional. Each level passively grows herbs per day. */
+  herbGarden: BuildingState;
 }
 
 export interface SectState {
@@ -80,6 +82,7 @@ export function createNewGame(sect: SectType, rng: Rng): GameState {
       merchant: { level: 0 },
       infirmary: { level: 0 },
       trainingHall: { level: 0 },
+      herbGarden: { level: 0 },
     },
     fame: 0,
     autoSell: {},

@@ -49,6 +49,12 @@ export const TRAINING_HALL = {
   maintenancePerLevel: { gold: 1 } as Cost,
 };
 
+// Optional building: passively grows herbs per day (a new resource that feeds alchemy later).
+export const HERB_GARDEN = {
+  baseCost: { wood: 120, stone: 60 } as Cost,
+  maintenancePerLevel: {} as Cost,
+};
+
 /** Scale a base cost by the exponential multiplier for the given current level. */
 export function scaledCost(base: Cost, level: number): Cost {
   const factor = Math.pow(COST_MULTIPLIER, level);

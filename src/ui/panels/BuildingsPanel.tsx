@@ -21,6 +21,7 @@ import {
   INFIRMARY_HEAL_PER_LEVEL,
   TRAINING_HALL_XP_PER_LEVEL,
   TRAINING_HALL_XP_CAP,
+  HERB_PER_LEVEL_PER_DAY,
 } from "../../data/balance";
 
 function BuildingRow({
@@ -102,6 +103,28 @@ function InfirmaryRow({ state }: { state: GameState }): JSX.Element {
   );
 }
 
+function HerbGardenRow({ state }: { state: GameState }): JSX.Element {
+  const actions = useActions();
+  const level = state.buildings.herbGarden.level;
+  const current = level * HERB_PER_LEVEL_PER_DAY;
+  const next = (level + 1) * HERB_PER_LEVEL_PER_DAY;
+  const effect =
+    level === 0
+      ? `Build to grow ${fmt1(next)} 🌿/day passively`
+      : `Grows ${fmt1(current)} 🌿/day → ${fmt1(next)} next`;
+  return (
+    <BuildingRow
+      state={state}
+      name={PAVILION_LABEL.herbGarden}
+      level={level}
+      effect={effect}
+      cost={pavilionUpgradeCost("herbGarden", level)}
+      actionLabel={level === 0 ? "Build" : "Upgrade"}
+      onUpgrade={() => actions.upgradePavilion("herbGarden")}
+    />
+  );
+}
+
 function TrainingHallRow({ state }: { state: GameState }): JSX.Element {
   const actions = useActions();
   const level = state.buildings.trainingHall.level;
@@ -157,6 +180,7 @@ export function BuildingsPanel({ state }: { state: GameState }): JSX.Element {
       <MerchantRow state={state} />
       <InfirmaryRow state={state} />
       <TrainingHallRow state={state} />
+      <HerbGardenRow state={state} />
       <BuildingRow
         state={state}
         name="Sect"
