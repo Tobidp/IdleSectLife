@@ -31,6 +31,8 @@ export interface Disciple {
   path: Path | null;
   /** Age in simulated days; rises with the daily tick. */
   age: number;
+  /** Ids of bonded disciples (mutual). Forms slowly; breaking a bond hurts morale. */
+  bonds: number[];
   attributes: Attributes;
   hp: number;
   happiness: number;
@@ -72,6 +74,7 @@ export function createDisciple(
     trait: rollTrait(rng),
     path: null,
     age: rng.int(360 * 14, 360 * 22), // recruits arrive as young adults (14–22 in-game years)
+    bonds: [],
     attributes: freshAttributes(),
     hp: 0,
     happiness: matches ? HAPPINESS_START_MATCH : HAPPINESS_START_MISMATCH,

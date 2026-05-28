@@ -106,6 +106,11 @@ function DiscipleRow({ state, d }: { state: GameState; d: Disciple }): JSX.Eleme
         <span className="d-age muted" title={`Age (in-game years)`}>
           {ageInYears(d)}y
         </span>
+        {d.bonds.length > 0 && (
+          <span className="d-bonds" title={`${d.bonds.length} bond${d.bonds.length === 1 ? "" : "s"}`}>
+            ♥{d.bonds.length}
+          </span>
+        )}
         <span className={`d-joy ${happinessClass(d.happiness)}`} title="Happiness">
           ♥ {fmt(d.happiness)}
         </span>

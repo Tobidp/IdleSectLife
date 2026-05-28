@@ -1379,3 +1379,9 @@ button:disabled {
   font-size: 11px;
   font-variant-numeric: tabular-nums;
 }
+
+.d-bonds {
+  font-size: 11px;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}

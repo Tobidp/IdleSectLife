@@ -11,6 +11,7 @@ import { traitXpMult } from "../../data/traits";
 import { pathXpMultFor, maybeAssignPath, PATH_LABEL } from "../disciples/paths";
 import { mentorBoost } from "../disciples/mentors";
 import { naturalDeathChance, ageInYears } from "../disciples/aging";
+import { rollMonthlyBond, mournLost } from "../disciples/bonds";
 import { updateHappiness } from "../disciples/happiness";
 import { rollMonthlyApplicant } from "../disciples/recruitment";
 import { maxHp, type Disciple } from "../disciples/disciple";
@@ -168,6 +169,7 @@ export function advanceDay(state: GameState, rng: Rng): void {
     const deadIds = new Set(dead.map((d) => d.id));
     state.disciples = state.disciples.filter((d) => !deadIds.has(d.id));
     for (const d of dead) pushLog(state, `${d.name} succumbed to their injuries.`, "bad");
+    mournLost(state, dead, (s, l) => `${s.name} mourns the loss of ${l.name}.`);
   }
 
   // 5. Abandonment of unhappy disciples.
@@ -182,6 +184,7 @@ export function advanceDay(state: GameState, rng: Rng): void {
     const leavingIds = new Set(leaving.map((d) => d.id));
     state.disciples = state.disciples.filter((d) => !leavingIds.has(d.id));
     for (const d of leaving) pushLog(state, `${d.name} grew unhappy and left the sect.`, "bad");
+    mournLost(state, leaving, (s, l) => `${s.name} grieves over ${l.name}'s departure.`);
   }
 
   // 5b. Aging tick: everyone ages one day; beyond their lifespan, natural death may take them.
@@ -197,6 +200,7 @@ export function advanceDay(state: GameState, rng: Rng): void {
     for (const d of aged) {
       pushLog(state, `${d.name} passed peacefully at age ${ageInYears(d)}.`, "info");
     }
+    mournLost(state, aged, (s, l) => `${s.name} mourns ${l.name}'s passing.`);
   }
 
   // 6. Advance calendar; monthly fame + gold + upkeep + recruitment roll + season notices.
@@ -206,6 +210,7 @@ export function advanceDay(state: GameState, rng: Rng): void {
     state.resources.gold += PASSIVE_GOLD_PER_MONTH;
     applyMonthlyMaintenance(state);
     rollMonthlyApplicant(state, rng);
+    rollMonthlyBond(state, rng);
   }
   if (result.seasonChanged) {
     pushLog(state, `The season turns to ${SEASON_LABEL[currentSeason(state.time)]}.`, "info");

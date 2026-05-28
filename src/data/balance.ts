@@ -53,6 +53,12 @@ export const WAGE_ARREARS_GRACE_MONTHS = 2; // consecutive unpaid months tolerat
 export const PASSIVE_GOLD_PER_MONTH = 1; // tiny passive gold trickle (deliberately almost nothing)
 export const MERCHANT_SELL_BONUS_PER_LEVEL = 0.1; // auto-sell price x (1 + (level-1) * this)
 
+// --- Bonds (friendships between disciples) ---
+export const BOND_HAPPINESS_PER_BOND = 2; // each bond raises the disciple's happiness target
+export const BOND_HAPPINESS_TARGET_CAP = 20; // ceiling on how much bonds can shift the target
+export const BOND_MOURN_PENALTY = 12; // happiness lost when a bonded partner dies/leaves
+export const BOND_MONTHLY_CHANCE = 0.4; // probability a new bond is attempted each month
+
 // --- Mentors (any disciple with any attribute rank >= 3 mentors the rest) ---
 export const MENTOR_RANK_THRESHOLD = 3;
 export const MENTOR_BONUS_PER = 0.05; // +5% XP per qualifying mentor

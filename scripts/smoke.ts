@@ -16,6 +16,7 @@ import { traitXpMult, traitInjuryMult } from "../src/data/traits";
 import { mentorBoost } from "../src/domain/disciples/mentors";
 import { maybeAssignPath, pathXpMultFor } from "../src/domain/disciples/paths";
 import { lifespan, naturalDeathChance } from "../src/domain/disciples/aging";
+import { rollMonthlyBond, mournLost } from "../src/domain/disciples/bonds";
 import { rankName } from "../src/data/progression";
 import { MAX_APPLICANTS } from "../src/data/balance";
 import { progressNarrative } from "../src/domain/simulation/storyEvents";
@@ -228,6 +229,27 @@ check(
   pathXpMultFor("qi", "dexterity") > 1 && pathXpMultFor("qi", "strength") < 1,
   "qi path inverts the body/qi balance",
 );
+
+// Bonds: monthly roll eventually pairs two disciples; mourning hurts the survivor + breaks the bond.
+const bRng = new Rng(101);
+const bg = createNewGame("sword", bRng);
+let bonded = false;
+for (let i = 0; i < 30 && !bonded; i++) {
+  rollMonthlyBond(bg, bRng);
+  bonded = bg.disciples.some((d) => d.bonds.length > 0);
+}
+check(bonded, "rollMonthlyBond eventually forms a bond when the pool allows");
+
+const survivor = bg.disciples.find((d) => d.bonds.length > 0);
+if (survivor) {
+  const lostId = survivor.bonds[0];
+  const lost = bg.disciples.find((x) => x.id === lostId)!;
+  const happyBefore = survivor.happiness;
+  bg.disciples = bg.disciples.filter((x) => x.id !== lostId);
+  mournLost(bg, [lost], (s, l) => `${s.name} mourns ${l.name}.`);
+  check(survivor.happiness < happyBefore, "mournLost drops the survivor's happiness");
+  check(!survivor.bonds.includes(lostId), "broken bond is pruned from the survivor");
+}
 
 // Aging: no natural death before lifespan; ramps once past it.
 const oldD = pg.disciples[1] ?? pg.disciples[0];

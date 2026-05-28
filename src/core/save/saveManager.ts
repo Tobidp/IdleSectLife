@@ -22,6 +22,7 @@ function backfill(save: GameState): void {
       if (!d.trait) d.trait = "balanced";
       if (d.path === undefined) d.path = null;
       if (typeof d.age !== "number") d.age = 360 * 18; // assume a generic young adult
+      if (!Array.isArray(d.bonds)) d.bonds = [];
     }
   }
 }
