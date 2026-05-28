@@ -4,9 +4,11 @@
 
 import { Store } from "../state/store";
 import { Rng, randomSeed } from "./rng/rng";
-import { GameLoop } from "./loop/gameLoop";
+import { GameLoop, DAY_DURATION_MS } from "./loop/gameLoop";
+import { advanceDay } from "../domain/simulation/advanceDay";
 import { createNewGame, type GameState, type Speed } from "../state/gameState";
 import { saveGame, loadGame, clearSave, encodeSave, decodeSave } from "./save/saveManager";
+import type { HiddenBehavior } from "../ui/prefsContext";
 import { craftPill, usePill } from "../domain/alchemy/alchemy";
 import type { PillId } from "../data/pills";
 import { craftBlueprint } from "../domain/equipment/forge";
@@ -40,6 +42,9 @@ export class GameEngine {
   private loop: GameLoop | null = null;
   private lastSave = 0;
   private offlineSummary: OfflineSummary | null = null;
+  private hiddenBehavior: HiddenBehavior = "normal";
+  private hiddenAt: number | null = null;
+  private visibilityListenerAttached = false;
 
   // External-store API for React.useSyncExternalStore (stable identities — Store uses arrows).
   readonly subscribe = this.store.subscribe;
@@ -48,6 +53,7 @@ export class GameEngine {
 
   /** Resume a save if one exists (accruing offline progress), otherwise show sect selection. */
   boot(): void {
+    this.attachVisibilityListener();
     const saved = loadGame();
     if (!saved) {
       this.store.setState(null);
@@ -58,6 +64,48 @@ export class GameEngine {
     saved.rngSeed = this.rng.state;
     this.store.setState(saved);
     this.startLoop();
+    this.saveNow();
+  }
+
+  /** Current "tab hidden" behavior, applied on the visibilitychange catch-up. */
+  setHiddenBehavior(b: HiddenBehavior): void {
+    this.hiddenBehavior = b;
+  }
+
+  private attachVisibilityListener(): void {
+    if (this.visibilityListenerAttached || typeof document === "undefined") return;
+    document.addEventListener("visibilitychange", this.onVisibilityChange);
+    this.visibilityListenerAttached = true;
+  }
+
+  private onVisibilityChange = (): void => {
+    if (document.visibilityState === "hidden") {
+      this.hiddenAt = performance.now();
+    } else if (this.hiddenAt !== null) {
+      const elapsed = performance.now() - this.hiddenAt;
+      this.hiddenAt = null;
+      this.applyHiddenCatchup(elapsed);
+    }
+  };
+
+  /**
+   * On return from a hidden tab, simulate the missed wall-clock time according to the
+   * player's hiddenBehavior preference. "pause" skips, "half" applies at 0.5×, "normal"
+   * applies the full elapsed. Bounded by OFFLINE_MAX_DAYS via the simulation cap.
+   */
+  private applyHiddenCatchup(elapsedMs: number): void {
+    if (this.hiddenBehavior === "pause") return;
+    if (elapsedMs <= 1000) return;
+    const state = this.store.getState();
+    if (!state || state.settings.paused) return;
+    const rate = this.hiddenBehavior === "half" ? 0.5 : 1;
+    const perDay = DAY_DURATION_MS / state.settings.speed;
+    const days = Math.floor((elapsedMs * rate) / perDay);
+    if (days <= 0) return;
+    this.store.update((s) => {
+      for (let i = 0; i < days; i++) advanceDay(s, this.rng);
+      s.rngSeed = this.rng.state;
+    });
     this.saveNow();
   }
 

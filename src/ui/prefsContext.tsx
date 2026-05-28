@@ -4,11 +4,16 @@
 
 import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
 
+/** What the simulation does while the browser tab is hidden (Page Visibility API). */
+export type HiddenBehavior = "pause" | "half" | "normal";
+
 export interface Prefs {
   notifications: boolean;
+  /** "normal" = full catch-up on return; "half" = catch up at 0.5×; "pause" = no catch-up. */
+  hiddenBehavior: HiddenBehavior;
 }
 
-const DEFAULT: Prefs = { notifications: true };
+const DEFAULT: Prefs = { notifications: true, hiddenBehavior: "normal" };
 const STORAGE_KEY = "idle-sect-life:prefs:v1";
 
 function loadPrefs(): Prefs {

@@ -1354,6 +1354,21 @@ button:disabled {
   padding: 4px 0;
   font-size: 13px;
 }
+.setting-group {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dotted var(--border-soft);
+}
+.setting-group-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-dim);
+  margin-bottom: 4px;
+}
+.setting-help {
+  font-size: 11px;
+}
 .stats-list {
   display: flex;
   flex-direction: column;

@@ -1,9 +1,10 @@
 // Root component: sect-selection when there's no game, otherwise the tabbed game shell.
 
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import type { GameState } from "../state/gameState";
-import { useGameState, useActions } from "./engineContext";
+import { useGameState, useActions, useEngine } from "./engineContext";
 import { useView } from "./viewContext";
+import { usePrefs } from "./prefsContext";
 import { NewGameScreen } from "./NewGameScreen";
 import { Topbar } from "./Topbar";
 import { UpdateBanner } from "./UpdateBanner";
@@ -68,6 +69,14 @@ function Game({ state }: { state: GameState }): JSX.Element {
 
 export function App(): JSX.Element {
   const state = useGameState();
+  const engine = useEngine();
+  const prefs = usePrefs();
+  // Sync the player's chosen tab-hidden behavior into the engine so the visibilitychange
+  // listener uses the latest preference without re-creating the engine.
+  useEffect(() => {
+    engine.setHiddenBehavior(prefs.hiddenBehavior);
+  }, [engine, prefs.hiddenBehavior]);
+
   return (
     <>
       {state ? <Game state={state} /> : <NewGameScreen />}

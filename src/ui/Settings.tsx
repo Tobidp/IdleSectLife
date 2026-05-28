@@ -1,8 +1,13 @@
-// Per-device settings modal. Currently a single toggle (notifications); a natural place to
-// grow with more UI preferences over time.
+// Per-device settings modal. Toggles & enums that live in the prefs context (not the save).
 
 import { useState } from "react";
-import { usePrefs, useSetPrefs } from "./prefsContext";
+import { usePrefs, useSetPrefs, type HiddenBehavior } from "./prefsContext";
+
+const HIDDEN_OPTIONS: { value: HiddenBehavior; label: string; help: string }[] = [
+  { value: "normal", label: "Run normally", help: "Full speed — when you return, all missed time is applied." },
+  { value: "half", label: "Run at half speed", help: "When you return, half of the missed time is applied." },
+  { value: "pause", label: "Pause", help: "Freeze the simulation while the tab is hidden." },
+];
 
 export function Settings(): JSX.Element {
   const prefs = usePrefs();
@@ -26,6 +31,22 @@ export function Settings(): JSX.Element {
               />
               <span>Show notifications (toasts)</span>
             </label>
+            <div className="setting-group">
+              <div className="setting-group-title">When the browser tab is hidden</div>
+              {HIDDEN_OPTIONS.map((opt) => (
+                <label className="setting-row" key={opt.value} title={opt.help}>
+                  <input
+                    type="radio"
+                    name="hiddenBehavior"
+                    value={opt.value}
+                    checked={prefs.hiddenBehavior === opt.value}
+                    onChange={() => setPrefs({ ...prefs, hiddenBehavior: opt.value })}
+                  />
+                  <span>{opt.label}</span>
+                  <span className="setting-help muted">{opt.help}</span>
+                </label>
+              ))}
+            </div>
             <div className="modal-actions">
               <button onClick={() => setOpen(false)}>Close</button>
             </div>
