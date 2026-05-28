@@ -193,23 +193,25 @@ button:disabled {
 }
 
 /* ---------- Resources ---------- */
-.res-row,
+/* Resource row: 5-column grid so the rate + gather columns line up across every row,
+   even on resources without a manual "+1" gather button (cloth, herb, gold). */
+.res-row {
+  display: grid;
+  grid-template-columns: 22px 1fr 110px 70px 36px;
+  align-items: center;
+  gap: 8px;
+}
 .market-row {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 .res-icon {
-  width: 22px;
   text-align: center;
-}
-.res-name {
-  flex: 1;
 }
 .res-amount {
   font-variant-numeric: tabular-nums;
   color: var(--ink);
-  min-width: 92px;
   text-align: right;
 }
 .res-amount.at-cap {
@@ -218,7 +220,6 @@ button:disabled {
 .res-rate {
   font-variant-numeric: tabular-nums;
   font-size: 12px;
-  min-width: 64px;
   text-align: right;
 }
 .res-rate.up {
@@ -232,6 +233,7 @@ button:disabled {
 }
 .res-gather {
   padding: 1px 8px;
+  justify-self: end;
 }
 
 /* ---------- Buildings ---------- */
