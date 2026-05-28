@@ -10,6 +10,7 @@ import { generateName } from "./names";
 import { rollTalent, type TalentTier } from "../../data/talent";
 import { rollTrait, type TraitId } from "../../data/traits";
 import type { Path } from "./paths";
+import { emptyEquipment, type EquipmentSlot, type EquippedItem } from "../../data/equipment";
 
 /** One of the 3 daily action slots. */
 export type Activity =
@@ -41,6 +42,8 @@ export interface Disciple {
   bonds: number[];
   /** True when a Tribulation Aid pill is settling the spirit; consumed on the next attempt. */
   tribulationBuff?: boolean;
+  /** Currently-equipped item per slot (or null when empty). XP bonuses are pre-computed. */
+  equipment: Record<EquipmentSlot, EquippedItem | null>;
   attributes: Attributes;
   hp: number;
   happiness: number;
@@ -84,6 +87,7 @@ export function createDisciple(
     age: rng.int(360 * 14, 360 * 22), // recruits arrive as young adults (14–22 in-game years)
     bonds: [],
     tribulationBuff: false,
+    equipment: emptyEquipment(),
     attributes: freshAttributes(),
     hp: 0,
     happiness: matches ? HAPPINESS_START_MATCH : HAPPINESS_START_MISMATCH,

@@ -8,6 +8,7 @@ import {
   TRAINING_HALL,
   HERB_GARDEN,
   ALCHEMY_LAB,
+  FORGE,
   scaledCost,
   type Cost,
 } from "../../data/costs";
@@ -30,7 +31,8 @@ export type PavilionKey =
   | "infirmary"
   | "trainingHall"
   | "herbGarden"
-  | "alchemyLab";
+  | "alchemyLab"
+  | "forge";
 
 export const PAVILION_LABEL: Record<PavilionKey, string> = {
   quarters: "Quarters",
@@ -40,6 +42,7 @@ export const PAVILION_LABEL: Record<PavilionKey, string> = {
   trainingHall: "Training Hall",
   herbGarden: "Spirit Herb Garden",
   alchemyLab: "Alchemy Lab",
+  forge: "Forge",
 };
 
 const PAVILION_BASE_COST: Record<PavilionKey, Cost> = {
@@ -50,6 +53,7 @@ const PAVILION_BASE_COST: Record<PavilionKey, Cost> = {
   trainingHall: TRAINING_HALL.baseCost,
   herbGarden: HERB_GARDEN.baseCost,
   alchemyLab: ALCHEMY_LAB.baseCost,
+  forge: FORGE.baseCost,
 };
 
 /** Auto-selling is unlocked once the Merchant Pavilion exists. */
@@ -86,6 +90,14 @@ export function alchemyLabLevel(state: GameState): number {
 }
 export function alchemyBuilt(state: GameState): boolean {
   return alchemyLabLevel(state) >= 1;
+}
+
+/** Crafting equipment requires the Forge. */
+export function forgeLevel(state: GameState): number {
+  return state.buildings.forge.level;
+}
+export function forgeBuilt(state: GameState): boolean {
+  return forgeLevel(state) >= 1;
 }
 
 export function quartersCapacity(level: number): number {

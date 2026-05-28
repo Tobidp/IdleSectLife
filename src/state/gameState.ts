@@ -10,7 +10,7 @@ import type { LogEntry } from "./log";
 import { createInitialNarrativeState, type NarrativeState } from "./narrative";
 import type { PillId } from "../data/pills";
 
-export const SAVE_VERSION = 14;
+export const SAVE_VERSION = 15;
 
 export type Speed = 1 | 2 | 4;
 
@@ -31,6 +31,8 @@ export interface BuildingsState {
   herbGarden: BuildingState;
   /** Optional. Required to craft pills; higher levels will unlock stronger recipes. */
   alchemyLab: BuildingState;
+  /** Optional. Required to craft equipment from discovered blueprints. */
+  forge: BuildingState;
 }
 
 export interface SectState {
@@ -58,6 +60,8 @@ export interface GameState {
   autoSell: Partial<Record<ResourceType, number>>;
   /** Crafted pill inventory: id -> count. */
   pills: Partial<Record<PillId, number>>;
+  /** Blueprint ids the player has discovered (unlocks them in the Forge). */
+  blueprints: string[];
   /** Consecutive months the gold upkeep ("wages") went unpaid. */
   goldArrears: number;
   log: LogEntry[];
@@ -89,10 +93,12 @@ export function createNewGame(sect: SectType, rng: Rng): GameState {
       trainingHall: { level: 0 },
       herbGarden: { level: 0 },
       alchemyLab: { level: 0 },
+      forge: { level: 0 },
     },
     fame: 0,
     autoSell: {},
     pills: {},
+    blueprints: [],
     goldArrears: 0,
     log: [],
     nextId: 1,

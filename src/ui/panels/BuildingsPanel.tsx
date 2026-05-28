@@ -123,6 +123,26 @@ function AlchemyLabRow({ state }: { state: GameState }): JSX.Element {
   );
 }
 
+function ForgeRow({ state }: { state: GameState }): JSX.Element {
+  const actions = useActions();
+  const level = state.buildings.forge.level;
+  const effect =
+    level === 0
+      ? "Build to craft equipment from discovered blueprints"
+      : `Lv ${level} — blueprints up to tier ${level} can be forged`;
+  return (
+    <BuildingRow
+      state={state}
+      name={PAVILION_LABEL.forge}
+      level={level}
+      effect={effect}
+      cost={pavilionUpgradeCost("forge", level)}
+      actionLabel={level === 0 ? "Build" : "Upgrade"}
+      onUpgrade={() => actions.upgradePavilion("forge")}
+    />
+  );
+}
+
 function HerbGardenRow({ state }: { state: GameState }): JSX.Element {
   const actions = useActions();
   const level = state.buildings.herbGarden.level;
@@ -202,6 +222,7 @@ export function BuildingsPanel({ state }: { state: GameState }): JSX.Element {
       <TrainingHallRow state={state} />
       <HerbGardenRow state={state} />
       <AlchemyLabRow state={state} />
+      <ForgeRow state={state} />
       <BuildingRow
         state={state}
         name="Sect"

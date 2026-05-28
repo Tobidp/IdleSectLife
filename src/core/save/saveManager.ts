@@ -2,6 +2,7 @@
 
 import { SAVE_VERSION, type GameState } from "../../state/gameState";
 import { createInitialNarrativeState } from "../../state/narrative";
+import { emptyEquipment } from "../../data/equipment";
 
 const SAVE_KEY = "idle-sect-life:save:v1";
 
@@ -13,11 +14,13 @@ function backfill(save: GameState): void {
   if (!save.buildings.trainingHall) save.buildings.trainingHall = { level: 0 };
   if (!save.buildings.herbGarden) save.buildings.herbGarden = { level: 0 };
   if (!save.buildings.alchemyLab) save.buildings.alchemyLab = { level: 0 };
+  if (!save.buildings.forge) save.buildings.forge = { level: 0 };
   // Pre-B3 saves didn't have the herb resource.
   if (typeof save.resources.herb !== "number") save.resources.herb = 0;
   // Pre-B5a saves didn't have the ore resource.
   if (typeof save.resources.ore !== "number") save.resources.ore = 0;
   if (!save.pills) save.pills = {};
+  if (!Array.isArray(save.blueprints)) save.blueprints = [];
   if (!save.autoSell) save.autoSell = {};
   if (typeof save.goldArrears !== "number") save.goldArrears = 0;
   // Default to "now" so an old save isn't treated as having been away forever.
@@ -33,6 +36,7 @@ function backfill(save: GameState): void {
       if (typeof d.age !== "number") d.age = 360 * 18; // assume a generic young adult
       if (!Array.isArray(d.bonds)) d.bonds = [];
       if (typeof d.tribulationBuff !== "boolean") d.tribulationBuff = false;
+      if (!d.equipment) d.equipment = emptyEquipment();
     }
   }
 }

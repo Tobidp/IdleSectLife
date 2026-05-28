@@ -710,13 +710,73 @@ button:disabled {
   gap: 4px;
 }
 .d-attrs {
-  margin-top: 6px;
-  padding-top: 6px;
-  border-top: 1px dotted var(--border-soft);
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
+
+/* Expanded disciple view: stats on the left, equipment grid on the right, divider between. */
+.d-expanded {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dotted var(--border-soft);
+}
+.d-expanded > .d-attrs {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.d-equipment {
+  flex: 0 0 auto;
+  padding-left: 12px;
+  border-left: 1px solid var(--border-soft);
+  display: grid;
+  grid-template-columns: repeat(3, 64px);
+  gap: 6px;
+  align-content: start;
+}
+.equip-slot {
+  border: 1px dashed var(--ink-dim);
+  border-radius: 4px;
+  padding: 4px 2px;
+  height: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 10px;
+  text-align: center;
+  color: var(--ink-dim);
+  cursor: default;
+}
+.equip-slot.empty {
+  opacity: 0.55;
+}
+.equip-slot.filled {
+  border-style: solid;
+  border-color: var(--ink-dim);
+  color: var(--ink);
+}
+.equip-slot-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+.equip-slot-name {
+  font-size: 10px;
+  line-height: 1.1;
+  opacity: 0.85;
+  word-break: break-word;
+}
+
+/* Item-tier colour classes echo the rank-tier palette (used in B5c+). */
+.tier-common { color: var(--ink-dim); }
+.tier-uncommon { color: #6fbf75; }
+.tier-rare { color: #5a9bd6; }
+.tier-epic { color: #b07ad8; }
+.tier-legendary { color: var(--gold); }
 
 /* ---------- Pending applicants ---------- */
 .applicants {

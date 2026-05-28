@@ -61,6 +61,13 @@ export const ALCHEMY_LAB = {
   maintenancePerLevel: { gold: 1 } as Cost,
 };
 
+// Optional building: forges equipment from blueprints. Higher levels gate stronger blueprints
+// and raise the chance of better quality tiers on each craft.
+export const FORGE = {
+  baseCost: { wood: 200, stone: 200, gold: 30 } as Cost,
+  maintenancePerLevel: { gold: 1 } as Cost,
+};
+
 /** Scale a base cost by the exponential multiplier for the given current level. */
 export function scaledCost(base: Cost, level: number): Cost {
   const factor = Math.pow(COST_MULTIPLIER, level);

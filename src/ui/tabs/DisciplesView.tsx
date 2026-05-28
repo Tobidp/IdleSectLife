@@ -23,6 +23,13 @@ import { TRAIT_BY_ID } from "../../data/traits";
 import { PATH_LABEL } from "../../domain/disciples/paths";
 import { ageInYears } from "../../domain/disciples/aging";
 import { orderedDisciples, groupKey, groupLabel } from "./discipleOrder";
+import {
+  EQUIPMENT_SLOTS,
+  EQUIPMENT_SLOT_ICON,
+  EQUIPMENT_SLOT_LABEL,
+  type EquipmentSlot,
+  type EquippedItem,
+} from "../../data/equipment";
 
 const ATTR_ORDER: Attribute[] = ["health", "strength", "dexterity", "vitality"];
 const SLOT_LABELS = ["Morning", "Afternoon", "Night"];
@@ -37,6 +44,23 @@ function happinessClass(h: number): string {
   if (h >= 75) return "happy";
   if (h >= 50) return "mid";
   return "unhappy";
+}
+
+function EquipmentSlotView({ slot, item }: { slot: EquipmentSlot; item: EquippedItem | null }): JSX.Element {
+  if (!item) {
+    return (
+      <div className="equip-slot empty" title={`${EQUIPMENT_SLOT_LABEL[slot]} — empty`}>
+        <span className="equip-slot-icon">{EQUIPMENT_SLOT_ICON[slot]}</span>
+        <span className="equip-slot-name">{EQUIPMENT_SLOT_LABEL[slot]}</span>
+      </div>
+    );
+  }
+  return (
+    <div className={`equip-slot filled`} title={`${EQUIPMENT_SLOT_LABEL[slot]} — ${item.blueprintId}`}>
+      <span className="equip-slot-icon">{EQUIPMENT_SLOT_ICON[slot]}</span>
+      <span className="equip-slot-name">{item.blueprintId}</span>
+    </div>
+  );
 }
 
 function AttrRow({ a, attr, isSectAttr }: { a: AttrProgress; attr: Attribute; isSectAttr: boolean }): JSX.Element {
@@ -177,10 +201,17 @@ function DiscipleRow({ state, d }: { state: GameState; d: Disciple }): JSX.Eleme
         )}
       </div>
       {expanded && (
-        <div className="d-attrs">
-          {ATTR_ORDER.map((attr) => (
-            <AttrRow key={attr} a={d.attributes[attr]} attr={attr} isSectAttr={attr === sectAttr} />
-          ))}
+        <div className="d-expanded">
+          <div className="d-attrs">
+            {ATTR_ORDER.map((attr) => (
+              <AttrRow key={attr} a={d.attributes[attr]} attr={attr} isSectAttr={attr === sectAttr} />
+            ))}
+          </div>
+          <div className="d-equipment" aria-label="Equipment">
+            {EQUIPMENT_SLOTS.map((slot) => (
+              <EquipmentSlotView key={slot} slot={slot} item={d.equipment[slot]} />
+            ))}
+          </div>
         </div>
       )}
     </div>
