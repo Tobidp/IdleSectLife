@@ -30,6 +30,7 @@ function backfill(save: GameState): void {
       if (d.path === undefined) d.path = null;
       if (typeof d.age !== "number") d.age = 360 * 18; // assume a generic young adult
       if (!Array.isArray(d.bonds)) d.bonds = [];
+      if (typeof d.tribulationBuff !== "boolean") d.tribulationBuff = false;
     }
   }
 }

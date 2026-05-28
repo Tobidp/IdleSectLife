@@ -69,5 +69,15 @@ function applyPillEffect(state: GameState, pillId: PillId, discipleId: number): 
       pushLog(state, `${d.name} swallowed an Insight Pill — clarity floods their mind.`, "good");
       return true;
     }
+    case "tribulationAid": {
+      if (d.tribulationBuff) return false; // already buffed; refuse to waste the pill
+      d.tribulationBuff = true;
+      pushLog(
+        state,
+        `${d.name} takes a Tribulation Aid — their spirit settles before the next trial.`,
+        "good",
+      );
+      return true;
+    }
   }
 }

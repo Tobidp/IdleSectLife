@@ -67,6 +67,9 @@ export const HERB_PER_LEVEL_PER_DAY = 0.5; // herbs grown per day per garden lev
 // Insight Pill grants this flat XP to every attribute. Tuned to be ~3 stars at rank 0,
 // fading to a fraction of a star past rank 3 — useful early, cosmetic late.
 export const INSIGHT_XP_PER_ATTR = 80;
+// Tribulation Aid Pill: a buff that multiplies the computed fail chance on the NEXT
+// breakthrough attempt by this factor (0.5 = halved). Consumed regardless of outcome.
+export const TRIBULATION_AID_FAIL_MULT = 0.5;
 
 // --- Bonds (friendships between disciples) ---
 export const BOND_HAPPINESS_PER_BOND = 2; // each bond raises the disciple's happiness target

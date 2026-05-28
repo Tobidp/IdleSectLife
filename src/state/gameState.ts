@@ -10,7 +10,7 @@ import type { LogEntry } from "./log";
 import { createInitialNarrativeState, type NarrativeState } from "./narrative";
 import type { PillId } from "../data/pills";
 
-export const SAVE_VERSION = 13;
+export const SAVE_VERSION = 14;
 
 export type Speed = 1 | 2 | 4;
 

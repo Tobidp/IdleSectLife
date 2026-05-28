@@ -42,21 +42,26 @@ export interface BreakthroughResult {
   starsLost?: number;
 }
 
-/** Perform the tribulation roll. On success, mutates the attribute to the new rank. */
+/**
+ * Perform the tribulation roll. On success, mutates the attribute to the new rank.
+ *
+ * `failChanceMultiplier` lets callers fold in temporary buffs (e.g. Tribulation Aid pill
+ * = 0.5 halves the chance). Applied AFTER the vitality reduction; still clamped by
+ * `TRIBULATION_MIN_FAIL` so a roll is never guaranteed.
+ */
 export function attemptBreakthrough(
   attr: AttrProgress,
   vitalityLevel: number,
   rng: Rng,
+  failChanceMultiplier = 1,
 ): BreakthroughResult {
   const ready = attr.star === STARS_PER_RANK && attr.xp >= xpForNextStar(attr);
   if (!ready) return { attempted: false, success: false, tier: 0 };
 
   const targetRank = attr.rank + 1;
   const tier = tribulationTier(targetRank);
-  const failChance = Math.max(
-    TRIBULATION_MIN_FAIL,
-    TRIBULATION_BASE_FAIL[tier] - vitalityLevel * TRIBULATION_VIT_FACTOR,
-  );
+  const baseFail = TRIBULATION_BASE_FAIL[tier] - vitalityLevel * TRIBULATION_VIT_FACTOR;
+  const failChance = Math.max(TRIBULATION_MIN_FAIL, baseFail * failChanceMultiplier);
 
   if (!rng.chance(failChance)) {
     attr.rank = targetRank;

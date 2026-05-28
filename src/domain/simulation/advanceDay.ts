@@ -25,7 +25,7 @@ import { applyAutoSell } from "../market/autoSell";
 import { progressNarrative } from "./storyEvents";
 import { achievementMultipliers, checkAchievements } from "../achievements/achievements";
 import { STORY_ENABLED } from "../../config/featureFlags";
-import { PASSIVE_GOLD_PER_MONTH } from "../../data/balance";
+import { PASSIVE_GOLD_PER_MONTH, TRIBULATION_AID_FAIL_MULT } from "../../data/balance";
 import { ATTRIBUTE_LABEL } from "../sect/sectTypes";
 import { seasonMultiplier, SEASON_LABEL } from "../../data/seasons";
 import { COLLECT_XP, rankName } from "../../data/progression";
@@ -67,11 +67,17 @@ export function advanceDay(state: GameState, rng: Rng): void {
           collectYield(resource, strLevel, seasonMultiplier(season, resource)) * bonus.collect,
         );
         if (addXp(d.attributes.strength, COLLECT_XP * mult * pathXpMultFor(d.path, "strength")).readyToBreakthrough) {
+          const failMult = d.tribulationBuff ? TRIBULATION_AID_FAIL_MULT : 1;
           const tr = attemptBreakthrough(
             d.attributes.strength,
             effectiveLevel(d.attributes.vitality),
             rng,
+            failMult,
           );
+          if (tr.attempted && d.tribulationBuff) {
+            d.tribulationBuff = false;
+            pushLog(state, `${d.name}'s Tribulation Aid steadies the trial.`, "info");
+          }
           if (tr.attempted) {
             if (tr.success) {
               pushLog(
@@ -102,6 +108,9 @@ export function advanceDay(state: GameState, rng: Rng): void {
         }
       } else if (action === "train") {
         const result = trainOnce(d, sectAttr, rng, mentor * training);
+        if (result.tribulationAidConsumed) {
+          pushLog(state, `${d.name}'s Tribulation Aid steadies the trial.`, "info");
+        }
         for (const ev of result.breakthroughs) {
           if (ev.result.success) {
             pushLog(

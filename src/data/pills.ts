@@ -3,7 +3,7 @@
 
 import type { Cost } from "./costs";
 
-export type PillId = "healing" | "insight";
+export type PillId = "healing" | "insight" | "tribulationAid";
 
 export interface PillDef {
   id: PillId;
@@ -29,6 +29,14 @@ export const PILLS: readonly PillDef[] = [
       "A flash of clarity — grants a flat chunk of XP to every attribute. Huge early on; fades as cultivation deepens.",
     recipe: { herb: 6, food: 2 },
     minLabLevel: 2,
+  },
+  {
+    id: "tribulationAid",
+    name: "Tribulation Aid",
+    description:
+      "Settles the spirit before a trial — halves the fail chance of the next breakthrough. Consumed on the attempt, win or lose.",
+    recipe: { herb: 8, food: 1, gold: 5 },
+    minLabLevel: 3,
   },
 ];
 

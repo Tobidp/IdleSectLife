@@ -33,6 +33,8 @@ export interface Disciple {
   age: number;
   /** Ids of bonded disciples (mutual). Forms slowly; breaking a bond hurts morale. */
   bonds: number[];
+  /** True when a Tribulation Aid pill is settling the spirit; consumed on the next attempt. */
+  tribulationBuff?: boolean;
   attributes: Attributes;
   hp: number;
   happiness: number;
@@ -75,6 +77,7 @@ export function createDisciple(
     path: null,
     age: rng.int(360 * 14, 360 * 22), // recruits arrive as young adults (14–22 in-game years)
     bonds: [],
+    tribulationBuff: false,
     attributes: freshAttributes(),
     hp: 0,
     happiness: matches ? HAPPINESS_START_MATCH : HAPPINESS_START_MISMATCH,

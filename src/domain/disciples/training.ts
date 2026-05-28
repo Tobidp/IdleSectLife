@@ -10,6 +10,7 @@ import {
   INJURY_DEX_FACTOR,
   INJURY_MIN_CHANCE,
   INJURY_DAMAGE_FRACTION,
+  TRIBULATION_AID_FAIL_MULT,
 } from "../../data/balance";
 import { TRAIN_XP_ALL, TRAIN_XP_SECT_BONUS } from "../../data/progression";
 import { talentXpMult } from "../../data/talent";
@@ -41,6 +42,8 @@ export interface TrainBreakthrough {
 export interface TrainResult {
   injured: boolean;
   breakthroughs: TrainBreakthrough[];
+  /** True if a Tribulation Aid buff was consumed by one of the breakthroughs this tick. */
+  tribulationAidConsumed: boolean;
 }
 
 /** Apply one Train action: XP to every attribute (+bonus on the sect's), tribulation rolls on
@@ -55,16 +58,23 @@ export function trainOnce(
   const mult =
     happinessGainMultiplier(d.happiness) * talentXpMult(d.talent) * traitXpMult(d.trait) * extraMult;
   const breakthroughs: TrainBreakthrough[] = [];
+  let tribulationAidConsumed = false;
 
   for (const attr of ATTRIBUTES) {
     const bonus = attr === sectAttr ? TRAIN_XP_SECT_BONUS : 0;
     const gain = (TRAIN_XP_ALL + bonus) * mult * pathXpMultFor(d.path, attr);
     if (addXp(d.attributes[attr], gain).readyToBreakthrough) {
+      const failMult = d.tribulationBuff ? TRIBULATION_AID_FAIL_MULT : 1;
       const tr = attemptBreakthrough(
         d.attributes[attr],
         effectiveLevel(d.attributes.vitality),
         rng,
+        failMult,
       );
+      if (tr.attempted && d.tribulationBuff) {
+        d.tribulationBuff = false;
+        tribulationAidConsumed = true;
+      }
       if (tr.attempted) {
         breakthroughs.push({ attr, result: tr });
         if (!tr.success && tr.hpDamageFraction) {
@@ -90,5 +100,5 @@ export function trainOnce(
     }
   }
 
-  return { injured, breakthroughs };
+  return { injured, breakthroughs, tribulationAidConsumed };
 }

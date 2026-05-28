@@ -132,6 +132,21 @@ function DiscipleRow({ state, d }: { state: GameState; d: Disciple }): JSX.Eleme
           </>
         ) : (
           <>
+            {d.tribulationBuff ? (
+              <span className="d-aided" title="Tribulation Aid is active — consumed on next breakthrough">
+                🪷
+              </span>
+            ) : (
+              (state.pills.tribulationAid ?? 0) > 0 && (
+                <button
+                  className="d-aid"
+                  title="Use a Tribulation Aid (halves the next breakthrough's fail chance)"
+                  onClick={() => actions.usePill("tribulationAid", d.id)}
+                >
+                  🪷
+                </button>
+              )
+            )}
             {(state.pills.insight ?? 0) > 0 && (
               <button
                 className="d-insight"

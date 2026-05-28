@@ -1450,3 +1450,19 @@ button:disabled {
   border-color: var(--gold);
   color: var(--gold);
 }
+.d-aid {
+  padding: 1px 6px;
+  font-size: 13px;
+  line-height: 1;
+}
+.d-aid:hover:not(:disabled) {
+  border-color: var(--jade);
+  color: var(--jade);
+}
+.d-aided {
+  font-size: 13px;
+  line-height: 1;
+  color: var(--jade);
+  padding: 1px 2px;
+  cursor: help;
+}
