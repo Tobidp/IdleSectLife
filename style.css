@@ -1281,3 +1281,43 @@ button:disabled {
   font-size: 12px;
   margin-top: 2px;
 }
+
+/* ---------- Settings & Stats ---------- */
+.settings-btn,
+.stats-btn {
+  font-size: 12px;
+}
+.setting-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 13px;
+}
+.stats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+.stats-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+  border-bottom: 1px dotted var(--border-soft);
+  font-size: 13px;
+}
+.stats-row:last-child {
+  border-bottom: none;
+}
+.stats-label {
+  color: var(--ink-dim);
+  flex-shrink: 0;
+}
+.stats-value {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}

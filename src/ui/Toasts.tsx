@@ -4,6 +4,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useGameState } from "./engineContext";
+import { usePrefs } from "./prefsContext";
 import type { LogKind } from "../state/log";
 
 interface Toast {
@@ -17,6 +18,7 @@ const MAX_VISIBLE = 4;
 
 export function Toasts(): JSX.Element | null {
   const state = useGameState();
+  const prefs = usePrefs();
   const [toasts, setToasts] = useState<Toast[]>([]);
   const lastSeen = useRef<number>(-1);
   const newestId = state?.log[0]?.id ?? -1;
@@ -45,7 +47,7 @@ export function Toasts(): JSX.Element | null {
     }
   }, [newestId, state]);
 
-  if (toasts.length === 0) return null;
+  if (!prefs.notifications || toasts.length === 0) return null;
   return (
     <div className="toasts">
       {toasts.map((t) => (

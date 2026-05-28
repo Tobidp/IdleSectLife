@@ -7,6 +7,7 @@ import { GameEngine } from "./core/engine";
 import { App } from "./ui/App";
 import { EngineProvider } from "./ui/engineContext";
 import { ViewProvider } from "./ui/viewContext";
+import { PrefsProvider } from "./ui/prefsContext";
 
 const engine = new GameEngine();
 engine.boot();
@@ -19,7 +20,9 @@ if (!container) {
 createRoot(container).render(
   <EngineProvider engine={engine}>
     <ViewProvider>
-      <App />
+      <PrefsProvider>
+        <App />
+      </PrefsProvider>
     </ViewProvider>
   </EngineProvider>,
 );
