@@ -8,8 +8,9 @@ import { createDisciple, type Disciple } from "../domain/disciples/disciple";
 import { STARTING_RESOURCES, STARTING_DISCIPLES } from "../data/baseStats";
 import type { LogEntry } from "./log";
 import { createInitialNarrativeState, type NarrativeState } from "./narrative";
+import type { PillId } from "../data/pills";
 
-export const SAVE_VERSION = 12;
+export const SAVE_VERSION = 13;
 
 export type Speed = 1 | 2 | 4;
 
@@ -28,6 +29,8 @@ export interface BuildingsState {
   trainingHall: BuildingState;
   /** Optional. Each level passively grows herbs per day. */
   herbGarden: BuildingState;
+  /** Optional. Required to craft pills; higher levels will unlock stronger recipes. */
+  alchemyLab: BuildingState;
 }
 
 export interface SectState {
@@ -53,6 +56,8 @@ export interface GameState {
   fame: number;
   /** Auto-sell percentage (0–100) per resource; applied when the resource hits its cap (needs the Merchant Pavilion). */
   autoSell: Partial<Record<ResourceType, number>>;
+  /** Crafted pill inventory: id -> count. */
+  pills: Partial<Record<PillId, number>>;
   /** Consecutive months the gold upkeep ("wages") went unpaid. */
   goldArrears: number;
   log: LogEntry[];
@@ -83,9 +88,11 @@ export function createNewGame(sect: SectType, rng: Rng): GameState {
       infirmary: { level: 0 },
       trainingHall: { level: 0 },
       herbGarden: { level: 0 },
+      alchemyLab: { level: 0 },
     },
     fame: 0,
     autoSell: {},
+    pills: {},
     goldArrears: 0,
     log: [],
     nextId: 1,

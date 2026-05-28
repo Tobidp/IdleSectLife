@@ -7,6 +7,7 @@ import {
   MERCHANT,
   INFIRMARY,
   TRAINING_HALL,
+  ALCHEMY_LAB,
   SECT,
   type Cost,
 } from "../../data/costs";
@@ -32,6 +33,7 @@ export function monthlyMaintenance(state: GameState): Cost {
   addScaled(due, MERCHANT.maintenancePerLevel, state.buildings.merchant.level);
   addScaled(due, INFIRMARY.maintenancePerLevel, state.buildings.infirmary.level);
   addScaled(due, TRAINING_HALL.maintenancePerLevel, state.buildings.trainingHall.level);
+  addScaled(due, ALCHEMY_LAB.maintenancePerLevel, state.buildings.alchemyLab.level);
   addScaled(due, SECT.maintenancePerLevel, state.sect.level);
   return due;
 }

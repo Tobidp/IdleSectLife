@@ -13,6 +13,7 @@ import { WelcomeBack } from "./WelcomeBack";
 import { Achievements } from "./Achievements";
 import { Stats } from "./Stats";
 import { Settings } from "./Settings";
+import { Alchemy } from "./Alchemy";
 
 // Tab bodies are code-split: the dashboard chunk (React Grid Layout + Motion) loads only
 // once a game is in play, keeping the sect-selection screen + initial load lean.
@@ -47,6 +48,7 @@ function Game({ state }: { state: GameState }): JSX.Element {
       <Suspense fallback={<div className="muted loading">Loading…</div>}>{body}</Suspense>
       <footer className="footer">
         <Achievements />
+        <Alchemy />
         <Stats />
         <SaveLoad />
         <Settings />

@@ -7,6 +7,7 @@ import {
   INFIRMARY,
   TRAINING_HALL,
   HERB_GARDEN,
+  ALCHEMY_LAB,
   scaledCost,
   type Cost,
 } from "../../data/costs";
@@ -28,7 +29,8 @@ export type PavilionKey =
   | "merchant"
   | "infirmary"
   | "trainingHall"
-  | "herbGarden";
+  | "herbGarden"
+  | "alchemyLab";
 
 export const PAVILION_LABEL: Record<PavilionKey, string> = {
   quarters: "Quarters",
@@ -37,6 +39,7 @@ export const PAVILION_LABEL: Record<PavilionKey, string> = {
   infirmary: "Infirmary",
   trainingHall: "Training Hall",
   herbGarden: "Spirit Herb Garden",
+  alchemyLab: "Alchemy Lab",
 };
 
 const PAVILION_BASE_COST: Record<PavilionKey, Cost> = {
@@ -46,6 +49,7 @@ const PAVILION_BASE_COST: Record<PavilionKey, Cost> = {
   infirmary: INFIRMARY.baseCost,
   trainingHall: TRAINING_HALL.baseCost,
   herbGarden: HERB_GARDEN.baseCost,
+  alchemyLab: ALCHEMY_LAB.baseCost,
 };
 
 /** Auto-selling is unlocked once the Merchant Pavilion exists. */
@@ -74,6 +78,14 @@ export function trainingHallXpBonus(state: GameState): number {
 /** Herbs grown per day by the spirit herb garden. */
 export function herbProductionPerDay(state: GameState): number {
   return state.buildings.herbGarden.level * HERB_PER_LEVEL_PER_DAY;
+}
+
+/** Crafting pills requires the Alchemy Lab. */
+export function alchemyLabLevel(state: GameState): number {
+  return state.buildings.alchemyLab.level;
+}
+export function alchemyBuilt(state: GameState): boolean {
+  return alchemyLabLevel(state) >= 1;
 }
 
 export function quartersCapacity(level: number): number {

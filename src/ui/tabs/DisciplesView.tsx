@@ -118,7 +118,18 @@ function DiscipleRow({ state, d }: { state: GameState; d: Disciple }): JSX.Eleme
           {fmt(d.hp)}/{fmt(maxHp(d))}
         </span>
         {down ? (
-          <span className="badge badge-down">Recovering</span>
+          <>
+            <span className="badge badge-down">Recovering</span>
+            {(state.pills.healing ?? 0) > 0 && (
+              <button
+                className="d-heal"
+                title="Use a Healing Pill"
+                onClick={() => actions.usePill("healing", d.id)}
+              >
+                🧪 Heal
+              </button>
+            )}
+          </>
         ) : (
           <div className="d-actions">
             {[0, 1, 2].map((slot) => (

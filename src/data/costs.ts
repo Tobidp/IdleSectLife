@@ -55,6 +55,12 @@ export const HERB_GARDEN = {
   maintenancePerLevel: {} as Cost,
 };
 
+// Optional building: required to craft pills. Higher levels will unlock stronger recipes.
+export const ALCHEMY_LAB = {
+  baseCost: { wood: 140, stone: 140, gold: 25 } as Cost,
+  maintenancePerLevel: { gold: 1 } as Cost,
+};
+
 /** Scale a base cost by the exponential multiplier for the given current level. */
 export function scaledCost(base: Cost, level: number): Cost {
   const factor = Math.pow(COST_MULTIPLIER, level);

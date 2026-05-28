@@ -103,6 +103,26 @@ function InfirmaryRow({ state }: { state: GameState }): JSX.Element {
   );
 }
 
+function AlchemyLabRow({ state }: { state: GameState }): JSX.Element {
+  const actions = useActions();
+  const level = state.buildings.alchemyLab.level;
+  const effect =
+    level === 0
+      ? "Build to brew pills (open the Alchemy panel)"
+      : `Lv ${level} — recipes up to tier ${level} unlocked`;
+  return (
+    <BuildingRow
+      state={state}
+      name={PAVILION_LABEL.alchemyLab}
+      level={level}
+      effect={effect}
+      cost={pavilionUpgradeCost("alchemyLab", level)}
+      actionLabel={level === 0 ? "Build" : "Upgrade"}
+      onUpgrade={() => actions.upgradePavilion("alchemyLab")}
+    />
+  );
+}
+
 function HerbGardenRow({ state }: { state: GameState }): JSX.Element {
   const actions = useActions();
   const level = state.buildings.herbGarden.level;
@@ -181,6 +201,7 @@ export function BuildingsPanel({ state }: { state: GameState }): JSX.Element {
       <InfirmaryRow state={state} />
       <TrainingHallRow state={state} />
       <HerbGardenRow state={state} />
+      <AlchemyLabRow state={state} />
       <BuildingRow
         state={state}
         name="Sect"

@@ -7,6 +7,8 @@ import { Rng, randomSeed } from "./rng/rng";
 import { GameLoop } from "./loop/gameLoop";
 import { createNewGame, type GameState, type Speed } from "../state/gameState";
 import { saveGame, loadGame, clearSave, encodeSave, decodeSave } from "./save/saveManager";
+import { craftPill, usePill } from "../domain/alchemy/alchemy";
+import type { PillId } from "../data/pills";
 import type { SectType } from "../domain/sect/sectTypes";
 import { upgradePavilion, type PavilionKey } from "../domain/buildings/buildings";
 import { upgradeSect } from "../domain/sect/sect";
@@ -171,6 +173,22 @@ export class GameEngine {
   buy(resource: ResourceType, qty: number): void {
     this.store.update((s) => {
       buyResource(s, resource, qty);
+    });
+    this.saveNow();
+  }
+
+  /** Craft a pill from its recipe (needs the Alchemy Lab + the resources). */
+  craftPill(pillId: PillId): void {
+    this.store.update((s) => {
+      craftPill(s, pillId);
+    });
+    this.saveNow();
+  }
+
+  /** Consume one pill on the chosen disciple, applying its effect. */
+  usePill(pillId: PillId, discipleId: number): void {
+    this.store.update((s) => {
+      usePill(s, pillId, discipleId);
     });
     this.saveNow();
   }

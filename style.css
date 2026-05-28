@@ -1385,3 +1385,59 @@ button:disabled {
   color: var(--gold);
   font-variant-numeric: tabular-nums;
 }
+
+/* ---------- Alchemy ---------- */
+.alchemy-btn {
+  font-size: 12px;
+}
+.alchemy-btn:hover {
+  border-color: var(--jade);
+  color: var(--jade);
+}
+.recipe-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+.recipe-card {
+  background: var(--bg-row);
+  border: 1px solid var(--border-soft);
+  border-left: 3px solid var(--jade-dim);
+  border-radius: 5px;
+  padding: 8px 10px;
+}
+.recipe-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.recipe-name {
+  font-weight: 600;
+}
+.recipe-owned {
+  font-size: 12px;
+}
+.recipe-desc {
+  font-size: 12px;
+  margin: 4px 0;
+}
+.recipe-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.recipe-cost {
+  font-size: 12px;
+  color: var(--gold);
+}
+.d-heal {
+  padding: 1px 8px;
+  font-size: 11px;
+}
+.d-heal:hover:not(:disabled) {
+  border-color: var(--jade);
+  color: var(--jade);
+}
