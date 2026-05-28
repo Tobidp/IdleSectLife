@@ -1441,3 +1441,12 @@ button:disabled {
   border-color: var(--jade);
   color: var(--jade);
 }
+.d-insight {
+  padding: 1px 6px;
+  font-size: 13px;
+  line-height: 1;
+}
+.d-insight:hover:not(:disabled) {
+  border-color: var(--gold);
+  color: var(--gold);
+}

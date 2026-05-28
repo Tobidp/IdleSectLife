@@ -4,7 +4,10 @@ import type { GameState } from "../../state/gameState";
 import { spend } from "../resources/resources";
 import { alchemyLabLevel } from "../buildings/buildings";
 import { maxHp } from "../disciples/disciple";
+import { addXp } from "../disciples/attributes";
+import { ATTRIBUTES } from "../sect/sectTypes";
 import { PILL_BY_ID, type PillId } from "../../data/pills";
+import { INSIGHT_XP_PER_ATTR } from "../../data/balance";
 import { pushLog } from "../../state/log";
 
 /** True when the alchemy lab is high enough level and the recipe is affordable. */
@@ -57,6 +60,13 @@ function applyPillEffect(state: GameState, pillId: PillId, discipleId: number): 
           : `${d.name} drank a Healing Pill and is at full strength.`,
         "good",
       );
+      return true;
+    }
+    case "insight": {
+      for (const attr of ATTRIBUTES) {
+        addXp(d.attributes[attr], INSIGHT_XP_PER_ATTR);
+      }
+      pushLog(state, `${d.name} swallowed an Insight Pill — clarity floods their mind.`, "good");
       return true;
     }
   }

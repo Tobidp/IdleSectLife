@@ -3,7 +3,7 @@
 
 import type { Cost } from "./costs";
 
-export type PillId = "healing";
+export type PillId = "healing" | "insight";
 
 export interface PillDef {
   id: PillId;
@@ -21,6 +21,14 @@ export const PILLS: readonly PillDef[] = [
     description: "Used on a fallen disciple: instantly restores full HP and returns them to duty.",
     recipe: { herb: 3, food: 1 },
     minLabLevel: 1,
+  },
+  {
+    id: "insight",
+    name: "Insight Pill",
+    description:
+      "A flash of clarity — grants a flat chunk of XP to every attribute. Huge early on; fades as cultivation deepens.",
+    recipe: { herb: 6, food: 2 },
+    minLabLevel: 2,
   },
 ];
 

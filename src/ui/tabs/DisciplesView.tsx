@@ -131,23 +131,34 @@ function DiscipleRow({ state, d }: { state: GameState; d: Disciple }): JSX.Eleme
             )}
           </>
         ) : (
-          <div className="d-actions">
-            {[0, 1, 2].map((slot) => (
-              <select
-                key={slot}
-                className="action-select"
-                title={SLOT_LABELS[slot]}
-                value={d.actions[slot]}
-                onChange={(e) => actions.setDiscipleAction(d.id, slot, e.target.value as Activity)}
+          <>
+            {(state.pills.insight ?? 0) > 0 && (
+              <button
+                className="d-insight"
+                title="Use an Insight Pill (XP to every attribute)"
+                onClick={() => actions.usePill("insight", d.id)}
               >
-                {ACTIVITY_OPTIONS.map((opt) => (
-                  <option key={opt} value={opt}>
-                    {ACTIVITY_LABEL[opt]}
-                  </option>
-                ))}
-              </select>
-            ))}
-          </div>
+                🧠
+              </button>
+            )}
+            <div className="d-actions">
+              {[0, 1, 2].map((slot) => (
+                <select
+                  key={slot}
+                  className="action-select"
+                  title={SLOT_LABELS[slot]}
+                  value={d.actions[slot]}
+                  onChange={(e) => actions.setDiscipleAction(d.id, slot, e.target.value as Activity)}
+                >
+                  {ACTIVITY_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt}>
+                      {ACTIVITY_LABEL[opt]}
+                    </option>
+                  ))}
+                </select>
+              ))}
+            </div>
+          </>
         )}
       </div>
       {expanded && (
