@@ -10,6 +10,7 @@ import { UpdateBanner } from "./UpdateBanner";
 import { SaveLoad } from "./SaveLoad";
 import { Toasts } from "./Toasts";
 import { WelcomeBack } from "./WelcomeBack";
+import { Achievements } from "./Achievements";
 
 // Tab bodies are code-split: the dashboard chunk (React Grid Layout + Motion) loads only
 // once a game is in play, keeping the sect-selection screen + initial load lean.
@@ -43,6 +44,7 @@ function Game({ state }: { state: GameState }): JSX.Element {
       <Topbar state={state} />
       <Suspense fallback={<div className="muted loading">Loading…</div>}>{body}</Suspense>
       <footer className="footer">
+        <Achievements />
         <SaveLoad />
         <button
           className="reset-btn"

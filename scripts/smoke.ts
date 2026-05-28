@@ -18,6 +18,10 @@ import { canAcceptQuest } from "../src/domain/quests/quest";
 import { sanitizeLayout, defaultLayout, PANEL_IDS } from "../src/ui/windows/gridLayout";
 import { fmt } from "../src/ui/components/format";
 import { offlineDaysFor, simulateOffline } from "../src/domain/simulation/offline";
+import {
+  checkAchievements,
+  achievementMultipliers,
+} from "../src/domain/achievements/achievements";
 
 let failures = 0;
 function check(cond: boolean, msg: string): void {
@@ -176,6 +180,23 @@ const day0 = og.time.totalDays;
 const offline = simulateOffline(og, orng);
 check(offline !== null && offline.days === 180, "simulateOffline returns the capped day count");
 check(og.time.totalDays - day0 === 180, "simulateOffline advanced exactly the capped days");
+
+// Achievements: unlock once when a condition is met; multipliers stack from unlocked bonuses.
+const achRng = new Rng(33);
+const achGame = createNewGame("sword", achRng);
+const baseMult = achievementMultipliers(achGame);
+check(baseMult.collect === 1 && baseMult.fame === 1, "achievement multipliers start at 1/1");
+achGame.fame = 200; // unlocks "renowned" (+10% fame)
+achGame.sect.level = 3; // unlocks "rising_sect" (+5% fame)
+const unlocked = checkAchievements(achGame);
+check(unlocked.length >= 2, "checkAchievements returns the newly-unlocked defs");
+check(
+  achGame.achievements.includes("renowned") && achGame.achievements.includes("rising_sect"),
+  "achievement ids are recorded on state",
+);
+const stacked = achievementMultipliers(achGame);
+check(Math.abs(stacked.fame - 1.15) < 1e-9, "fame bonuses stack (1 + 0.10 + 0.05)");
+check(checkAchievements(achGame).length === 0, "checkAchievements is idempotent once unlocked");
 
 // Compact number formatting.
 check(fmt(950) === "950", "fmt keeps small numbers plain");

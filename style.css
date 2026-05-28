@@ -1235,3 +1235,49 @@ button:disabled {
   color: var(--jade);
   margin: 4px 0 2px;
 }
+
+/* ---------- Achievements ---------- */
+.ach-btn {
+  font-size: 12px;
+}
+.ach-btn:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.achievements-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+.achievement {
+  background: var(--bg-row);
+  border: 1px solid var(--border-soft);
+  border-left: 3px solid var(--border);
+  border-radius: 5px;
+  padding: 6px 10px;
+}
+.achievement.got {
+  border-left-color: var(--gold);
+}
+.achievement.locked {
+  opacity: 0.55;
+}
+.achievement-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.achievement-name {
+  font-weight: 600;
+  flex: 1;
+}
+.achievement-bonus {
+  font-size: 12px;
+  color: var(--jade);
+}
+.achievement-desc {
+  font-size: 12px;
+  margin-top: 2px;
+}

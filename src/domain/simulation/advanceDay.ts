@@ -15,6 +15,7 @@ import { monthlyFameGain } from "../fame/fame";
 import { applyMonthlyMaintenance } from "../buildings/maintenance";
 import { applyAutoSell } from "../market/autoSell";
 import { progressNarrative } from "./storyEvents";
+import { achievementMultipliers, checkAchievements } from "../achievements/achievements";
 import { STORY_ENABLED } from "../../config/featureFlags";
 import { PASSIVE_GOLD_PER_MONTH } from "../../data/balance";
 import { ATTRIBUTE_LABEL } from "../sect/sectTypes";
@@ -34,6 +35,7 @@ import { pushLog } from "../../state/log";
 export function advanceDay(state: GameState, rng: Rng): void {
   const season = currentSeason(state.time);
   const sectAttr = sectAttribute(state);
+  const bonus = achievementMultipliers(state);
 
   // 1. Resolve each active disciple's 3 daily actions.
   for (const d of state.disciples) {
@@ -43,7 +45,11 @@ export function advanceDay(state: GameState, rng: Rng): void {
       const resource = collectResourceOf(action);
       if (resource) {
         const strLevel = effectiveLevel(d.attributes.strength);
-        addResource(state, resource, collectYield(resource, strLevel, seasonMultiplier(season, resource)));
+        addResource(
+          state,
+          resource,
+          collectYield(resource, strLevel, seasonMultiplier(season, resource)) * bonus.collect,
+        );
         if (addXp(d.attributes.strength, COLLECT_XP * mult).rankedUp) {
           pushLog(state, `${d.name}'s ${ATTRIBUTE_LABEL.strength} reached ${rankName(d.attributes.strength.rank)}!`, "good");
         }
@@ -140,4 +146,9 @@ export function advanceDay(state: GameState, rng: Rng): void {
 
   // 9. Merchant auto-sells the configured share of any store that is now full.
   applyAutoSell(state);
+
+  // 10. Achievements: check after everything else so today's events count.
+  for (const a of checkAchievements(state)) {
+    pushLog(state, `Achievement unlocked: ${a.name}!`, "good");
+  }
 }

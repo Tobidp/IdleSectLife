@@ -7,9 +7,10 @@ import {
   RECRUIT_FAME_DIVISOR,
   RECRUIT_CHANCE_CAP,
 } from "../../data/balance";
+import { achievementMultipliers } from "../achievements/achievements";
 import type { GameState } from "../../state/gameState";
 
-/** Fame gained once per month: sect level + happy, active disciples. */
+/** Fame gained once per month: sect level + happy disciples, scaled by achievement bonuses. */
 export function monthlyFameGain(state: GameState): number {
   let fame = FAME_PER_SECT_LEVEL_PER_MONTH * state.sect.level;
   for (const d of state.disciples) {
@@ -17,7 +18,7 @@ export function monthlyFameGain(state: GameState): number {
       fame += FAME_PER_HAPPY_DISCIPLE_PER_MONTH;
     }
   }
-  return fame;
+  return fame * achievementMultipliers(state).fame;
 }
 
 /** Monthly chance to attract a new disciple. */

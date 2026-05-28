@@ -13,6 +13,7 @@ function backfill(save: GameState): void {
   if (typeof save.goldArrears !== "number") save.goldArrears = 0;
   // Default to "now" so an old save isn't treated as having been away forever.
   if (typeof save.lastPlayed !== "number") save.lastPlayed = Date.now();
+  if (!Array.isArray(save.achievements)) save.achievements = [];
 }
 
 /**

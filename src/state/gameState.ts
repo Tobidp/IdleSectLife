@@ -9,7 +9,7 @@ import { STARTING_RESOURCES, STARTING_DISCIPLES } from "../data/baseStats";
 import type { LogEntry } from "./log";
 import { createInitialNarrativeState, type NarrativeState } from "./narrative";
 
-export const SAVE_VERSION = 6;
+export const SAVE_VERSION = 7;
 
 export type Speed = 1 | 2 | 4;
 
@@ -54,6 +54,8 @@ export interface GameState {
   settings: Settings;
   /** Epoch ms of the last save — used to accrue offline progress on return. */
   lastPlayed: number;
+  /** Ids of unlocked achievements (drives permanent collect/fame multipliers). */
+  achievements: string[];
   /** Story progress: quests, clues, NPC relationships, flags. */
   narrative: NarrativeState;
 }
@@ -80,6 +82,7 @@ export function createNewGame(sect: SectType, rng: Rng): GameState {
     nextId: 1,
     settings: { speed: 1, paused: false },
     lastPlayed: Date.now(),
+    achievements: [],
     narrative: createInitialNarrativeState(),
   };
 
