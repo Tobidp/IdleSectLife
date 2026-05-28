@@ -32,7 +32,6 @@ import { ageInYears } from "../../domain/disciples/aging";
 import { orderedDisciples, groupKey, groupLabel } from "./discipleOrder";
 import {
   EQUIPMENT_SLOTS,
-  EQUIPMENT_SLOT_ICON,
   EQUIPMENT_SLOT_LABEL,
   ITEM_TIER_CLASS,
   ITEM_TIER_LABEL,
@@ -96,9 +95,9 @@ function EquipmentSlotView({
 }): JSX.Element {
   if (!item) {
     return (
-      <div className="equip-slot empty" title={`${EQUIPMENT_SLOT_LABEL[slot]} — empty (equip from the Forge)`}>
-        <span className="equip-slot-icon">{EQUIPMENT_SLOT_ICON[slot]}</span>
-        <span className="equip-slot-name">{EQUIPMENT_SLOT_LABEL[slot]}</span>
+      <div className="equip-slot empty" title={`${EQUIPMENT_SLOT_LABEL[slot]} — empty (equip from the Craft tab)`}>
+        <span className="equip-slot-label muted">{EQUIPMENT_SLOT_LABEL[slot]}</span>
+        <span className="equip-slot-item muted">—</span>
       </div>
     );
   }
@@ -110,8 +109,8 @@ function EquipmentSlotView({
       title={`${name} (${ITEM_TIER_LABEL[item.tier]}) — click to unequip`}
       onClick={onUnequip}
     >
-      <span className="equip-slot-icon">{EQUIPMENT_SLOT_ICON[slot]}</span>
-      <span className="equip-slot-name">{name}</span>
+      <span className="equip-slot-label muted">{EQUIPMENT_SLOT_LABEL[slot]}</span>
+      <span className="equip-slot-item">{name}</span>
     </button>
   );
 }

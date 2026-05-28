@@ -57,7 +57,7 @@ const topHtml = renderToStaticMarkup(
   </EngineProvider>,
 );
 check(topHtml.includes("Sect: Ascendant"), "topbar shows the brand");
-check(count(topHtml, /tab-btn/g) === 3, "three tabs render (Sect, Disciples, Story)");
+check(count(topHtml, /tab-btn/g) === 4, "four tabs render (Sect, Disciples, Craft, Story)");
 check(topHtml.includes("disabled"), "the Story tab is disabled while the feature is off");
 
 // 3. Sect dashboard: React Grid Layout renders all five panels.

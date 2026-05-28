@@ -6,7 +6,7 @@ import { createContext, useContext, useReducer, type Dispatch, type ReactNode } 
 import type { Activity } from "../domain/disciples/disciple";
 import type { InvestigationId } from "../domain/narrative/types";
 
-export type Tab = "sect" | "disciples" | "story";
+export type Tab = "sect" | "disciples" | "craft" | "story";
 export type DiscipleSort = "default" | "sect" | "happiness" | "status";
 
 export const DISCIPLE_SORT_LABEL: Record<DiscipleSort, string> = {

@@ -597,6 +597,15 @@ button:disabled {
 .view-disciples {
   font-size: 13px;
 }
+.view-craft {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 13px;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 12px 0;
+}
 .disciples-toolbar {
   display: flex;
   flex-direction: column;
@@ -733,15 +742,15 @@ button:disabled {
   padding-left: 12px;
   border-left: 1px solid var(--border-soft);
   display: grid;
-  grid-template-columns: repeat(3, 64px);
+  grid-template-columns: repeat(3, 96px);
   gap: 6px;
   align-content: start;
 }
 .equip-slot {
   border: 1px dashed var(--ink-dim);
   border-radius: 4px;
-  padding: 4px 2px;
-  height: 50px;
+  padding: 4px 6px;
+  min-height: 44px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -760,15 +769,17 @@ button:disabled {
   border-color: var(--ink-dim);
   color: var(--ink);
 }
-.equip-slot-icon {
-  font-size: 18px;
+.equip-slot-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   line-height: 1;
 }
-.equip-slot-name {
-  font-size: 10px;
-  line-height: 1.1;
-  opacity: 0.85;
+.equip-slot-item {
+  font-size: 11px;
+  line-height: 1.15;
   word-break: break-word;
+  font-weight: 600;
 }
 
 /* Item-tier colour classes echo the rank-tier palette (used in B5c+). */
@@ -1572,7 +1583,7 @@ button:disabled {
 }
 .inv-row {
   display: grid;
-  grid-template-columns: 24px 1fr auto auto auto;
+  grid-template-columns: 70px 1fr auto auto auto;
   align-items: center;
   gap: 8px;
   padding: 4px 6px;
@@ -1580,10 +1591,10 @@ button:disabled {
   border-radius: 4px;
   font-size: 12px;
 }
-.inv-icon {
-  font-size: 16px;
-  line-height: 1;
-  text-align: center;
+.inv-slot {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 .inv-name {
   font-weight: 600;

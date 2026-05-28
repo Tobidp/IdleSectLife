@@ -1,11 +1,11 @@
-// Forge modal: discovered blueprints (craft) + crafted-item inventory (equip on a disciple).
-// Triggered from a footer button; mirrors the Alchemy modal pattern.
+// Forge panel: craft equipment from discovered blueprints + the shared item inventory.
+// Lives inside the Craft tab (no longer a footer modal).
 
 import { useState } from "react";
+import { Panel } from "./components/Panel";
 import { useActions, useGameState } from "./engineContext";
 import { BLUEPRINTS, BLUEPRINT_BY_ID } from "../data/blueprints";
 import {
-  EQUIPMENT_SLOT_ICON,
   EQUIPMENT_SLOT_LABEL,
   ITEM_TIER_CLASS,
   ITEM_TIER_LABEL,
@@ -14,11 +14,7 @@ import {
 import { canCraftBlueprint } from "../domain/equipment/forge";
 import { forgeLevel } from "../domain/buildings/buildings";
 import { formatCost } from "./components/format";
-import {
-  ATTRIBUTES,
-  ATTRIBUTE_LABEL,
-  type Attribute,
-} from "../domain/sect/sectTypes";
+import { ATTRIBUTES, ATTRIBUTE_LABEL } from "../domain/sect/sectTypes";
 import type { Disciple } from "../domain/disciples/disciple";
 
 function formatXpBonuses(b: EquippedItem["xpBonuses"]): string {
@@ -52,12 +48,10 @@ function BlueprintRow({ blueprintId }: { blueprintId: string }): JSX.Element | n
   return (
     <div className="recipe-card">
       <div className="recipe-head">
-        <span className="recipe-name">
-          {EQUIPMENT_SLOT_ICON[bp.slot]} {bp.name}
-        </span>
+        <span className="recipe-name">{bp.name}</span>
         <span className="recipe-owned muted">{EQUIPMENT_SLOT_LABEL[bp.slot]}</span>
       </div>
-      <div className="recipe-desc muted">{formatXpBonuses(scaleByCommon(bp.baseAttrXpBonus))}</div>
+      <div className="recipe-desc muted">{formatXpBonuses(bp.baseAttrXpBonus as EquippedItem["xpBonuses"])}</div>
       <div className="recipe-foot">
         <span className="recipe-cost">{formatCost(bp.craftCost)}</span>
         <button
@@ -70,11 +64,6 @@ function BlueprintRow({ blueprintId }: { blueprintId: string }): JSX.Element | n
       </div>
     </div>
   );
-}
-
-/** Show the base (common-tier) bonus per attribute as a hint of what this blueprint yields. */
-function scaleByCommon(base: Partial<Record<Attribute, number>>): EquippedItem["xpBonuses"] {
-  return base;
 }
 
 function InventoryRow({
@@ -92,7 +81,7 @@ function InventoryRow({
   if (!bp) return null;
   return (
     <div className="inv-row">
-      <span className="inv-icon">{EQUIPMENT_SLOT_ICON[bp.slot]}</span>
+      <span className="inv-slot muted">{EQUIPMENT_SLOT_LABEL[bp.slot]}</span>
       <span className={`inv-name ${ITEM_TIER_CLASS[item.tier]}`}>
         {ITEM_TIER_LABEL[item.tier]} {bp.name}
       </span>
@@ -125,9 +114,8 @@ function InventoryRow({
   );
 }
 
-export function Forge(): JSX.Element | null {
+export function ForgePanel(): JSX.Element | null {
   const state = useGameState();
-  const [open, setOpen] = useState(false);
   if (!state) return null;
 
   const level = forgeLevel(state);
@@ -135,61 +123,43 @@ export function Forge(): JSX.Element | null {
   const ownedBlueprints = BLUEPRINTS.filter((b) => state.blueprints.includes(b.id));
 
   return (
-    <>
-      <button className="forge-btn" title="Forge" onClick={() => setOpen(true)}>
-        ⚒️ Forge
-      </button>
-      {open && (
-        <div className="modal-overlay" onClick={() => setOpen(false)}>
-          <div className="modal modal-wide" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-title">Forge {built ? `· Lv ${level}` : ""}</div>
-            <p className="modal-text muted">
-              {built
-                ? "Craft equipment from your discovered blueprints. Items roll a random quality tier; better tiers grant larger XP bonuses."
-                : "Build the Forge from the Buildings panel to start crafting equipment."}
-            </p>
+    <Panel title={`Forge${built ? ` · Lv ${level}` : ""}`} className="craft-forge">
+      <p className="muted">
+        {built
+          ? "Craft equipment from your discovered blueprints. Items roll a random quality tier; better tiers grant larger XP bonuses."
+          : "Build the Forge from the Buildings panel to start crafting equipment."}
+      </p>
 
-            <div className="forge-section">
-              <div className="forge-section-title">
-                Blueprints ({ownedBlueprints.length})
-              </div>
-              {ownedBlueprints.length === 0 ? (
-                <p className="muted">No blueprints discovered yet. Trials may reveal new ones.</p>
-              ) : (
-                <div className="recipe-list">
-                  {ownedBlueprints.map((b) => (
-                    <BlueprintRow key={b.id} blueprintId={b.id} />
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="forge-section">
-              <div className="forge-section-title">
-                Inventory ({state.itemInventory.length})
-              </div>
-              {state.itemInventory.length === 0 ? (
-                <p className="muted">No items waiting to be equipped.</p>
-              ) : (
-                <div className="inv-list">
-                  {state.itemInventory.map((item, idx) => (
-                    <InventoryRow
-                      key={idx}
-                      item={item}
-                      index={idx}
-                      disciples={state.disciples}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="modal-actions">
-              <button onClick={() => setOpen(false)}>Close</button>
-            </div>
+      <div className="forge-section">
+        <div className="forge-section-title">Blueprints ({ownedBlueprints.length})</div>
+        {ownedBlueprints.length === 0 ? (
+          <p className="muted">No blueprints discovered yet. Trials may reveal new ones.</p>
+        ) : (
+          <div className="recipe-list">
+            {ownedBlueprints.map((b) => (
+              <BlueprintRow key={b.id} blueprintId={b.id} />
+            ))}
           </div>
-        </div>
-      )}
-    </>
+        )}
+      </div>
+
+      <div className="forge-section">
+        <div className="forge-section-title">Inventory ({state.itemInventory.length})</div>
+        {state.itemInventory.length === 0 ? (
+          <p className="muted">No items waiting to be equipped.</p>
+        ) : (
+          <div className="inv-list">
+            {state.itemInventory.map((item, idx) => (
+              <InventoryRow
+                key={idx}
+                item={item}
+                index={idx}
+                disciples={state.disciples}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </Panel>
   );
 }

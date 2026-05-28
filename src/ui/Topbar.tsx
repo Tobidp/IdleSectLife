@@ -38,6 +38,7 @@ export function Topbar({ state }: { state: GameState }): JSX.Element {
       <nav className="tabs">
         <TabButton tab="sect" label="Sect" />
         <TabButton tab="disciples" label={`Disciples (${state.disciples.length})`} />
+        <TabButton tab="craft" label="Craft" />
         <TabButton
           tab="story"
           label="Story"

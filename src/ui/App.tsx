@@ -14,8 +14,6 @@ import { WelcomeBack } from "./WelcomeBack";
 import { Achievements } from "./Achievements";
 import { Stats } from "./Stats";
 import { Settings } from "./Settings";
-import { Alchemy } from "./Alchemy";
-import { Forge } from "./Forge";
 
 // Tab bodies are code-split: the dashboard chunk (React Grid Layout + Motion) loads only
 // once a game is in play, keeping the sect-selection screen + initial load lean.
@@ -25,6 +23,7 @@ const SectDashboard = lazy(() =>
 const DisciplesView = lazy(() =>
   import("./tabs/DisciplesView").then((m) => ({ default: m.DisciplesView })),
 );
+const CraftView = lazy(() => import("./tabs/CraftView").then((m) => ({ default: m.CraftView })));
 const StoryView = lazy(() => import("./tabs/StoryView").then((m) => ({ default: m.StoryView })));
 
 function Game({ state }: { state: GameState }): JSX.Element {
@@ -38,6 +37,8 @@ function Game({ state }: { state: GameState }): JSX.Element {
         <DisciplesView state={state} />
       </div>
     );
+  } else if (view.tab === "craft") {
+    body = <CraftView state={state} />;
   } else if (view.tab === "story") {
     body = <StoryView state={state} />;
   } else {
@@ -50,8 +51,6 @@ function Game({ state }: { state: GameState }): JSX.Element {
       <Suspense fallback={<div className="muted loading">Loading…</div>}>{body}</Suspense>
       <footer className="footer">
         <Achievements />
-        <Alchemy />
-        <Forge />
         <Stats />
         <SaveLoad />
         <Settings />
