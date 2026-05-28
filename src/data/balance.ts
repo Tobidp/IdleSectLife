@@ -53,6 +53,13 @@ export const WAGE_ARREARS_GRACE_MONTHS = 2; // consecutive unpaid months tolerat
 export const PASSIVE_GOLD_PER_MONTH = 1; // tiny passive gold trickle (deliberately almost nothing)
 export const MERCHANT_SELL_BONUS_PER_LEVEL = 0.1; // auto-sell price x (1 + (level-1) * this)
 
+// --- Infirmary (passive heal boost) ---
+export const INFIRMARY_HEAL_PER_LEVEL = 2; // extra hp/day per infirmary level
+
+// --- Training Hall (passive XP boost, stacks with mentors) ---
+export const TRAINING_HALL_XP_PER_LEVEL = 0.05; // +5% xp per level
+export const TRAINING_HALL_XP_CAP = 0.25; // caps at +25%
+
 // --- Bonds (friendships between disciples) ---
 export const BOND_HAPPINESS_PER_BOND = 2; // each bond raises the disciple's happiness target
 export const BOND_HAPPINESS_TARGET_CAP = 20; // ceiling on how much bonds can shift the target

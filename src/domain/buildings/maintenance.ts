@@ -1,7 +1,15 @@
 // Monthly upkeep for pavilions and the sect, scaled by level — including the gold "wages"
 // whose non-payment carries real consequences (morale, then structural decay).
 
-import { QUARTERS, WAREHOUSE, MERCHANT, SECT, type Cost } from "../../data/costs";
+import {
+  QUARTERS,
+  WAREHOUSE,
+  MERCHANT,
+  INFIRMARY,
+  TRAINING_HALL,
+  SECT,
+  type Cost,
+} from "../../data/costs";
 import {
   WAGE_ARREARS_HAPPINESS_PENALTY,
   WAGE_ARREARS_GRACE_MONTHS,
@@ -22,6 +30,8 @@ export function monthlyMaintenance(state: GameState): Cost {
   addScaled(due, QUARTERS.maintenancePerLevel, state.buildings.quarters.level);
   addScaled(due, WAREHOUSE.maintenancePerLevel, state.buildings.warehouse.level);
   addScaled(due, MERCHANT.maintenancePerLevel, state.buildings.merchant.level);
+  addScaled(due, INFIRMARY.maintenancePerLevel, state.buildings.infirmary.level);
+  addScaled(due, TRAINING_HALL.maintenancePerLevel, state.buildings.trainingHall.level);
   addScaled(due, SECT.maintenancePerLevel, state.sect.level);
   return due;
 }

@@ -9,7 +9,7 @@ import { STARTING_RESOURCES, STARTING_DISCIPLES } from "../data/baseStats";
 import type { LogEntry } from "./log";
 import { createInitialNarrativeState, type NarrativeState } from "./narrative";
 
-export const SAVE_VERSION = 10;
+export const SAVE_VERSION = 11;
 
 export type Speed = 1 | 2 | 4;
 
@@ -22,6 +22,10 @@ export interface BuildingsState {
   warehouse: BuildingState;
   /** Optional. level 0 = not built; level >= 1 enables auto-selling surplus. */
   merchant: BuildingState;
+  /** Optional. Each level adds passive HP regen per day to every disciple. */
+  infirmary: BuildingState;
+  /** Optional. Each level adds a flat XP bonus (capped). */
+  trainingHall: BuildingState;
 }
 
 export interface SectState {
@@ -74,6 +78,8 @@ export function createNewGame(sect: SectType, rng: Rng): GameState {
       quarters: { level: 1 },
       warehouse: { level: 1 },
       merchant: { level: 0 },
+      infirmary: { level: 0 },
+      trainingHall: { level: 0 },
     },
     fame: 0,
     autoSell: {},

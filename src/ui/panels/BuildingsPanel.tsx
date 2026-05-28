@@ -15,7 +15,13 @@ import {
   type PavilionKey,
 } from "../../domain/buildings/buildings";
 import { sectUpgradeCost } from "../../domain/sect/sect";
-import { FAME_BURST_PER_SECT_LEVEL, FAME_PER_SECT_LEVEL_PER_MONTH } from "../../data/balance";
+import {
+  FAME_BURST_PER_SECT_LEVEL,
+  FAME_PER_SECT_LEVEL_PER_MONTH,
+  INFIRMARY_HEAL_PER_LEVEL,
+  TRAINING_HALL_XP_PER_LEVEL,
+  TRAINING_HALL_XP_CAP,
+} from "../../data/balance";
 
 function BuildingRow({
   state,
@@ -74,6 +80,53 @@ function MerchantRow({ state }: { state: GameState }): JSX.Element {
   );
 }
 
+function InfirmaryRow({ state }: { state: GameState }): JSX.Element {
+  const actions = useActions();
+  const level = state.buildings.infirmary.level;
+  const current = level * INFIRMARY_HEAL_PER_LEVEL;
+  const next = (level + 1) * INFIRMARY_HEAL_PER_LEVEL;
+  const effect =
+    level === 0
+      ? `Build for +${next} HP/day to every disciple`
+      : `+${current} HP/day to every disciple → +${next} next`;
+  return (
+    <BuildingRow
+      state={state}
+      name={PAVILION_LABEL.infirmary}
+      level={level}
+      effect={effect}
+      cost={pavilionUpgradeCost("infirmary", level)}
+      actionLabel={level === 0 ? "Build" : "Upgrade"}
+      onUpgrade={() => actions.upgradePavilion("infirmary")}
+    />
+  );
+}
+
+function TrainingHallRow({ state }: { state: GameState }): JSX.Element {
+  const actions = useActions();
+  const level = state.buildings.trainingHall.level;
+  const current = Math.min(TRAINING_HALL_XP_CAP, level * TRAINING_HALL_XP_PER_LEVEL);
+  const next = Math.min(TRAINING_HALL_XP_CAP, (level + 1) * TRAINING_HALL_XP_PER_LEVEL);
+  const capped = current >= TRAINING_HALL_XP_CAP;
+  const effect =
+    level === 0
+      ? `Build for +${Math.round(next * 100)}% XP (sect-wide)`
+      : capped
+        ? `+${Math.round(current * 100)}% XP (maxed)`
+        : `+${Math.round(current * 100)}% XP → +${Math.round(next * 100)}% next`;
+  return (
+    <BuildingRow
+      state={state}
+      name={PAVILION_LABEL.trainingHall}
+      level={level}
+      effect={effect}
+      cost={pavilionUpgradeCost("trainingHall", level)}
+      actionLabel={level === 0 ? "Build" : "Upgrade"}
+      onUpgrade={() => actions.upgradePavilion("trainingHall")}
+    />
+  );
+}
+
 function PavilionRow({ state, pkey }: { state: GameState; pkey: PavilionKey }): JSX.Element {
   const actions = useActions();
   const level = state.buildings[pkey].level;
@@ -102,6 +155,8 @@ export function BuildingsPanel({ state }: { state: GameState }): JSX.Element {
       <PavilionRow state={state} pkey="quarters" />
       <PavilionRow state={state} pkey="warehouse" />
       <MerchantRow state={state} />
+      <InfirmaryRow state={state} />
+      <TrainingHallRow state={state} />
       <BuildingRow
         state={state}
         name="Sect"

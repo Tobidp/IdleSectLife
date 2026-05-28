@@ -9,6 +9,8 @@ const SAVE_KEY = "idle-sect-life:save:v1";
 function backfill(save: GameState): void {
   if (!save.narrative) save.narrative = createInitialNarrativeState();
   if (!save.buildings.merchant) save.buildings.merchant = { level: 0 };
+  if (!save.buildings.infirmary) save.buildings.infirmary = { level: 0 };
+  if (!save.buildings.trainingHall) save.buildings.trainingHall = { level: 0 };
   if (!save.autoSell) save.autoSell = {};
   if (typeof save.goldArrears !== "number") save.goldArrears = 0;
   // Default to "now" so an old save isn't treated as having been away forever.

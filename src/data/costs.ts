@@ -37,6 +37,18 @@ export const MERCHANT = {
   maintenancePerLevel: {} as Cost,
 };
 
+// Optional building: each level adds passive HP regen per day to every disciple.
+export const INFIRMARY = {
+  baseCost: { wood: 80, stone: 80 } as Cost,
+  maintenancePerLevel: {} as Cost,
+};
+
+// Optional building: each level adds a flat XP bonus (capped). Stacks with mentors.
+export const TRAINING_HALL = {
+  baseCost: { wood: 100, stone: 100, gold: 20 } as Cost,
+  maintenancePerLevel: { gold: 1 } as Cost,
+};
+
 /** Scale a base cost by the exponential multiplier for the given current level. */
 export function scaledCost(base: Cost, level: number): Cost {
   const factor = Math.pow(COST_MULTIPLIER, level);

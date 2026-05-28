@@ -12,6 +12,7 @@ import { pathXpMultFor, maybeAssignPath, PATH_LABEL } from "../disciples/paths";
 import { mentorBoost } from "../disciples/mentors";
 import { naturalDeathChance, ageInYears } from "../disciples/aging";
 import { rollMonthlyBond, mournLost } from "../disciples/bonds";
+import { infirmaryHealBonus, trainingHallXpBonus } from "../buildings/buildings";
 import { updateHappiness } from "../disciples/happiness";
 import { rollMonthlyApplicant } from "../disciples/recruitment";
 import { maxHp, type Disciple } from "../disciples/disciple";
@@ -44,6 +45,8 @@ export function advanceDay(state: GameState, rng: Rng): void {
   const sectAttr = sectAttribute(state);
   const bonus = achievementMultipliers(state);
   const mentor = 1 + mentorBoost(state);
+  const training = 1 + trainingHallXpBonus(state);
+  const infirmaryBonus = infirmaryHealBonus(state);
 
   // 1. Resolve each active disciple's 3 daily actions.
   for (const d of state.disciples) {
@@ -52,7 +55,8 @@ export function advanceDay(state: GameState, rng: Rng): void {
       happinessGainMultiplier(d.happiness) *
       talentXpMult(d.talent) *
       traitXpMult(d.trait) *
-      mentor;
+      mentor *
+      training;
     for (const action of d.actions) {
       const resource = collectResourceOf(action);
       if (resource) {
@@ -97,7 +101,7 @@ export function advanceDay(state: GameState, rng: Rng): void {
           }
         }
       } else if (action === "train") {
-        const result = trainOnce(d, sectAttr, rng, mentor);
+        const result = trainOnce(d, sectAttr, rng, mentor * training);
         for (const ev of result.breakthroughs) {
           if (ev.result.success) {
             pushLog(
@@ -145,7 +149,8 @@ export function advanceDay(state: GameState, rng: Rng): void {
   // 4. Healing & death.
   const dead: Disciple[] = [];
   for (const d of state.disciples) {
-    const heal = HEAL_BASE + effectiveLevel(d.attributes.vitality) * HEAL_LEVEL_FACTOR;
+    const heal =
+      HEAL_BASE + effectiveLevel(d.attributes.vitality) * HEAL_LEVEL_FACTOR + infirmaryBonus;
     if (d.status === "down") {
       const deathChance = Math.max(
         DEATH_MIN_CHANCE,
