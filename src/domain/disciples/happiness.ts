@@ -16,8 +16,15 @@ function clamp(v: number): number {
 }
 
 /** Move a disciple's happiness for the day. Food shortage overrides the drift. Bonds raise
- * the happiness target by a small amount per bond (capped). */
-export function updateHappiness(d: Disciple, playerSect: SectType, foodShortage: boolean): void {
+ * the happiness target by a small amount per bond (capped). `driftMult` lets the caller
+ * fold in environment-wide modifiers (Harmony / Supremacy doctrines, etc.) — values >1
+ * make movement toward the target faster, <1 slower. */
+export function updateHappiness(
+  d: Disciple,
+  playerSect: SectType,
+  foodShortage: boolean,
+  driftMult = 1,
+): void {
   if (foodShortage) {
     d.happiness = clamp(d.happiness - HAPPINESS_SHORTAGE_PENALTY);
     return;
@@ -27,10 +34,11 @@ export function updateHappiness(d: Disciple, playerSect: SectType, foodShortage:
   const bondBoost = Math.min(BOND_HAPPINESS_TARGET_CAP, d.bonds.length * BOND_HAPPINESS_PER_BOND);
   const target = Math.min(100, baseTarget + bondBoost);
   const diff = target - d.happiness;
-  if (Math.abs(diff) <= HAPPINESS_DRIFT) {
+  const drift = HAPPINESS_DRIFT * driftMult;
+  if (Math.abs(diff) <= drift) {
     d.happiness = target;
   } else {
-    d.happiness += Math.sign(diff) * HAPPINESS_DRIFT;
+    d.happiness += Math.sign(diff) * drift;
   }
   d.happiness = clamp(d.happiness);
 }

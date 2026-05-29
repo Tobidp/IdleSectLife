@@ -33,6 +33,7 @@ import { spend } from "../resources/resources";
 import { pushLog } from "../../state/log";
 import type { GameState } from "../../state/gameState";
 import { sumWorkerLevels } from "./jobs";
+import { doctrineMult } from "../doctrines/effects";
 
 export type PavilionKey =
   | "quarters"
@@ -84,12 +85,13 @@ export function merchantSellMultiplierFor(state: GameState): number {
   );
 }
 
-/** Extra HP regenerated per day from the infirmary (base + Healer workers' Vitality). */
+/** Extra HP regenerated per day from the infirmary (base + Healer workers' Vitality).
+ *  Scaled by the active doctrine (Medicinal / Harmony lift the value, no doctrine = 1×). */
 export function infirmaryHealBonus(state: GameState): number {
-  return (
+  const raw =
     state.buildings.infirmary.level * INFIRMARY_HEAL_PER_LEVEL +
-    sumWorkerLevels(state, "infirmary") * INFIRMARY_HEAL_PER_WORKER_LEVEL
-  );
+    sumWorkerLevels(state, "infirmary") * INFIRMARY_HEAL_PER_WORKER_LEVEL;
+  return raw * doctrineMult(state, "infirmaryHealMult");
 }
 
 /** Fractional XP boost from the training hall: capped per-level base + uncapped worker addition. */
@@ -155,7 +157,8 @@ export function upgradePavilion(state: GameState, key: PavilionKey): boolean {
   const cost = pavilionUpgradeCost(key, level);
   if (!spend(state, cost)) return false;
   state.buildings[key].level += 1;
-  state.fame += FAME_BURST_PER_PAVILION_LEVEL;
+  // Doctrines (Supremacy / Mercantile / Shadow) scale the fame burst from rank-ups.
+  state.fame += FAME_BURST_PER_PAVILION_LEVEL * doctrineMult(state, "fameBurstMult");
   pushLog(state, `${PAVILION_LABEL[key]} upgraded to level ${state.buildings[key].level}.`, "good");
   return true;
 }

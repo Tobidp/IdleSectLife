@@ -28,6 +28,8 @@ import { startMission, recallMission } from "../domain/missions/missions";
 import type { MissionDefId } from "../data/missions/missionDefs";
 import { resolveChainChoice } from "../domain/events/eventChains";
 import type { ChainId } from "../data/events/chainDefs";
+import { pickDoctrine } from "../domain/doctrines/effects";
+import type { DoctrineId } from "../data/doctrines/doctrineDefs";
 import { upgradeSect } from "../domain/sect/sect";
 import { addResource } from "../domain/resources/resources";
 import { sellResource, buyResource } from "../domain/market/market";
@@ -409,6 +411,19 @@ export class GameEngine {
       resolveChainChoice(s, chainId, choiceId, this.rng);
     });
     this.saveNow();
+  }
+
+  /** Commit the sect to a doctrine for the rest of the run — irreversible. */
+  pickDoctrine(id: DoctrineId): boolean {
+    let ok = false;
+    this.store.update((s) => {
+      ok = pickDoctrine(s, id);
+      if (ok) {
+        pushLog(s, `The sect commits to the ${id.charAt(0).toUpperCase() + id.slice(1)} doctrine.`, "good");
+      }
+    });
+    this.saveNow();
+    return ok;
   }
 
   // --- Narrative ---

@@ -251,6 +251,7 @@ export const SaveSchema = z
       .array(safeStr(SAVE_LIMITS.maxLabelLen))
       .max(SAVE_LIMITS.maxCompletedEventChains)
       .optional(),
+    doctrine: safeStr(SAVE_LIMITS.maxLabelLen).nullable().optional(),
     narrative: NarrativeSchema.optional(),
   })
   .passthrough();

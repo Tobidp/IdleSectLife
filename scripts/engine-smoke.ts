@@ -262,5 +262,32 @@ const c2 = engine.getState()!;
 check(c2.activeEventChains.length === 1, "transition choice keeps chain active");
 check(c2.activeEventChains[0].stageId === "inside", "transition moves to the named next stage");
 
+// --- C1 Doctrines: pick, persist, observe effect on sell price ---
+engine.newGame("sword");
+const dState = engine.getState()!;
+check(dState.doctrine === null, "fresh game has no doctrine");
+dState.sect.level = 2; // satisfy canPickDoctrine
+dState.resources.wood = 500;
+dState.resources.gold = 0;
+// Sell BEFORE doctrine for baseline.
+engine.sell("wood", 50);
+const goldNoDoctrine = engine.getState()!.resources.gold;
+engine.getState()!.resources.wood = 500;
+engine.getState()!.resources.gold = 0;
+// Pick mercantile (+35% sell prices).
+const picked = engine.pickDoctrine("mercantile");
+check(picked === true, "pickDoctrine succeeds on a fresh sect at level 2");
+check(engine.getState()!.doctrine === "mercantile", "doctrine persisted to state");
+// Picking again should be a no-op.
+check(engine.pickDoctrine("harmony") === false, "pickDoctrine rejects when one is already set");
+check(engine.getState()!.doctrine === "mercantile", "second pick attempt leaves the original");
+// Sell again and confirm price is higher.
+engine.sell("wood", 50);
+const goldWithDoctrine = engine.getState()!.resources.gold;
+check(
+  goldWithDoctrine > goldNoDoctrine,
+  "mercantile doctrine raises market sell price (1.35× wood gold)",
+);
+
 console.log(failures === 0 ? "\n✓ ENGINE OK" : `\n✗ ${failures} CHECK(S) FAILED`);
 process.exit(failures === 0 ? 0 : 1);

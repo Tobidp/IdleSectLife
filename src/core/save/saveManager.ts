@@ -55,6 +55,8 @@ function backfill(save: GameState): void {
   // Pre-B5: event chain state defaults to empty (chains will trigger via daily rolls).
   if (!Array.isArray(save.activeEventChains)) save.activeEventChains = [];
   if (!Array.isArray(save.completedEventChains)) save.completedEventChains = [];
+  // Pre-C1: no doctrine committed yet.
+  if (save.doctrine === undefined) save.doctrine = null;
   // Pre-A2 disciples + applicants had no talent; default to "common".
   // Pre-Phase-3-closeout disciples lacked trait / path / age.
   // Pre-B2 disciples lacked the narrative layers (origin / ambition / fear / trauma /

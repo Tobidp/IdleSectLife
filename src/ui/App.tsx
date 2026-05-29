@@ -18,6 +18,7 @@ import { isTabVisible } from "./progression/visibility";
 import { CurrentObjective } from "./progression/CurrentObjective";
 import { PersonalEventModal } from "./events/PersonalEventModal";
 import { ChainEventModal } from "./events/ChainEventModal";
+import { DoctrineModal } from "./doctrines/DoctrineModal";
 
 // Tab bodies are code-split: the dashboard chunk (React Grid Layout + Motion) loads only
 // once a game is in play, keeping the sect-selection screen + initial load lean.
@@ -71,6 +72,7 @@ function Game({ state }: { state: GameState }): JSX.Element {
       </footer>
       <PersonalEventModal state={state} />
       <ChainEventModal state={state} />
+      <DoctrineModal state={state} />
     </>
   );
 }

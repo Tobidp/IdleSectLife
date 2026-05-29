@@ -31,6 +31,7 @@ import { advanceWorldClocks } from "../world/clocks";
 import { rollPersonalEvents } from "../disciples/personalEvents";
 import { advanceMissions } from "../missions/missions";
 import { rollEventChains } from "../events/eventChains";
+import { doctrineMult } from "../doctrines/effects";
 import { STORY_ENABLED } from "../../config/featureFlags";
 import { PASSIVE_GOLD_PER_MONTH, TRIBULATION_AID_FAIL_MULT } from "../../data/balance";
 import { ATTRIBUTE_LABEL } from "../sect/sectTypes";
@@ -52,8 +53,11 @@ export function advanceDay(state: GameState, rng: Rng): void {
   const sectAttr = sectAttribute(state);
   const bonus = achievementMultipliers(state);
   const mentor = 1 + mentorBoost(state);
-  const training = 1 + trainingHallXpBonus(state);
+  // Doctrines (Ascesis / Harmony) fold into the training multiplier alongside the hall bonus.
+  const training = (1 + trainingHallXpBonus(state)) * doctrineMult(state, "trainingXpMult");
   const infirmaryBonus = infirmaryHealBonus(state);
+  const doctrineHappinessDrift = doctrineMult(state, "happinessGainMult");
+  const doctrineBreakthroughSuccess = doctrineMult(state, "breakthroughSuccessMult");
 
   // 1. Resolve each active disciple's 3 daily actions.
   for (const d of state.disciples) {
@@ -74,7 +78,8 @@ export function advanceDay(state: GameState, rng: Rng): void {
           collectYield(resource, strLevel, seasonMultiplier(season, resource)) * bonus.collect,
         );
         if (addXp(d.attributes.strength, COLLECT_XP * mult * pathXpMultFor(d.path, "strength") * equipmentXpMult(d, "strength")).readyToBreakthrough) {
-          const failMult = d.tribulationBuff ? TRIBULATION_AID_FAIL_MULT : 1;
+          const failMult =
+            (d.tribulationBuff ? TRIBULATION_AID_FAIL_MULT : 1) / doctrineBreakthroughSuccess;
           const tr = attemptBreakthrough(
             d.attributes.strength,
             effectiveLevel(d.attributes.vitality),
@@ -115,7 +120,8 @@ export function advanceDay(state: GameState, rng: Rng): void {
           }
         }
       } else if (action === "train") {
-        const result = trainOnce(d, sectAttr, rng, mentor * training);
+        // doctrineBreakthroughSuccess > 1 → fail chance scales down by 1/x.
+        const result = trainOnce(d, sectAttr, rng, mentor * training, 1 / doctrineBreakthroughSuccess);
         if (result.tribulationAidConsumed) {
           pushLog(state, `${d.name}'s Tribulation Aid steadies the trial.`, "info");
         }
@@ -162,7 +168,7 @@ export function advanceDay(state: GameState, rng: Rng): void {
   // 3. Happiness — disciples away on mission don't have their mood updated by sect events.
   for (const d of state.disciples) {
     if (d.status === "on_mission") continue;
-    updateHappiness(d, state.sect.type, shortage);
+    updateHappiness(d, state.sect.type, shortage, doctrineHappinessDrift);
   }
 
   // 4. Healing & death — on-mission disciples are off-grid; their HP is handled by the

@@ -6,10 +6,12 @@ import type { Rng } from "../../core/rng/rng";
 import { BLUEPRINTS } from "../../data/blueprints";
 import { BLUEPRINT_DROP_CHANCE_ON_BREAKTHROUGH } from "../../data/balance";
 import { pushLog } from "../../state/log";
+import { doctrineMult } from "../doctrines/effects";
 
 /** Roll the drop chance and add a new blueprint to the player's discovered list. */
 export function maybeDropBlueprint(state: GameState, rng: Rng, discipleName: string): void {
-  if (!rng.chance(BLUEPRINT_DROP_CHANCE_ON_BREAKTHROUGH)) return;
+  const chance = BLUEPRINT_DROP_CHANCE_ON_BREAKTHROUGH * doctrineMult(state, "blueprintDropMult");
+  if (!rng.chance(chance)) return;
   const owned = new Set(state.blueprints);
   const candidates = BLUEPRINTS.filter((b) => !owned.has(b.id));
   if (candidates.length === 0) return;

@@ -18,8 +18,9 @@ import { createInitialMissionOffers, type ActiveMission } from "../domain/missio
 import type { MissionDefId } from "../data/missions/missionDefs";
 import type { ActiveChain } from "../domain/events/eventChains";
 import type { ChainId } from "../data/events/chainDefs";
+import type { DoctrineId } from "../data/doctrines/doctrineDefs";
 
-export const SAVE_VERSION = 23;
+export const SAVE_VERSION = 24;
 
 export type Speed = 1 | 2 | 4;
 
@@ -99,6 +100,8 @@ export interface GameState {
   activeEventChains: ActiveChain[];
   /** Chain ids the player has already played through — fired-once. */
   completedEventChains: ChainId[];
+  /** Run-permanent doctrine the sect committed to (null until the player picks one). */
+  doctrine: DoctrineId | null;
   /** Story progress: quests, clues, NPC relationships, flags. */
   narrative: NarrativeState;
 }
@@ -142,6 +145,7 @@ export function createNewGame(sect: SectType, rng: Rng): GameState {
     activeMissions: [],
     activeEventChains: [],
     completedEventChains: [],
+    doctrine: null,
     narrative: createInitialNarrativeState(),
   };
 

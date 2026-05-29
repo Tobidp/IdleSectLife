@@ -650,6 +650,65 @@ a:focus-visible,
   cursor: not-allowed;
 }
 
+/* ---------- Doctrine pick modal + active doctrine badge ---------- */
+.doctrine-modal {
+  max-width: 720px;
+}
+.doctrine-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+@media (max-width: 640px) {
+  .doctrine-list {
+    grid-template-columns: 1fr;
+  }
+}
+.doctrine-card {
+  text-align: left;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--bg-panel-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.doctrine-card:hover:not(:disabled) {
+  border-color: var(--gold);
+}
+.doctrine-card-title {
+  font-weight: 700;
+  color: var(--gold);
+  font-size: 14px;
+}
+.doctrine-card-desc {
+  font-size: 12px;
+  color: var(--ink);
+  line-height: 1.4;
+}
+.doctrine-card-effects {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 4px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.doctrine-bonus {
+  color: var(--jade);
+}
+.doctrine-penalty {
+  color: var(--crimson);
+}
+.sect-doctrine {
+  font-size: 11px;
+  color: var(--gold);
+  margin-top: 2px;
+  letter-spacing: 0.05em;
+}
+
 /* ---------- Missions panel + assign modal ---------- */
 .missions .panel-body {
   gap: 12px;

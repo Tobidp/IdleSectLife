@@ -8,6 +8,7 @@ import { currentSeason, formatDate } from "../../core/time/timeEngine";
 import { SEASON_ICON, SEASON_LABEL, SEASON_NOTE } from "../../data/seasons";
 import { disciplesCapacity } from "../../domain/buildings/buildings";
 import { monthlyFameGain, recruitChance } from "../../domain/fame/fame";
+import { DOCTRINES } from "../../data/doctrines/doctrineDefs";
 
 function Stat({ label, value, title }: { label: string; value: string; title?: string }): JSX.Element {
   return (
@@ -22,6 +23,7 @@ export function SectOverviewPanel({ state }: { state: GameState }): JSX.Element 
   const season = currentSeason(state.time);
   const cap = disciplesCapacity(state);
   const active = state.disciples.filter((d) => d.status === "active").length;
+  const doctrine = state.doctrine ? DOCTRINES[state.doctrine] : null;
 
   return (
     <Panel title="Sect Overview" className="sect-overview">
@@ -32,6 +34,11 @@ export function SectOverviewPanel({ state }: { state: GameState }): JSX.Element 
             {SECT_LABEL[state.sect.type]} · Lv {state.sect.level}
           </div>
           <div className="sect-date">{formatDate(state.time)}</div>
+          {doctrine && (
+            <div className="sect-doctrine" title={`${doctrine.description}\n+ ${doctrine.bonus}\n− ${doctrine.penalty}`}>
+              ◇ {doctrine.label}
+            </div>
+          )}
         </div>
       </div>
       <div className="stat-grid">

@@ -49,12 +49,14 @@ export interface TrainResult {
 
 /** Apply one Train action: XP to every attribute (+bonus on the sect's), tribulation rolls on
  * any attribute that hit 10★ this tick, then the usual injury roll. `extraMult` lets the
- * caller fold in environmental boosts (mentors). */
+ * caller fold in environmental boosts (mentors, training hall, doctrine training mult);
+ * `breakthroughFailMult` lets a Supremacy-style doctrine ease the tribulation fail chance. */
 export function trainOnce(
   d: Disciple,
   sectAttr: Attribute,
   rng: Rng,
   extraMult = 1,
+  breakthroughFailMult = 1,
 ): TrainResult {
   const mult =
     happinessGainMultiplier(d.happiness) * talentXpMult(d.talent) * traitXpMult(d.trait) * extraMult;
@@ -65,7 +67,7 @@ export function trainOnce(
     const bonus = attr === sectAttr ? TRAIN_XP_SECT_BONUS : 0;
     const gain = (TRAIN_XP_ALL + bonus) * mult * pathXpMultFor(d.path, attr) * equipmentXpMult(d, attr);
     if (addXp(d.attributes[attr], gain).readyToBreakthrough) {
-      const failMult = d.tribulationBuff ? TRIBULATION_AID_FAIL_MULT : 1;
+      const failMult = (d.tribulationBuff ? TRIBULATION_AID_FAIL_MULT : 1) * breakthroughFailMult;
       const tr = attemptBreakthrough(
         d.attributes[attr],
         effectiveLevel(d.attributes.vitality),
