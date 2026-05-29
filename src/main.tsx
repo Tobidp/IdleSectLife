@@ -8,6 +8,7 @@ import { App } from "./ui/App";
 import { EngineProvider } from "./ui/engineContext";
 import { ViewProvider } from "./ui/viewContext";
 import { PrefsProvider } from "./ui/prefsContext";
+import { ErrorBoundary } from "./ui/ErrorBoundary";
 
 const engine = new GameEngine();
 engine.boot();
@@ -18,11 +19,13 @@ if (!container) {
 }
 
 createRoot(container).render(
-  <EngineProvider engine={engine}>
-    <ViewProvider>
-      <PrefsProvider>
-        <App />
-      </PrefsProvider>
-    </ViewProvider>
-  </EngineProvider>,
+  <ErrorBoundary>
+    <EngineProvider engine={engine}>
+      <ViewProvider>
+        <PrefsProvider>
+          <App />
+        </PrefsProvider>
+      </ViewProvider>
+    </EngineProvider>
+  </ErrorBoundary>,
 );

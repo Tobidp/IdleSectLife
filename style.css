@@ -1688,6 +1688,58 @@ button:disabled {
   cursor: pointer;
   justify-self: end;
 }
+
+/* ---------- Crash screen (ErrorBoundary) ---------- */
+.crash-screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.75);
+  padding: 24px;
+  z-index: 5000;
+}
+.crash-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--gold);
+  border-radius: var(--radius);
+  padding: 24px;
+  max-width: 520px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+}
+.crash-title {
+  font-size: 22px;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+.crash-text {
+  font-size: 14px;
+  margin-bottom: 14px;
+  line-height: 1.45;
+}
+.crash-detail {
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 11px;
+  background: var(--bg-panel-2);
+  border-radius: 4px;
+  padding: 6px 8px;
+  margin-bottom: 16px;
+  word-break: break-word;
+}
+.crash-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.crash-danger {
+  color: #e07c7c;
+  border-color: rgba(224, 124, 124, 0.4);
+}
+.crash-danger:hover:not(:disabled) {
+  border-color: #e07c7c;
+  background: rgba(224, 124, 124, 0.08);
+}
 .inv-slot {
   font-size: 10px;
   text-transform: uppercase;
