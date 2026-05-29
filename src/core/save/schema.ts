@@ -313,6 +313,7 @@ export const SaveSchema = z
       .optional(),
     lastTournamentDay: intNonNeg.max(SAVE_LIMITS.maxTotalDays).nullable().optional(),
     factionRelations: z.record(z.string(), z.number().min(-100).max(100)).optional(),
+    appliedLegacy: safeStr(SAVE_LIMITS.maxLabelLen).nullable().optional(),
     narrative: NarrativeSchema.optional(),
   })
   .passthrough();

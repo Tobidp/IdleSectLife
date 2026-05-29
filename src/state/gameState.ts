@@ -26,8 +26,10 @@ import { createInitialTerritories, type TerritoryState } from "../domain/territo
 import type { ScheduledCrisis } from "../domain/crises/crises";
 import type { ActiveTournament } from "../domain/tournaments/tournaments";
 import { createInitialFactionRelations } from "../domain/factions/factions";
+import { LEGACIES, type LegacyId } from "../data/legacies/legacyDefs";
+import { clearActiveLegacy, getActiveLegacy } from "../domain/legacies/legacyStorage";
 
-export const SAVE_VERSION = 31;
+export const SAVE_VERSION = 32;
 
 export type Speed = 1 | 2 | 4;
 
@@ -125,6 +127,8 @@ export interface GameState {
   lastTournamentDay: number | null;
   /** Relation score (-100..100) with each regional faction. Drives territory yield mult. */
   factionRelations: Record<string, number>;
+  /** Legacy applied to this run (carried over from the previous run's conclusion). */
+  appliedLegacy: LegacyId | null;
   /** Story progress: quests, clues, NPC relationships, flags. */
   narrative: NarrativeState;
 }
@@ -177,6 +181,7 @@ export function createNewGame(sect: SectType, rng: Rng): GameState {
     activeTournament: null,
     lastTournamentDay: null,
     factionRelations: createInitialFactionRelations(),
+    appliedLegacy: null,
     narrative: createInitialNarrativeState(),
   };
 
@@ -184,6 +189,23 @@ export function createNewGame(sect: SectType, rng: Rng): GameState {
     state.disciples.push(createDisciple(state.nextId++, sect, sect, rng));
   }
   state.rngSeed = rng.state;
+  // Apply any pending legacy from the previous run (resources + fame + starting building
+  // bumps). Cleared from storage after applying so it's one-shot.
+  const legacyId = getActiveLegacy();
+  if (legacyId && LEGACIES[legacyId]) {
+    const def = LEGACIES[legacyId];
+    state.appliedLegacy = legacyId;
+    state.fame += def.startingFame;
+    for (const [k, v] of Object.entries(def.startingResources) as [
+      keyof typeof def.startingResources,
+      number,
+    ][]) {
+      state.resources[k] = (state.resources[k] ?? 0) + (v ?? 0);
+    }
+    state.buildings.quarters.level += def.bonusQuartersLevel;
+    state.buildings.warehouse.level += def.bonusWarehouseLevel;
+    clearActiveLegacy();
+  }
   // Seed unlocks silently so the first log line the player sees isn't a wall of
   // "Unlocked: ..." lines — the surfaces just appear in the UI on their own.
   checkUnlocks(state, { silent: true });

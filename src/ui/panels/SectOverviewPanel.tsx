@@ -9,6 +9,7 @@ import { SEASON_ICON, SEASON_LABEL, SEASON_NOTE } from "../../data/seasons";
 import { disciplesCapacity } from "../../domain/buildings/buildings";
 import { monthlyFameGain, recruitChance } from "../../domain/fame/fame";
 import { DOCTRINES } from "../../data/doctrines/doctrineDefs";
+import { LEGACIES } from "../../data/legacies/legacyDefs";
 
 function Stat({ label, value, title }: { label: string; value: string; title?: string }): JSX.Element {
   return (
@@ -37,6 +38,11 @@ export function SectOverviewPanel({ state }: { state: GameState }): JSX.Element 
           {doctrine && (
             <div className="sect-doctrine" title={`${doctrine.description}\n+ ${doctrine.bonus}\n− ${doctrine.penalty}`}>
               ◇ {doctrine.label}
+            </div>
+          )}
+          {state.appliedLegacy && LEGACIES[state.appliedLegacy] && (
+            <div className="sect-legacy" title={LEGACIES[state.appliedLegacy].flavor}>
+              ✦ {LEGACIES[state.appliedLegacy].label}
             </div>
           )}
         </div>

@@ -37,6 +37,8 @@ import type { TerritoryId } from "../data/territories/territoryDefs";
 import { enterTournament, withdrawTournamentEntry } from "../domain/tournaments/tournaments";
 import { curryFactionFavor } from "../domain/factions/factions";
 import type { FactionId } from "../data/factions/factionDefs";
+import { recordLegacy } from "../domain/legacies/legacyStorage";
+import type { LegacyId } from "../data/legacies/legacyDefs";
 import { upgradeSect } from "../domain/sect/sect";
 import { addResource } from "../domain/resources/resources";
 import { sellResource, buyResource } from "../domain/market/market";
@@ -181,6 +183,14 @@ export class GameEngine {
     this.loop = null;
     clearSave();
     this.store.setState(null);
+  }
+
+  /** Conclude the current run with a chosen legacy. Records it to cross-run storage,
+   *  wipes the per-run save, and drops back to sect-selection — the next newGame()
+   *  will pick up the legacy automatically. */
+  concludeRun(legacyId: LegacyId): void {
+    recordLegacy(legacyId);
+    this.hardReset();
   }
 
   /** Export the current game as a portable base64 code, or null if no game is active. */

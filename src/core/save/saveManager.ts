@@ -75,6 +75,8 @@ function backfill(save: GameState): void {
   if (save.lastTournamentDay === undefined) save.lastTournamentDay = null;
   // Pre-D4: faction relations default to 0.
   save.factionRelations = reconcileFactionRelations(save.factionRelations);
+  // Pre-E1: appliedLegacy null until next-run startup applies one.
+  if (save.appliedLegacy === undefined) save.appliedLegacy = null;
   // Pre-A2 disciples + applicants had no talent; default to "common".
   // Pre-Phase-3-closeout disciples lacked trait / path / age.
   // Pre-B2 disciples lacked the narrative layers (origin / ambition / fear / trauma /

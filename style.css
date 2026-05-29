@@ -708,6 +708,26 @@ a:focus-visible,
   margin-top: 2px;
   letter-spacing: 0.05em;
 }
+.sect-legacy {
+  font-size: 11px;
+  color: var(--blue);
+  margin-top: 2px;
+  letter-spacing: 0.05em;
+}
+.conclude-btn {
+  color: var(--blue);
+  border-color: rgba(91, 134, 196, 0.4);
+  font-size: 12px;
+}
+.conclude-btn:hover:not(:disabled) {
+  border-color: var(--blue);
+  color: #fff;
+  background: var(--blue);
+}
+.doctrine-card.picked {
+  border-color: var(--gold);
+  background: var(--bg-row);
+}
 
 /* ---------- Missions panel + assign modal ---------- */
 .missions .panel-body {
