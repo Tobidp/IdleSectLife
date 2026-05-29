@@ -99,6 +99,8 @@ function backfill(save: GameState): void {
       if (d.destiny === undefined) d.destiny = null;
       // Pre-C2 disciples had no techniques learned.
       if (!Array.isArray(d.techniques)) d.techniques = [];
+      // Pre-E3 disciples had no sect role assigned.
+      if (!d.role) d.role = "young";
     }
   }
   // Existing applicants get their timer reset to "just arrived" on load — fair grace for

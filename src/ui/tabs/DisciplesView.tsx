@@ -221,6 +221,11 @@ function DiscipleRow({ state, d }: { state: GameState; d: Disciple }): JSX.Eleme
         <div className="d-expanded">
           {/* Identity strip: talent / trait / age / bonds */}
           <div className="d-meta">
+            {d.role && d.role !== "young" && (
+              <span className={`d-role d-role-${d.role}`} title={`${d.role} of the sect`}>
+                {d.role === "elder" ? "✦ Elder" : "◈ Master"}
+              </span>
+            )}
             <span
               className={`d-talent ${TALENT_TIER_CLASS[d.talent]}`}
               title={`Spirit root: ${TALENT_BY_ID[d.talent].label} (×${TALENT_BY_ID[d.talent].xpMult} XP)`}

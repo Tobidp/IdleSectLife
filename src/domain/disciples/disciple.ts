@@ -74,6 +74,8 @@ export interface Disciple {
   equipment: Record<EquipmentSlot, EquippedItem | null>;
   /** Cultivation techniques learned. Default []. Each stacks multiplicatively. */
   techniques: TechniqueId[];
+  /** Sect role earned through age + level (young → master → elder). Sticky. */
+  role?: "young" | "master" | "elder";
   /** For applicants only: the totalDay they arrived. Used to expire them after a month. */
   arrivedOnDay?: number;
   attributes: Attributes;
@@ -132,6 +134,7 @@ export function createDisciple(
     tribulationBuff: false,
     equipment: emptyEquipment(),
     techniques: [],
+    role: "young",
     attributes: freshAttributes(),
     hp: 0,
     happiness: matches ? HAPPINESS_START_MATCH : HAPPINESS_START_MISMATCH,

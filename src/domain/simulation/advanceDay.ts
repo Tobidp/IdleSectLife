@@ -36,6 +36,7 @@ import { techniqueXpMult, techniqueBreakthroughFailMult } from "../disciples/tec
 import { advanceRivals } from "../rivals/rivals";
 import { advanceTerritories } from "../territories/territories";
 import { fireDueCrises, rollCrisisSchedule } from "../crises/crises";
+import { applyRoleLossPenalty, elderFameBonus, updateRoles } from "../disciples/succession";
 import { resolveDueTournament, rollTournamentSchedule } from "../tournaments/tournaments";
 import {
   checkSecrets,
@@ -229,6 +230,7 @@ export function advanceDay(state: GameState, rng: Rng): void {
     state.disciples = state.disciples.filter((d) => !deadIds.has(d.id));
     for (const d of dead) pushLog(state, `${d.name} succumbed to their injuries.`, "bad");
     mournLost(state, dead, (s, l) => `${s.name} mourns the loss of ${l.name}.`);
+    applyRoleLossPenalty(state, dead);
     recordDiscipleLoss(state);
   }
 
@@ -245,6 +247,7 @@ export function advanceDay(state: GameState, rng: Rng): void {
     state.disciples = state.disciples.filter((d) => !leavingIds.has(d.id));
     for (const d of leaving) pushLog(state, `${d.name} grew unhappy and left the sect.`, "bad");
     mournLost(state, leaving, (s, l) => `${s.name} grieves over ${l.name}'s departure.`);
+    applyRoleLossPenalty(state, leaving);
     recordDiscipleLoss(state);
   }
 
@@ -262,6 +265,8 @@ export function advanceDay(state: GameState, rng: Rng): void {
       pushLog(state, `${d.name} passed peacefully at age ${ageInYears(d)}.`, "info");
     }
     mournLost(state, aged, (s, l) => `${s.name} mourns ${l.name}'s passing.`);
+    applyRoleLossPenalty(state, aged);
+    recordDiscipleLoss(state);
   }
 
   // 6. Expire stale applicants who waited longer than APPLICANT_EXPIRY_DAYS, then advance
@@ -269,7 +274,7 @@ export function advanceDay(state: GameState, rng: Rng): void {
   expireApplicants(state);
   const result = advanceOneDay(state.time);
   if (result.monthChanged) {
-    state.fame += monthlyFameGain(state);
+    state.fame += monthlyFameGain(state) + elderFameBonus(state);
     state.resources.gold += PASSIVE_GOLD_PER_MONTH;
     applyMonthlyMaintenance(state);
     rollMonthlyApplicant(state, rng);
@@ -332,6 +337,10 @@ export function advanceDay(state: GameState, rng: Rng): void {
   //      daysSinceLastLoss counter; checkSecrets unlocks anything now true.
   tickBehavior(state);
   checkSecrets(state);
+
+  // 15e. Succession: promote anyone whose age + cultivation now qualifies them
+  //      as a master or elder. Promotions are sticky.
+  updateRoles(state);
 
   // 16. Progressive disclosure: reveal any UI surface whose conditions are now met
   //     (Buildings panel after the reveal-day timer, World panel after the first week, etc.).
