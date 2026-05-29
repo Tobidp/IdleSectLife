@@ -32,6 +32,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Fail the build on HIGH or CRITICAL vulnerabilities in our dependency tree.
+      # MODERATE issues currently exist in vite/esbuild (dev-server only, no production
+      # exposure) and are tracked separately — see SECURITY.md.
+      - name: Audit dependencies (high+)
+        run: npm audit --audit-level=high
+
+      - name: Typecheck + tests
+        run: npm test
+
       - name: Build
         run: npm run build
 
