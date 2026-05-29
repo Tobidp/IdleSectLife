@@ -186,6 +186,7 @@ export const SaveSchema = z
       .array(safeStr(SAVE_LIMITS.maxLabelLen))
       .max(SAVE_LIMITS.maxAchievements)
       .optional(),
+    unlocked: z.array(safeStr(SAVE_LIMITS.maxLabelLen)).max(SAVE_LIMITS.maxUnlocks).optional(),
     narrative: NarrativeSchema.optional(),
   })
   .passthrough();

@@ -34,6 +34,9 @@ export const SAVE_LIMITS = {
   maxClues: 500,
   maxQuests: 500,
   maxFlags: 500,
+  /** UI surfaces (tabs / panels) revealed through play. There are only ~10 unlockable
+   *  surfaces total; 50 is generous headroom for future progression flags. */
+  maxUnlocks: 50,
 
   /** Generic textual limits. */
   maxNameLen: 60,

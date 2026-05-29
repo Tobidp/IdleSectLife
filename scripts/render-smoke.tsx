@@ -57,10 +57,14 @@ const topHtml = renderToStaticMarkup(
   </EngineProvider>,
 );
 check(topHtml.includes("Sect: Ascendant"), "topbar shows the brand");
-check(count(topHtml, /tab-btn/g) === 4, "four tabs render (Sect, Disciples, Craft, Story)");
-check(topHtml.includes("disabled"), "the Story tab is disabled while the feature is off");
+// Progressive disclosure: a fresh game unlocks only Sect (always) + Disciples (starters
+// exist). Craft/Story stay hidden until their conditions are met.
+check(count(topHtml, /tab-btn/g) === 2, "fresh game shows only Sect + Disciples tabs");
+check(topHtml.includes(">Sect<"), "Sect tab visible");
+check(topHtml.includes("Disciples"), "Disciples tab visible (starter disciples)");
+check(!topHtml.includes(">Craft<"), "Craft tab hidden (no forge/alchemy yet)");
 
-// 3. Sect dashboard: React Grid Layout renders all five panels.
+// 3. Sect dashboard: a fresh game shows Overview + Resources + Event Log only.
 const dashHtml = renderToStaticMarkup(
   <EngineProvider engine={engine}>
     <ViewProvider>
@@ -68,8 +72,10 @@ const dashHtml = renderToStaticMarkup(
     </ViewProvider>
   </EngineProvider>,
 );
-check(count(dashHtml, /panel-title/g) >= 5, "dashboard renders >=5 panels in the grid");
+check(count(dashHtml, /panel-title/g) === 3, "fresh game shows 3 dashboard panels");
 check(dashHtml.includes("Sect Overview"), "overview panel present");
+check(!dashHtml.includes(">Buildings<"), "Buildings panel hidden on day 1");
+check(!dashHtml.includes(">Market<"), "Market panel hidden until Merchant Pavilion");
 check(dashHtml.includes("react-grid-layout"), "React Grid Layout container rendered");
 check(dashHtml.includes("Reset layout"), "reset-layout control present");
 

@@ -3,7 +3,7 @@
 import { lazy, Suspense, useEffect } from "react";
 import type { GameState } from "../state/gameState";
 import { useGameState, useActions, useEngine } from "./engineContext";
-import { useView } from "./viewContext";
+import { useView, useViewDispatch } from "./viewContext";
 import { usePrefs } from "./prefsContext";
 import { NewGameScreen } from "./NewGameScreen";
 import { Topbar } from "./Topbar";
@@ -14,6 +14,7 @@ import { WelcomeBack } from "./WelcomeBack";
 import { Achievements } from "./Achievements";
 import { Stats } from "./Stats";
 import { Settings } from "./Settings";
+import { isTabVisible } from "./progression/visibility";
 
 // Tab bodies are code-split: the dashboard chunk (React Grid Layout + Motion) loads only
 // once a game is in play, keeping the sect-selection screen + initial load lean.
@@ -28,7 +29,17 @@ const StoryView = lazy(() => import("./tabs/StoryView").then((m) => ({ default: 
 
 function Game({ state }: { state: GameState }): JSX.Element {
   const view = useView();
+  const dispatch = useViewDispatch();
   const actions = useActions();
+
+  // If the player is sitting on a tab that's no longer unlocked (e.g. a save import that
+  // resets progression, or a feature flag flip), fall them back to the Sect dashboard
+  // rather than rendering an empty tab body.
+  useEffect(() => {
+    if (!isTabVisible(state, view.tab)) {
+      dispatch({ type: "setTab", tab: "sect" });
+    }
+  }, [state, view.tab, dispatch]);
 
   let body: JSX.Element;
   if (view.tab === "disciples") {

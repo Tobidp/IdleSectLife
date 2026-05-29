@@ -11,8 +11,9 @@ import { createInitialNarrativeState, type NarrativeState } from "./narrative";
 import type { PillId } from "../data/pills";
 import type { EquippedItem, ItemTier } from "../data/equipment";
 import { STARTING_BLUEPRINTS } from "../data/blueprints";
+import { checkUnlocks, type UnlockId } from "../domain/progression/unlocks";
 
-export const SAVE_VERSION = 17;
+export const SAVE_VERSION = 18;
 
 export type Speed = 1 | 2 | 4;
 
@@ -78,6 +79,8 @@ export interface GameState {
   lastPlayed: number;
   /** Ids of unlocked achievements (drives permanent collect/fame multipliers). */
   achievements: string[];
+  /** Ids of UI surfaces (tabs / panels) the player has revealed through play. Sticky. */
+  unlocked: UnlockId[];
   /** Story progress: quests, clues, NPC relationships, flags. */
   narrative: NarrativeState;
 }
@@ -114,6 +117,7 @@ export function createNewGame(sect: SectType, rng: Rng): GameState {
     settings: { speed: 1, paused: false },
     lastPlayed: Date.now(),
     achievements: [],
+    unlocked: [],
     narrative: createInitialNarrativeState(),
   };
 
@@ -121,5 +125,8 @@ export function createNewGame(sect: SectType, rng: Rng): GameState {
     state.disciples.push(createDisciple(state.nextId++, sect, sect, rng));
   }
   state.rngSeed = rng.state;
+  // Seed unlocks silently so the first log line the player sees isn't a wall of
+  // "Unlocked: ..." lines — the surfaces just appear in the UI on their own.
+  checkUnlocks(state, { silent: true });
   return state;
 }

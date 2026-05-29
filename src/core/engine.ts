@@ -22,6 +22,7 @@ import {
 import type { EquipmentSlot, ItemTier } from "../data/equipment";
 import type { SectType } from "../domain/sect/sectTypes";
 import { upgradePavilion, type PavilionKey } from "../domain/buildings/buildings";
+import { checkUnlocks } from "../domain/progression/unlocks";
 import { upgradeSect } from "../domain/sect/sect";
 import { addResource } from "../domain/resources/resources";
 import { sellResource, buyResource } from "../domain/market/market";
@@ -203,6 +204,9 @@ export class GameEngine {
   upgradePavilion(key: PavilionKey): void {
     this.store.update((s) => {
       upgradePavilion(s, key);
+      // Building a Merchant / Forge / Alchemy Lab unfolds its corresponding panel/tab
+      // immediately instead of waiting for the next daily tick.
+      checkUnlocks(s);
     });
     this.saveNow();
   }

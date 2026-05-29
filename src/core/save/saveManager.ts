@@ -35,6 +35,10 @@ function backfill(save: GameState): void {
   // Default to "now" so an old save isn't treated as having been away forever.
   if (typeof save.lastPlayed !== "number") save.lastPlayed = Date.now();
   if (!Array.isArray(save.achievements)) save.achievements = [];
+  // Pre-progressive-disclosure saves had no `unlocked`. We intentionally backfill EMPTY
+  // (not "all unlocked") so existing players also see the unfold; conditions that are
+  // already met re-unlock within the next tick, so the "reset moment" is brief.
+  if (!Array.isArray(save.unlocked)) save.unlocked = [];
   // Pre-A2 disciples + applicants had no talent; default to "common".
   // Pre-Phase-3-closeout disciples lacked trait / path / age.
   for (const list of [save.disciples, save.applicants]) {

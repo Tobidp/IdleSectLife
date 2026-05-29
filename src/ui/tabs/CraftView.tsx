@@ -1,7 +1,7 @@
 // Craft tab: Alchemy + Forge crafting and a shared Bag, arranged as draggable + resizable
 // windows (same React Grid Layout pattern as the Sect dashboard, separate persisted layout).
 
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import GridLayout, { WidthProvider, type Layout } from "react-grid-layout";
 import { motion } from "motion/react";
 import type { GameState } from "../../state/gameState";
@@ -19,10 +19,11 @@ import {
   resetCraftLayout,
   defaultCraftLayout,
 } from "../windows/craftGridLayout";
+import { visibleCraftPanels } from "../progression/visibility";
 
 const Grid = WidthProvider(GridLayout);
 
-export function CraftView(_props: { state: GameState }): JSX.Element {
+export function CraftView({ state }: { state: GameState }): JSX.Element {
   const [layout, setLayout] = useState<Layout[]>(() => loadCraftLayout());
 
   const onLayoutChange = useCallback((next: Layout[]) => {
@@ -35,6 +36,13 @@ export function CraftView(_props: { state: GameState }): JSX.Element {
     setLayout(defaultCraftLayout());
   }, []);
 
+  const visible = useMemo(() => visibleCraftPanels(state, CRAFT_PANEL_IDS), [state]);
+  const visibleSet = useMemo(() => new Set(visible), [visible]);
+  const displayedLayout = useMemo(
+    () => layout.filter((it) => visibleSet.has(it.i as CraftPanelId)),
+    [layout, visibleSet],
+  );
+
   const panels: Record<CraftPanelId, JSX.Element> = {
     alchemy: <AlchemyPanel />,
     forge: <ForgePanel />,
@@ -45,7 +53,7 @@ export function CraftView(_props: { state: GameState }): JSX.Element {
     <div className="windows-wrap">
       <Grid
         className="layout-grid"
-        layout={layout}
+        layout={displayedLayout}
         cols={CRAFT_GRID_COLS}
         rowHeight={CRAFT_GRID_ROW_HEIGHT}
         margin={CRAFT_GRID_MARGIN}
@@ -55,7 +63,7 @@ export function CraftView(_props: { state: GameState }): JSX.Element {
         compactType="vertical"
         useCSSTransforms
       >
-        {CRAFT_PANEL_IDS.map((id) => (
+        {visible.map((id) => (
           <div key={id}>
             <motion.div
               className="grid-window"

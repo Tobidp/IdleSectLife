@@ -127,5 +127,29 @@ check(
 // 6) After all those rejections the current game must be unchanged.
 check(engine.getState()!.sect.type === baselineSect, "state is preserved after rejected imports");
 
+// --- Progressive disclosure (item 1). A fresh game seeds only the Disciples tab; building
+//     the Merchant Pavilion mid-play unfolds the Market panel without waiting for a tick. ---
+engine.newGame("sword");
+const fresh = engine.getState()!;
+check(fresh.unlocked.includes("tab.disciples"), "fresh game unlocks Disciples tab (starter disciples)");
+check(!fresh.unlocked.includes("panel.market"), "fresh game keeps Market panel hidden");
+check(!fresh.unlocked.includes("tab.craft"), "fresh game keeps Craft tab hidden");
+
+fresh.resources.wood = 300;
+fresh.resources.stone = 300;
+engine.upgradePavilion("merchant");
+check(
+  engine.getState()!.unlocked.includes("panel.market"),
+  "upgradePavilion(merchant) unfolds the Market panel immediately",
+);
+
+fresh.resources.wood = 400;
+fresh.resources.stone = 400;
+fresh.resources.gold = 200;
+engine.upgradePavilion("forge");
+const afterForge = engine.getState()!;
+check(afterForge.unlocked.includes("tab.craft"), "upgradePavilion(forge) unfolds the Craft tab");
+check(afterForge.unlocked.includes("craft.forge"), "upgradePavilion(forge) unfolds the Forge craft panel");
+
 console.log(failures === 0 ? "\n✓ ENGINE OK" : `\n✗ ${failures} CHECK(S) FAILED`);
 process.exit(failures === 0 ? 0 : 1);

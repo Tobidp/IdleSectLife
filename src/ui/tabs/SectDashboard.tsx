@@ -1,8 +1,12 @@
 // Sect dashboard: the five panels as a draggable + resizable React Grid Layout. RGL provides
 // the magnetism (snapping to the 12-column grid); Motion adds smooth entrance + settle. Drag
 // by the panel title bar; resize from the bottom-right corner. Layout persists to localStorage.
+//
+// Panels unfold with progression — `visiblePanels(state, PANEL_IDS)` filters out anything not
+// yet earned. The layout array fed to RGL is filtered to match the rendered children so its
+// internal child<->layout map stays consistent.
 
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import GridLayout, { WidthProvider, type Layout } from "react-grid-layout";
 import { motion } from "motion/react";
 import type { GameState } from "../../state/gameState";
@@ -22,6 +26,7 @@ import {
   resetGridLayout,
   defaultLayout,
 } from "../windows/gridLayout";
+import { visiblePanels } from "../progression/visibility";
 
 const Grid = WidthProvider(GridLayout);
 
@@ -38,6 +43,13 @@ export function SectDashboard({ state }: { state: GameState }): JSX.Element {
     setLayout(defaultLayout());
   }, []);
 
+  const visible = useMemo(() => visiblePanels(state, PANEL_IDS), [state]);
+  const visibleSet = useMemo(() => new Set(visible), [visible]);
+  const displayedLayout = useMemo(
+    () => layout.filter((it) => visibleSet.has(it.i as PanelId)),
+    [layout, visibleSet],
+  );
+
   const panels: Record<PanelId, JSX.Element> = {
     overview: <SectOverviewPanel state={state} />,
     resources: <ResourcesPanel state={state} />,
@@ -50,7 +62,7 @@ export function SectDashboard({ state }: { state: GameState }): JSX.Element {
     <div className="windows-wrap">
       <Grid
         className="layout-grid"
-        layout={layout}
+        layout={displayedLayout}
         cols={GRID_COLS}
         rowHeight={GRID_ROW_HEIGHT}
         margin={GRID_MARGIN}
@@ -60,7 +72,7 @@ export function SectDashboard({ state }: { state: GameState }): JSX.Element {
         compactType="vertical"
         useCSSTransforms
       >
-        {PANEL_IDS.map((id) => (
+        {visible.map((id) => (
           <div key={id}>
             <motion.div
               className="grid-window"
