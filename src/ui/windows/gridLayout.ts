@@ -15,6 +15,7 @@ export type PanelId =
   | "market"
   | "world"
   | "missions"
+  | "rivals"
   | "log";
 export const PANEL_IDS: PanelId[] = [
   "overview",
@@ -23,6 +24,7 @@ export const PANEL_IDS: PanelId[] = [
   "market",
   "world",
   "missions",
+  "rivals",
   "log",
 ];
 
@@ -37,6 +39,7 @@ const DEFAULT_LAYOUT: Layout[] = [
   { i: "world", x: 4, y: 17, w: 4, h: 6 },
   { i: "log", x: 8, y: 0, w: 4, h: 15 },
   { i: "missions", x: 8, y: 15, w: 4, h: 9 },
+  { i: "rivals", x: 0, y: 15, w: 4, h: 9 },
 ];
 
 const STORAGE_KEY = "idle-sect-life:grid:v3";

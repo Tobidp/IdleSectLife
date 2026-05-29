@@ -19,8 +19,9 @@ import type { MissionDefId } from "../data/missions/missionDefs";
 import type { ActiveChain } from "../domain/events/eventChains";
 import type { ChainId } from "../data/events/chainDefs";
 import type { DoctrineId } from "../data/doctrines/doctrineDefs";
+import { createInitialRivals, type RivalState } from "../domain/rivals/rivals";
 
-export const SAVE_VERSION = 25;
+export const SAVE_VERSION = 26;
 
 export type Speed = 1 | 2 | 4;
 
@@ -102,6 +103,8 @@ export interface GameState {
   completedEventChains: ChainId[];
   /** Run-permanent doctrine the sect committed to (null until the player picks one). */
   doctrine: DoctrineId | null;
+  /** Rival sects in the region — each ticks independently and can affect the world. */
+  rivals: RivalState[];
   /** Story progress: quests, clues, NPC relationships, flags. */
   narrative: NarrativeState;
 }
@@ -146,6 +149,7 @@ export function createNewGame(sect: SectType, rng: Rng): GameState {
     activeEventChains: [],
     completedEventChains: [],
     doctrine: null,
+    rivals: createInitialRivals(),
     narrative: createInitialNarrativeState(),
   };
 

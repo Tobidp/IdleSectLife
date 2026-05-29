@@ -57,6 +57,8 @@ export const SAVE_LIMITS = {
    *  completed list grows by 1 per chain ever played. */
   maxActiveEventChains: 10,
   maxCompletedEventChains: 200,
+  /** Rival sects active in the region — currently 4 defs; 50 is the schema safety cap. */
+  maxRivals: 50,
 
   /** Generic textual limits. */
   maxNameLen: 60,

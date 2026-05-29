@@ -253,6 +253,18 @@ export const SaveSchema = z
       .max(SAVE_LIMITS.maxCompletedEventChains)
       .optional(),
     doctrine: safeStr(SAVE_LIMITS.maxLabelLen).nullable().optional(),
+    rivals: z
+      .array(
+        z
+          .object({
+            id: safeStr(SAVE_LIMITS.maxLabelLen),
+            influence: z.number().min(0).max(100),
+            relation: z.number().min(-100).max(100),
+          })
+          .passthrough(),
+      )
+      .max(SAVE_LIMITS.maxRivals)
+      .optional(),
     narrative: NarrativeSchema.optional(),
   })
   .passthrough();

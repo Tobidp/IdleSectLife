@@ -33,6 +33,7 @@ import { advanceMissions } from "../missions/missions";
 import { rollEventChains } from "../events/eventChains";
 import { doctrineMult } from "../doctrines/effects";
 import { techniqueXpMult, techniqueBreakthroughFailMult } from "../disciples/techniques";
+import { advanceRivals } from "../rivals/rivals";
 import { STORY_ENABLED } from "../../config/featureFlags";
 import { PASSIVE_GOLD_PER_MONTH, TRIBULATION_AID_FAIL_MULT } from "../../data/balance";
 import { ATTRIBUTE_LABEL } from "../sect/sectTypes";
@@ -294,7 +295,11 @@ export function advanceDay(state: GameState, rng: Rng): void {
   //     transition between stages or end the chain with a permanent state mutation.
   rollEventChains(state, rng);
 
-  // 15. Progressive disclosure: reveal any UI surface whose conditions are now met
+  // 15. Rival sects tick: per-day influence growth and (on month change) an
+  //     archetype-flavoured action that pokes the world.
+  advanceRivals(state, rng, result.monthChanged);
+
+  // 16. Progressive disclosure: reveal any UI surface whose conditions are now met
   //     (Buildings panel after the reveal-day timer, World panel after the first week, etc.).
   checkUnlocks(state);
 }

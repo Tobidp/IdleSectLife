@@ -7,6 +7,7 @@ import { createInitialNarrativeState } from "../../state/narrative";
 import { emptyEquipment } from "../../data/equipment";
 import { reconcileWorldClocks } from "../../domain/world/clocks";
 import { createInitialMissionOffers } from "../../domain/missions/missions";
+import { reconcileRivals } from "../../domain/rivals/rivals";
 import { rollAmbition, rollFear, rollOrigin } from "../../data/disciples/narratives";
 import { Rng } from "../rng/rng";
 import { validateSave } from "./schema";
@@ -57,6 +58,8 @@ function backfill(save: GameState): void {
   if (!Array.isArray(save.completedEventChains)) save.completedEventChains = [];
   // Pre-C1: no doctrine committed yet.
   if (save.doctrine === undefined) save.doctrine = null;
+  // Pre-C3: seed rivals (or reconcile against any new defs the codebase added).
+  save.rivals = reconcileRivals(save.rivals);
   // Pre-A2 disciples + applicants had no talent; default to "common".
   // Pre-Phase-3-closeout disciples lacked trait / path / age.
   // Pre-B2 disciples lacked the narrative layers (origin / ambition / fear / trauma /

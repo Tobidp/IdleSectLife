@@ -858,6 +858,65 @@ a:focus-visible,
   flex: 1;
 }
 
+/* ---------- Rivals panel ---------- */
+.rivals-panel .panel-body {
+  gap: 10px;
+}
+.rival-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.rival-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 6px 8px;
+  background: var(--bg-panel-2);
+  border-radius: 5px;
+  border: 1px solid var(--border-soft);
+}
+.rival-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+}
+.rival-name {
+  font-weight: 600;
+  font-size: 12px;
+}
+.rival-leader {
+  font-size: 11px;
+}
+.rival-tag {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 1px 6px;
+  border-radius: 8px;
+}
+.rival-military { background: rgba(196, 91, 84, 0.18); color: var(--crimson); }
+.rival-merchant { background: rgba(217, 178, 90, 0.18); color: var(--gold); }
+.rival-spiritual { background: rgba(91, 134, 196, 0.18); color: var(--blue); }
+.rival-shadow { background: rgba(154, 154, 154, 0.18); color: #9a9a9a; }
+.rival-diplomatic { background: rgba(79, 174, 139, 0.18); color: var(--jade); }
+.rival-bar {
+  height: 5px;
+  background: var(--bg-panel);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.rival-bar-fill {
+  height: 100%;
+  transition: width 0.25s ease;
+}
+.rival-bar-fill.rival-military { background: var(--crimson); }
+.rival-bar-fill.rival-merchant { background: var(--gold); }
+.rival-bar-fill.rival-spiritual { background: var(--blue); }
+.rival-bar-fill.rival-shadow { background: #9a9a9a; }
+.rival-bar-fill.rival-diplomatic { background: var(--jade); }
+
 /* ---------- World Status (WorldClock panel) ---------- */
 .world-status .panel-body {
   gap: 10px;

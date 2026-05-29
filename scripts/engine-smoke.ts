@@ -310,5 +310,15 @@ engine.learnTechnique(tdId, "iron_body");
 const afterIron = maxHpFn(engine.getState()!.disciples[0]);
 check(afterIron > beforeIron, "iron_body raises maxHp via maxHpMult");
 
+// --- C3 Rivals: fresh game seeds 4 rivals; influence ticks daily ---
+engine.newGame("sword");
+const rState = engine.getState()!;
+check(rState.rivals.length === 4, "fresh game seeds 4 rival sects");
+const beforeInfluence = rState.rivals[0].influence;
+const rng2 = new RngImpl(rState.rngSeed);
+for (let i = 0; i < 10; i++) advanceDayDirect(rState, rng2);
+const afterInfluence = engine.getState()!.rivals[0].influence;
+check(afterInfluence > beforeInfluence, "rival influence grows over a 10-day stretch");
+
 console.log(failures === 0 ? "\n✓ ENGINE OK" : `\n✗ ${failures} CHECK(S) FAILED`);
 process.exit(failures === 0 ? 0 : 1);
