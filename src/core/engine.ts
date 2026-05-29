@@ -39,6 +39,7 @@ import { curryFactionFavor } from "../domain/factions/factions";
 import type { FactionId } from "../data/factions/factionDefs";
 import { recordLegacy } from "../domain/legacies/legacyStorage";
 import type { LegacyId } from "../data/legacies/legacyDefs";
+import { computeEnding } from "../data/endings/endingDefs";
 import { upgradeSect } from "../domain/sect/sect";
 import { addResource } from "../domain/resources/resources";
 import { sellResource, buyResource } from "../domain/market/market";
@@ -185,11 +186,13 @@ export class GameEngine {
     this.store.setState(null);
   }
 
-  /** Conclude the current run with a chosen legacy. Records it to cross-run storage,
-   *  wipes the per-run save, and drops back to sect-selection — the next newGame()
-   *  will pick up the legacy automatically. */
+  /** Conclude the current run with a chosen legacy. Computes the recognised ending
+   *  from the state, records both to cross-run storage, wipes the per-run save, and
+   *  drops back to sect-selection — the next newGame() will pick up the legacy. */
   concludeRun(legacyId: LegacyId): void {
-    recordLegacy(legacyId);
+    const state = this.store.getState();
+    const ending = state ? computeEnding(state) : undefined;
+    recordLegacy(legacyId, ending);
     this.hardReset();
   }
 

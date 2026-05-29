@@ -728,6 +728,29 @@ a:focus-visible,
   border-color: var(--gold);
   background: var(--bg-row);
 }
+.ending-recognised {
+  padding: 10px 12px;
+  background: var(--bg-row);
+  border-left: 3px solid var(--blue);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ending-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.ending-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--blue);
+}
+.ending-desc {
+  font-size: 11px;
+  line-height: 1.4;
+}
 
 /* ---------- Missions panel + assign modal ---------- */
 .missions .panel-body {

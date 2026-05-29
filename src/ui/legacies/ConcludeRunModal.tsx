@@ -1,9 +1,10 @@
 // "Conclude this run" dialog. Player ends the current run by choosing a legacy that
 // carries into the next one. Wipes the per-run save; legacy storage persists.
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useActions, useGameState } from "../engineContext";
 import { ALL_LEGACY_IDS, LEGACIES, type LegacyId } from "../../data/legacies/legacyDefs";
+import { computeEnding, ENDINGS } from "../../data/endings/endingDefs";
 
 export function ConcludeRunButton(): JSX.Element | null {
   const state = useGameState();
@@ -11,6 +12,7 @@ export function ConcludeRunButton(): JSX.Element | null {
   const [open, setOpen] = useState(false);
   const [picked, setPicked] = useState<LegacyId | null>(null);
 
+  const ending = useMemo(() => (state ? ENDINGS[computeEnding(state)] : null), [state]);
   if (!state) return null;
   const eligible = state.sect.level >= 3;
 
@@ -44,6 +46,13 @@ export function ConcludeRunButton(): JSX.Element | null {
                 This wipes the current save.
               </span>
             </div>
+            {ending && (
+              <div className="ending-recognised">
+                <div className="ending-label muted">Recognised ending</div>
+                <div className="ending-name">{ending.label}</div>
+                <div className="ending-desc muted">{ending.description}</div>
+              </div>
+            )}
             <div className="doctrine-list">
               {ALL_LEGACY_IDS.map((id) => {
                 const def = LEGACIES[id];

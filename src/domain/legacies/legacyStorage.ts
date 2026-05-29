@@ -4,25 +4,36 @@
 //   - history: every legacy the player has earned across all runs (for E4 record)
 
 import type { LegacyId } from "../../data/legacies/legacyDefs";
+import type { EndingId } from "../../data/endings/endingDefs";
 
 const STORAGE_KEY = "idle-sect-life:legacies:v1";
 
+export interface LegacyHistoryEntry {
+  legacy: LegacyId;
+  ending: EndingId;
+  /** ISO date the run was concluded — for display only. */
+  concludedAt: string;
+}
+
 export interface LegacyStorage {
   active: LegacyId | null;
-  history: LegacyId[];
+  history: LegacyId[]; // legacy id sequence (legacy v1 compat)
+  /** Rich history with ending + date. Added in E2 — old saves are backfilled by load(). */
+  records: LegacyHistoryEntry[];
 }
 
 export function loadLegacyStorage(): LegacyStorage {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { active: null, history: [] };
+    if (!raw) return { active: null, history: [], records: [] };
     const parsed = JSON.parse(raw) as Partial<LegacyStorage>;
     return {
       active: parsed.active ?? null,
       history: Array.isArray(parsed.history) ? parsed.history : [],
+      records: Array.isArray(parsed.records) ? parsed.records : [],
     };
   } catch {
-    return { active: null, history: [] };
+    return { active: null, history: [], records: [] };
   }
 }
 
@@ -34,11 +45,19 @@ export function saveLegacyStorage(s: LegacyStorage): void {
   }
 }
 
-/** Set the active legacy (used during the next-game startup) AND append to history. */
-export function recordLegacy(legacyId: LegacyId): void {
+/** Set the active legacy (used during the next-game startup) AND append to history,
+ *  optionally with the run's recognised ending. */
+export function recordLegacy(legacyId: LegacyId, endingId?: EndingId): void {
   const s = loadLegacyStorage();
   s.active = legacyId;
   s.history.push(legacyId);
+  if (endingId) {
+    s.records.push({
+      legacy: legacyId,
+      ending: endingId,
+      concludedAt: new Date().toISOString(),
+    });
+  }
   saveLegacyStorage(s);
 }
 
