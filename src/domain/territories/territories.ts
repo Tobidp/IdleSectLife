@@ -7,6 +7,7 @@
 import type { GameState } from "../../state/gameState";
 import { ALL_TERRITORY_IDS, TERRITORIES, type TerritoryId } from "../../data/territories/territoryDefs";
 import { pushLog } from "../../state/log";
+import { territoryYieldMult } from "../factions/factions";
 
 export interface TerritoryState {
   id: TerritoryId;
@@ -67,16 +68,19 @@ export function advanceTerritories(state: GameState, monthChanged: boolean): voi
       if (!def) continue;
       const playerControls = t.playerInfluence > t.rivalInfluence;
       if (!playerControls) continue;
-      // Pay out yields.
+      // Faction relation scales the yield: +100 → 1.5x, 0 → 1x, -100 → 0.5x.
+      const mult = territoryYieldMult(state, t.id);
       let summary: string[] = [];
       for (const [k, v] of Object.entries(def.yield) as [keyof typeof def.yield, number][]) {
         if (typeof v !== "number") continue;
-        state.resources[k] = (state.resources[k] ?? 0) + v;
-        summary.push(`+${v} ${k}`);
+        const gain = Math.max(0, Math.round(v * mult));
+        state.resources[k] = (state.resources[k] ?? 0) + gain;
+        summary.push(`+${gain} ${k}`);
       }
       if (def.fameYield > 0) {
-        state.fame += def.fameYield;
-        summary.push(`+${def.fameYield} fame`);
+        const fameGain = Math.max(0, Math.round(def.fameYield * mult));
+        state.fame += fameGain;
+        summary.push(`+${fameGain} fame`);
       }
       pushLog(
         state,

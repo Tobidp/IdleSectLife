@@ -10,6 +10,8 @@ import {
   TERRITORY_INVEST_BUMP,
   TERRITORY_INVEST_COST,
 } from "../../domain/territories/territories";
+import { FACTIONS } from "../../data/factions/factionDefs";
+import { factionForTerritory } from "../../domain/factions/factions";
 
 export function TerritoriesPanel({ state }: { state: GameState }): JSX.Element {
   const actions = useActions();
@@ -26,6 +28,19 @@ export function TerritoriesPanel({ state }: { state: GameState }): JSX.Element {
           const total = Math.max(1, t.playerInfluence + t.rivalInfluence);
           const playerPct = Math.round((t.playerInfluence / total) * 100);
           const controls = t.playerInfluence > t.rivalInfluence;
+          const factionId = factionForTerritory(t.id);
+          const factionDef = factionId ? FACTIONS[factionId] : null;
+          const relation = factionId ? state.factionRelations[factionId] ?? 0 : 0;
+          const factionCost = factionDef
+            ? Object.entries(factionDef.favorCost)
+                .map(([k, v]) => `${v} ${k}`)
+                .join(" + ")
+            : "";
+          const canCurry = factionDef
+            ? Object.entries(factionDef.favorCost).every(
+                ([k, v]) => (state.resources[k as keyof typeof state.resources] ?? 0) >= (v ?? 0),
+              )
+            : false;
           return (
             <div
               key={t.id}
@@ -45,6 +60,22 @@ export function TerritoriesPanel({ state }: { state: GameState }): JSX.Element {
               <div className="territory-stats muted">
                 Your influence {Math.round(t.playerInfluence)} · rivals {Math.round(t.rivalInfluence)}
               </div>
+              {factionDef && (
+                <div className="faction-row" title={factionDef.description}>
+                  <span className="faction-name">{factionDef.name}</span>
+                  <span className={`faction-relation ${relation >= 0 ? "pos" : "neg"}`}>
+                    {relation >= 0 ? `+${relation}` : relation} relation
+                  </span>
+                  <button
+                    className="faction-favor"
+                    disabled={!canCurry}
+                    title={canCurry ? `Pay ${factionCost} for +relation` : `Need ${factionCost}`}
+                    onClick={() => actions.curryFactionFavor(factionDef.id)}
+                  >
+                    Curry favor
+                  </button>
+                </div>
+              )}
               <button
                 className="territory-invest"
                 disabled={!canAfford}

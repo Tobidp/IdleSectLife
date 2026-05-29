@@ -979,6 +979,32 @@ a:focus-visible,
   font-size: 11px;
   padding: 2px 10px;
 }
+.faction-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  padding: 3px 6px;
+  background: var(--bg-row);
+  border-radius: 3px;
+}
+.faction-name {
+  font-weight: 600;
+  flex: 1;
+}
+.faction-relation {
+  font-variant-numeric: tabular-nums;
+}
+.faction-relation.pos {
+  color: var(--jade);
+}
+.faction-relation.neg {
+  color: var(--crimson);
+}
+.faction-favor {
+  padding: 1px 8px;
+  font-size: 10px;
+}
 
 /* ---------- Rivals panel ---------- */
 .rivals-panel .panel-body {

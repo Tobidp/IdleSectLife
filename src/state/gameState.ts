@@ -25,8 +25,9 @@ import type { SecretId } from "../data/secrets/secretDefs";
 import { createInitialTerritories, type TerritoryState } from "../domain/territories/territories";
 import type { ScheduledCrisis } from "../domain/crises/crises";
 import type { ActiveTournament } from "../domain/tournaments/tournaments";
+import { createInitialFactionRelations } from "../domain/factions/factions";
 
-export const SAVE_VERSION = 30;
+export const SAVE_VERSION = 31;
 
 export type Speed = 1 | 2 | 4;
 
@@ -122,6 +123,8 @@ export interface GameState {
   activeTournament: ActiveTournament | null;
   /** Day the last tournament resolved — drives the inter-tournament interval. */
   lastTournamentDay: number | null;
+  /** Relation score (-100..100) with each regional faction. Drives territory yield mult. */
+  factionRelations: Record<string, number>;
   /** Story progress: quests, clues, NPC relationships, flags. */
   narrative: NarrativeState;
 }
@@ -173,6 +176,7 @@ export function createNewGame(sect: SectType, rng: Rng): GameState {
     scheduledCrises: [],
     activeTournament: null,
     lastTournamentDay: null,
+    factionRelations: createInitialFactionRelations(),
     narrative: createInitialNarrativeState(),
   };
 

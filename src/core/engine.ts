@@ -35,6 +35,8 @@ import type { TechniqueId } from "../data/techniques/techniqueDefs";
 import { investInTerritory } from "../domain/territories/territories";
 import type { TerritoryId } from "../data/territories/territoryDefs";
 import { enterTournament, withdrawTournamentEntry } from "../domain/tournaments/tournaments";
+import { curryFactionFavor } from "../domain/factions/factions";
+import type { FactionId } from "../data/factions/factionDefs";
 import { upgradeSect } from "../domain/sect/sect";
 import { addResource } from "../domain/resources/resources";
 import { sellResource, buyResource } from "../domain/market/market";
@@ -416,6 +418,16 @@ export class GameEngine {
       resolveChainChoice(s, chainId, choiceId, this.rng);
     });
     this.saveNow();
+  }
+
+  /** Spend a faction's favor cost (gold / herb / food) for +relation. */
+  curryFactionFavor(factionId: FactionId): boolean {
+    let ok = false;
+    this.store.update((s) => {
+      ok = curryFactionFavor(s, factionId);
+    });
+    if (ok) this.saveNow();
+    return ok;
   }
 
   /** Enter a disciple into the active tournament's roster. */

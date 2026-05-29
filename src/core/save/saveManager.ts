@@ -10,6 +10,7 @@ import { createInitialMissionOffers } from "../../domain/missions/missions";
 import { reconcileRivals } from "../../domain/rivals/rivals";
 import { reconcileBehavior } from "../../domain/secrets/secrets";
 import { reconcileTerritories } from "../../domain/territories/territories";
+import { reconcileFactionRelations } from "../../domain/factions/factions";
 import { rollAmbition, rollFear, rollOrigin } from "../../data/disciples/narratives";
 import { Rng } from "../rng/rng";
 import { validateSave } from "./schema";
@@ -72,6 +73,8 @@ function backfill(save: GameState): void {
   // Pre-D3: tournament state defaults.
   if (save.activeTournament === undefined) save.activeTournament = null;
   if (save.lastTournamentDay === undefined) save.lastTournamentDay = null;
+  // Pre-D4: faction relations default to 0.
+  save.factionRelations = reconcileFactionRelations(save.factionRelations);
   // Pre-A2 disciples + applicants had no talent; default to "common".
   // Pre-Phase-3-closeout disciples lacked trait / path / age.
   // Pre-B2 disciples lacked the narrative layers (origin / ambition / fear / trauma /
