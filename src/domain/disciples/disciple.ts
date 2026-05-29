@@ -11,6 +11,15 @@ import { rollTalent, type TalentTier } from "../../data/talent";
 import { rollTrait, type TraitId } from "../../data/traits";
 import type { Path } from "./paths";
 import { emptyEquipment, type EquipmentSlot, type EquippedItem } from "../../data/equipment";
+import {
+  rollAmbition,
+  rollFear,
+  rollOrigin,
+  type AmbitionId,
+  type DestinyId,
+  type FearId,
+  type OriginId,
+} from "../../data/disciples/narratives";
 
 /** One of the 3 daily action slots. */
 export type Activity =
@@ -42,6 +51,16 @@ export interface Disciple {
   trait: TraitId;
   /** Cultivation path; auto-assigned once any attribute reaches rank 2. */
   path: Path | null;
+  /** Backstory rolled at creation — drives personal-event triggers. */
+  origin: OriginId;
+  /** What they're cultivating for — gives personal events something to push against. */
+  ambition: AmbitionId;
+  /** What they're afraid of — gates events that twist the knife when conditions match. */
+  fear: FearId;
+  /** Defining wound; assigned by personal events. null until something marks them. */
+  trauma: string | null;
+  /** Recognised end-state; stamped on by E-series legacy/ascension events. null in life. */
+  destiny: DestinyId | null;
   /** Age in simulated days; rises with the daily tick. */
   age: number;
   /** Ids of bonded disciples (mutual). Forms slowly; breaking a bond hurts morale. */
@@ -92,6 +111,11 @@ export function createDisciple(
     talent: rollTalent(rng),
     trait: rollTrait(rng),
     path: null,
+    origin: rollOrigin(rng),
+    ambition: rollAmbition(rng),
+    fear: rollFear(rng),
+    trauma: null,
+    destiny: null,
     age: rng.int(360 * 14, 360 * 22), // recruits arrive as young adults (14–22 in-game years)
     bonds: [],
     tribulationBuff: false,

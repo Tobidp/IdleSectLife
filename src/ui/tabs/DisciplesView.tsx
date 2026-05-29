@@ -27,6 +27,13 @@ import {
 import { STARS_PER_RANK, rankName, rankTierClass } from "../../data/progression";
 import { TALENT_BY_ID, TALENT_TIER_CLASS } from "../../data/talent";
 import { TRAIT_BY_ID } from "../../data/traits";
+import {
+  AMBITIONS,
+  DESTINIES,
+  FEARS,
+  ORIGINS,
+  type DestinyId,
+} from "../../data/disciples/narratives";
 import { PATH_LABEL } from "../../domain/disciples/paths";
 import { ageInYears } from "../../domain/disciples/aging";
 import { applicantDaysLeft } from "../../domain/disciples/recruitment";
@@ -232,6 +239,45 @@ function DiscipleRow({ state, d }: { state: GameState; d: Disciple }): JSX.Eleme
               >
                 ♥ {d.bonds.length} bond{d.bonds.length === 1 ? "" : "s"}
               </span>
+            )}
+          </div>
+
+          {/* Narrative layers (B2): backstory, drive, fear, and once-stamped trauma/destiny. */}
+          <div className="d-narrative">
+            <div className="d-narrative-row">
+              <span className="d-narr-label">Origin</span>
+              <span className="d-narr-value" title={ORIGINS[d.origin].description}>
+                {ORIGINS[d.origin].label}
+              </span>
+            </div>
+            <div className="d-narrative-row">
+              <span className="d-narr-label">Ambition</span>
+              <span className="d-narr-value" title={AMBITIONS[d.ambition].description}>
+                {AMBITIONS[d.ambition].label}
+              </span>
+            </div>
+            <div className="d-narrative-row">
+              <span className="d-narr-label">Fear</span>
+              <span className="d-narr-value" title={FEARS[d.fear].description}>
+                {FEARS[d.fear].label}
+              </span>
+            </div>
+            {d.trauma && (
+              <div className="d-narrative-row d-narr-trauma">
+                <span className="d-narr-label">Trauma</span>
+                <span className="d-narr-value">{d.trauma}</span>
+              </div>
+            )}
+            {d.destiny && (
+              <div className="d-narrative-row d-narr-destiny">
+                <span className="d-narr-label">Destiny</span>
+                <span
+                  className="d-narr-value"
+                  title={DESTINIES[d.destiny as DestinyId]?.description ?? ""}
+                >
+                  {DESTINIES[d.destiny as DestinyId]?.label ?? d.destiny}
+                </span>
+              </div>
             )}
           </div>
 

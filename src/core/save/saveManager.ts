@@ -6,6 +6,8 @@ import { SAVE_VERSION, type GameState } from "../../state/gameState";
 import { createInitialNarrativeState } from "../../state/narrative";
 import { emptyEquipment } from "../../data/equipment";
 import { reconcileWorldClocks } from "../../domain/world/clocks";
+import { rollAmbition, rollFear, rollOrigin } from "../../data/disciples/narratives";
+import { Rng } from "../rng/rng";
 import { validateSave } from "./schema";
 
 const SAVE_KEY = "idle-sect-life:save:v1";
@@ -45,6 +47,10 @@ function backfill(save: GameState): void {
   save.worldClocks = reconcileWorldClocks(save.worldClocks);
   // Pre-A2 disciples + applicants had no talent; default to "common".
   // Pre-Phase-3-closeout disciples lacked trait / path / age.
+  // Pre-B2 disciples lacked the narrative layers (origin / ambition / fear / trauma /
+  // destiny) — roll them from the save's own rngSeed so the assignment is reproducible
+  // for any given save and the backfill itself doesn't drift the live RNG.
+  const backfillRng = new Rng(typeof save.rngSeed === "number" ? save.rngSeed : 1);
   for (const list of [save.disciples, save.applicants]) {
     for (const d of list ?? []) {
       if (!d.talent) d.talent = "common";
@@ -54,6 +60,11 @@ function backfill(save: GameState): void {
       if (!Array.isArray(d.bonds)) d.bonds = [];
       if (typeof d.tribulationBuff !== "boolean") d.tribulationBuff = false;
       if (!d.equipment) d.equipment = emptyEquipment();
+      if (!d.origin) d.origin = rollOrigin(backfillRng);
+      if (!d.ambition) d.ambition = rollAmbition(backfillRng);
+      if (!d.fear) d.fear = rollFear(backfillRng);
+      if (d.trauma === undefined) d.trauma = null;
+      if (d.destiny === undefined) d.destiny = null;
     }
   }
   // Existing applicants get their timer reset to "just arrived" on load — fair grace for

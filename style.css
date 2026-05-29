@@ -985,6 +985,38 @@ a:focus-visible,
   flex-wrap: wrap;
   font-size: 12px;
 }
+
+/* Narrative layers shown under the meta strip in the expanded disciple row. */
+.d-narrative {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  column-gap: 10px;
+  row-gap: 2px;
+  font-size: 12px;
+  background: var(--bg-panel-2);
+  border-left: 3px solid var(--border);
+  border-radius: 4px;
+  padding: 6px 10px;
+}
+.d-narrative-row {
+  display: contents;
+}
+.d-narr-label {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 10px;
+  color: var(--ink-dim);
+  align-self: baseline;
+}
+.d-narr-value {
+  color: var(--ink);
+}
+.d-narr-trauma .d-narr-value {
+  color: var(--crimson);
+}
+.d-narr-destiny .d-narr-value {
+  color: var(--gold);
+}
 .d-actions-row,
 .d-pills-row {
   display: flex;

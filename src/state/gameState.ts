@@ -14,7 +14,7 @@ import { STARTING_BLUEPRINTS } from "../data/blueprints";
 import { checkUnlocks, type UnlockId } from "../domain/progression/unlocks";
 import { createInitialClocks, type WorldClock } from "../domain/world/clocks";
 
-export const SAVE_VERSION = 19;
+export const SAVE_VERSION = 20;
 
 export type Speed = 1 | 2 | 4;
 
