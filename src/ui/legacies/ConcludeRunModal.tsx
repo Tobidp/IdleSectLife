@@ -68,6 +68,9 @@ export function ConcludeRunButton(): JSX.Element | null {
                     <div className="doctrine-card-effects">
                       <span className="doctrine-bonus">+ {def.bonus}</span>
                       <span className="doctrine-penalty">{def.flavor}</span>
+                      {def.modifierSummary && (
+                        <span className="doctrine-block">{def.modifierSummary}</span>
+                      )}
                     </div>
                   </button>
                 );

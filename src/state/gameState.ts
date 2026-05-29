@@ -190,7 +190,7 @@ export function createNewGame(sect: SectType, rng: Rng): GameState {
   }
   state.rngSeed = rng.state;
   // Apply any pending legacy from the previous run (resources + fame + starting building
-  // bumps). Cleared from storage after applying so it's one-shot.
+  // bumps + E5 modifiers). Cleared from storage after applying so it's one-shot.
   const legacyId = getActiveLegacy();
   if (legacyId && LEGACIES[legacyId]) {
     const def = LEGACIES[legacyId];
@@ -204,6 +204,19 @@ export function createNewGame(sect: SectType, rng: Rng): GameState {
     }
     state.buildings.quarters.level += def.bonusQuartersLevel;
     state.buildings.warehouse.level += def.bonusWarehouseLevel;
+    if (def.bonusInfirmaryLevel) {
+      state.buildings.infirmary.level += def.bonusInfirmaryLevel;
+    }
+    if (def.rivalInfluenceBoost) {
+      for (const r of state.rivals) {
+        r.influence = Math.min(100, r.influence + def.rivalInfluenceBoost);
+      }
+    }
+    if (def.startingHappinessDelta) {
+      for (const d of state.disciples) {
+        d.happiness = Math.max(0, Math.min(100, d.happiness + def.startingHappinessDelta));
+      }
+    }
     clearActiveLegacy();
   }
   // Seed unlocks silently so the first log line the player sees isn't a wall of

@@ -29,6 +29,14 @@ export interface LegacyDef {
   /** Whether the new run begins with extra disciple capacity (warehouse / quarters). */
   bonusQuartersLevel: number;
   bonusWarehouseLevel: number;
+  /** E5 modifiers — applied at createNewGame. */
+  bonusInfirmaryLevel?: number;
+  /** Bumps each rival's starting influence by this much, making the new run more contested. */
+  rivalInfluenceBoost?: number;
+  /** Delta added to every starting disciple's happiness (negative = harsher start). */
+  startingHappinessDelta?: number;
+  /** Plain-English summary of the modifiers above (shown in conclude modal). */
+  modifierSummary?: string;
 }
 
 export const LEGACIES: Record<LegacyId, LegacyDef> = {
@@ -42,17 +50,21 @@ export const LEGACIES: Record<LegacyId, LegacyDef> = {
     startingFame: 20,
     bonusQuartersLevel: 0,
     bonusWarehouseLevel: 0,
+    rivalInfluenceBoost: 6,
+    modifierSummary: "Rivals start with +6 influence each.",
   },
   founder_healer: {
     id: "founder_healer",
     label: "Founder: the Healer",
     description: "The first sect saved villages. Its name still summons grateful peasants from across the valley.",
-    bonus: "+20 herb, +20 food, +1 Warehouse level",
+    bonus: "+20 herb, +20 food, +1 Warehouse, +1 Infirmary",
     flavor: "Rivals see the next generation as too soft to threaten — they'll be the more shocked.",
     startingResources: { herb: 20, food: 20 },
     startingFame: 10,
     bonusQuartersLevel: 0,
     bonusWarehouseLevel: 1,
+    bonusInfirmaryLevel: 1,
+    modifierSummary: "Sect starts with Infirmary Lv 1 already built.",
   },
   founder_merchant: {
     id: "founder_merchant",
@@ -64,6 +76,7 @@ export const LEGACIES: Record<LegacyId, LegacyDef> = {
     startingFame: 5,
     bonusQuartersLevel: 0,
     bonusWarehouseLevel: 0,
+    modifierSummary: "No combat penalty — just the gold cushion.",
   },
   founder_sage: {
     id: "founder_sage",
@@ -75,6 +88,8 @@ export const LEGACIES: Record<LegacyId, LegacyDef> = {
     startingFame: 15,
     bonusQuartersLevel: 1,
     bonusWarehouseLevel: 0,
+    modifierSummary: "Starting disciples arrive with +5 happiness (well-fed academy).",
+    startingHappinessDelta: 5,
   },
   founder_tyrant: {
     id: "founder_tyrant",
@@ -86,6 +101,9 @@ export const LEGACIES: Record<LegacyId, LegacyDef> = {
     startingFame: 30,
     bonusQuartersLevel: 0,
     bonusWarehouseLevel: 0,
+    rivalInfluenceBoost: 12,
+    startingHappinessDelta: -10,
+    modifierSummary: "Rivals start with +12 influence; starting disciples lose 10 happiness.",
   },
 };
 
