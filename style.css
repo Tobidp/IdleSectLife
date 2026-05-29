@@ -865,6 +865,48 @@ a:focus-visible,
   flex: 1;
 }
 
+/* ---------- Tournament panel ---------- */
+.tournaments-panel .panel-body {
+  gap: 8px;
+}
+.tournament-meta {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.tournament-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.tournament-section-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-dim);
+}
+.tournament-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  background: var(--bg-panel-2);
+  border-radius: 4px;
+  font-size: 12px;
+}
+.tournament-name {
+  font-weight: 600;
+  flex: 1;
+}
+.tournament-enter,
+.tournament-withdraw {
+  padding: 2px 8px;
+  font-size: 11px;
+}
+.tournament-withdraw {
+  color: var(--crimson);
+  border-color: rgba(196, 91, 84, 0.4);
+}
+
 /* ---------- Territories panel ---------- */
 .territories-panel .panel-body {
   gap: 10px;

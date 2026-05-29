@@ -69,6 +69,9 @@ function backfill(save: GameState): void {
   save.territories = reconcileTerritories(save.territories);
   // Pre-D2: no scheduled crises.
   if (!Array.isArray(save.scheduledCrises)) save.scheduledCrises = [];
+  // Pre-D3: tournament state defaults.
+  if (save.activeTournament === undefined) save.activeTournament = null;
+  if (save.lastTournamentDay === undefined) save.lastTournamentDay = null;
   // Pre-A2 disciples + applicants had no talent; default to "common".
   // Pre-Phase-3-closeout disciples lacked trait / path / age.
   // Pre-B2 disciples lacked the narrative layers (origin / ambition / fear / trauma /

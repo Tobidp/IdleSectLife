@@ -300,6 +300,18 @@ export const SaveSchema = z
       )
       .max(SAVE_LIMITS.maxScheduledCrises)
       .optional(),
+    activeTournament: z
+      .object({
+        defId: safeStr(SAVE_LIMITS.maxLabelLen),
+        announcedOn: intNonNeg.max(SAVE_LIMITS.maxTotalDays),
+        resolvesOn: intNonNeg.max(SAVE_LIMITS.maxTotalDays),
+        entryDeadline: intNonNeg.max(SAVE_LIMITS.maxTotalDays),
+        entries: z.array(z.number().int().min(0).max(SAVE_LIMITS.maxIdValue)).max(20),
+      })
+      .passthrough()
+      .nullable()
+      .optional(),
+    lastTournamentDay: intNonNeg.max(SAVE_LIMITS.maxTotalDays).nullable().optional(),
     narrative: NarrativeSchema.optional(),
   })
   .passthrough();

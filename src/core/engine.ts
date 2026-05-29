@@ -34,6 +34,7 @@ import { learnTechnique } from "../domain/disciples/techniques";
 import type { TechniqueId } from "../data/techniques/techniqueDefs";
 import { investInTerritory } from "../domain/territories/territories";
 import type { TerritoryId } from "../data/territories/territoryDefs";
+import { enterTournament, withdrawTournamentEntry } from "../domain/tournaments/tournaments";
 import { upgradeSect } from "../domain/sect/sect";
 import { addResource } from "../domain/resources/resources";
 import { sellResource, buyResource } from "../domain/market/market";
@@ -415,6 +416,26 @@ export class GameEngine {
       resolveChainChoice(s, chainId, choiceId, this.rng);
     });
     this.saveNow();
+  }
+
+  /** Enter a disciple into the active tournament's roster. */
+  enterTournament(discipleId: number): boolean {
+    let ok = false;
+    this.store.update((s) => {
+      ok = enterTournament(s, discipleId);
+    });
+    if (ok) this.saveNow();
+    return ok;
+  }
+
+  /** Withdraw a previously-entered disciple from the active tournament. */
+  withdrawTournamentEntry(discipleId: number): boolean {
+    let ok = false;
+    this.store.update((s) => {
+      ok = withdrawTournamentEntry(s, discipleId);
+    });
+    if (ok) this.saveNow();
+    return ok;
   }
 
   /** Invest gold to push player influence in a region. */

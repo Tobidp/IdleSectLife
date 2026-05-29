@@ -36,6 +36,7 @@ import { techniqueXpMult, techniqueBreakthroughFailMult } from "../disciples/tec
 import { advanceRivals } from "../rivals/rivals";
 import { advanceTerritories } from "../territories/territories";
 import { fireDueCrises, rollCrisisSchedule } from "../crises/crises";
+import { resolveDueTournament, rollTournamentSchedule } from "../tournaments/tournaments";
 import {
   checkSecrets,
   recordDiscipleLoss,
@@ -322,6 +323,10 @@ export function advanceDay(state: GameState, rng: Rng): void {
   //      (food / infirmary / gold reserves).
   rollCrisisSchedule(state, rng);
   fireDueCrises(state, rng);
+
+  // 15d. Tournaments: schedule and resolve the regional cycle.
+  rollTournamentSchedule(state, rng);
+  resolveDueTournament(state, rng);
 
   // 15b. Behaviour counters + secret unlocks. tickBehavior advances the
   //      daysSinceLastLoss counter; checkSecrets unlocks anything now true.

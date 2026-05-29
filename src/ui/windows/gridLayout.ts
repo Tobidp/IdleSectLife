@@ -17,6 +17,7 @@ export type PanelId =
   | "missions"
   | "rivals"
   | "territories"
+  | "tournaments"
   | "log";
 export const PANEL_IDS: PanelId[] = [
   "overview",
@@ -27,6 +28,7 @@ export const PANEL_IDS: PanelId[] = [
   "missions",
   "rivals",
   "territories",
+  "tournaments",
   "log",
 ];
 
@@ -43,6 +45,7 @@ const DEFAULT_LAYOUT: Layout[] = [
   { i: "missions", x: 8, y: 15, w: 4, h: 9 },
   { i: "rivals", x: 0, y: 15, w: 4, h: 9 },
   { i: "territories", x: 4, y: 23, w: 8, h: 10 },
+  { i: "tournaments", x: 0, y: 23, w: 4, h: 10 },
 ];
 
 const STORAGE_KEY = "idle-sect-life:grid:v3";

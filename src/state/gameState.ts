@@ -24,8 +24,9 @@ import { createInitialBehavior, type BehaviorState } from "../domain/secrets/sec
 import type { SecretId } from "../data/secrets/secretDefs";
 import { createInitialTerritories, type TerritoryState } from "../domain/territories/territories";
 import type { ScheduledCrisis } from "../domain/crises/crises";
+import type { ActiveTournament } from "../domain/tournaments/tournaments";
 
-export const SAVE_VERSION = 29;
+export const SAVE_VERSION = 30;
 
 export type Speed = 1 | 2 | 4;
 
@@ -117,6 +118,10 @@ export interface GameState {
   territories: TerritoryState[];
   /** Announced crises pending their trigger day. */
   scheduledCrises: ScheduledCrisis[];
+  /** Active tournament (one at a time) or null between cycles. */
+  activeTournament: ActiveTournament | null;
+  /** Day the last tournament resolved — drives the inter-tournament interval. */
+  lastTournamentDay: number | null;
   /** Story progress: quests, clues, NPC relationships, flags. */
   narrative: NarrativeState;
 }
@@ -166,6 +171,8 @@ export function createNewGame(sect: SectType, rng: Rng): GameState {
     unlockedSecrets: [],
     territories: createInitialTerritories(),
     scheduledCrises: [],
+    activeTournament: null,
+    lastTournamentDay: null,
     narrative: createInitialNarrativeState(),
   };
 

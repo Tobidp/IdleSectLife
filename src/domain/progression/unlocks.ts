@@ -19,6 +19,7 @@ export type UnlockId =
   | "panel.missions"
   | "panel.rivals"
   | "panel.territories"
+  | "panel.tournaments"
   | "craft.alchemy"
   | "craft.forge";
 
@@ -32,6 +33,7 @@ export const UNLOCK_LABEL: Record<UnlockId, string> = {
   "panel.missions": "Missions panel",
   "panel.rivals": "Rivals panel",
   "panel.territories": "Territories panel",
+  "panel.tournaments": "Tournaments panel",
   "craft.alchemy": "Alchemy crafting",
   "craft.forge": "Forge crafting",
 };
@@ -46,6 +48,7 @@ const ALL_UNLOCKS: UnlockId[] = [
   "panel.missions",
   "panel.rivals",
   "panel.territories",
+  "panel.tournaments",
   "craft.alchemy",
   "craft.forge",
 ];
@@ -69,6 +72,10 @@ const RIVALS_REVEAL_DAY = 15;
 /** Territories panel — opens after Rivals so the regional-influence contest reads as
  *  the next step (rivals exist → they want territory). */
 const TERRITORIES_REVEAL_DAY = 25;
+
+/** Tournaments panel — opens around the same time as the first scheduled tournament
+ *  (day 80) so players have somewhere to manage entries when one fires. */
+const TOURNAMENTS_REVEAL_DAY = 60;
 
 function shouldUnlock(state: GameState, id: UnlockId): boolean {
   switch (id) {
@@ -95,6 +102,8 @@ function shouldUnlock(state: GameState, id: UnlockId): boolean {
       return state.time.totalDays >= RIVALS_REVEAL_DAY;
     case "panel.territories":
       return state.time.totalDays >= TERRITORIES_REVEAL_DAY;
+    case "panel.tournaments":
+      return state.time.totalDays >= TOURNAMENTS_REVEAL_DAY;
     case "craft.alchemy":
       return alchemyBuilt(state);
     case "craft.forge":
