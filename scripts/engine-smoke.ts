@@ -72,5 +72,60 @@ check(engine.importSave(code!), "importSave accepts a valid code");
 check(engine.getState()!.sect.type === "sword", "importSave restored the original game");
 check(engine.importSave("not valid base64 !!") === false, "importSave rejects an invalid code");
 
+// --- Hostile-save scenarios (S1 / OWASP hardening). The schema validator should reject all
+//     of these BEFORE migrate() or any state replacement runs. importSave returns false and
+//     the existing game stays untouched. ---
+const beforeBaseline = engine.getState();
+const baselineSect = beforeBaseline!.sect.type;
+
+function toBase64(s: string): string {
+  return btoa(encodeURIComponent(s).replace(/%([0-9A-F]{2})/g, (_, h) => String.fromCharCode(parseInt(h, 16))));
+}
+
+// 1) Outright garbage payload.
+check(engine.importSave(toBase64("not json at all")) === false, "importSave rejects non-JSON payload");
+
+// 2) Valid JSON but the wrong top-level shape (an array, not an object).
+check(engine.importSave(toBase64(JSON.stringify([1, 2, 3]))) === false, "importSave rejects array payload");
+
+// 3) Required field is the wrong type.
+check(
+  engine.importSave(toBase64(JSON.stringify({ version: "seventeen" }))) === false,
+  "importSave rejects non-number version",
+);
+
+// 4) Numbers wildly outside our caps.
+const huge = engine.exportSave()!;
+const realJson = JSON.parse(
+  decodeURIComponent(
+    Array.prototype.map
+      .call(atob(huge), (c: string) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+      .join(""),
+  ),
+) as Record<string, unknown>;
+(realJson as { resources: Record<string, number> }).resources.gold = 1e15; // > maxResource
+check(
+  engine.importSave(toBase64(JSON.stringify(realJson))) === false,
+  "importSave rejects resource value above the cap",
+);
+
+// 5) Disciple roster bloated past the cap.
+const bloated = JSON.parse(
+  decodeURIComponent(
+    Array.prototype.map
+      .call(atob(engine.exportSave()!), (c: string) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+      .join(""),
+  ),
+) as { disciples: unknown[] };
+const seed = bloated.disciples[0];
+bloated.disciples = Array.from({ length: 1000 }, () => seed);
+check(
+  engine.importSave(toBase64(JSON.stringify(bloated))) === false,
+  "importSave rejects roster larger than maxDisciples",
+);
+
+// 6) After all those rejections the current game must be unchanged.
+check(engine.getState()!.sect.type === baselineSect, "state is preserved after rejected imports");
+
 console.log(failures === 0 ? "\n✓ ENGINE OK" : `\n✗ ${failures} CHECK(S) FAILED`);
 process.exit(failures === 0 ? 0 : 1);

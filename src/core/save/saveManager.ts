@@ -1,10 +1,17 @@
-// localStorage persistence. The whole GameState is serialized as JSON.
+// localStorage persistence. The whole GameState is serialized as JSON; imported payloads
+// are validated against SaveSchema before any migrate / state-replacement happens so a
+// hostile or corrupted blob can't crash the app or smuggle bad data into the simulation.
 
 import { SAVE_VERSION, type GameState } from "../../state/gameState";
 import { createInitialNarrativeState } from "../../state/narrative";
 import { emptyEquipment } from "../../data/equipment";
+import { validateSave } from "./schema";
 
 const SAVE_KEY = "idle-sect-life:save:v1";
+
+/** Hard cap on the size of an imported base64 save code. ~512KB raw is far more than any
+ *  legitimate save needs and keeps a billion-byte paste from blocking the main thread. */
+const MAX_IMPORT_BYTES = 512 * 1024;
 
 /** Backfill fields added after v3 onto a save (idempotent). */
 function backfill(save: GameState): void {
@@ -50,7 +57,8 @@ function backfill(save: GameState): void {
 
 /**
  * Forward-migrate an older save in place so a version bump doesn't wipe progress.
- * Returns null only when the save is too old (or newer) to safely upgrade.
+ * Returns null only when the save is too old (or newer) to safely upgrade. Assumes
+ * the input has already been schema-validated.
  */
 function migrate(save: GameState): GameState | null {
   // v3 added the narrative slice; v5 added merchant/autoSell/goldArrears. The deltas are all
@@ -61,6 +69,32 @@ function migrate(save: GameState): GameState | null {
     return save;
   }
   return null; // older/unknown shape — start fresh rather than risk corruption
+}
+
+/** Parse the raw JSON text in a try/catch and return null on any failure. */
+function safeJsonParse(raw: string): unknown {
+  try {
+    return JSON.parse(raw) as unknown;
+  } catch {
+    return null;
+  }
+}
+
+/** Run the full validate -> migrate pipeline. Returns null if anything along the way fails. */
+function loadValidated(raw: string, source: "localStorage" | "import"): GameState | null {
+  const parsed = safeJsonParse(raw);
+  if (parsed === null) {
+    if (source === "import") console.warn("Sect: Ascendant: import failed — not valid JSON");
+    return null;
+  }
+  const validated = validateSave(parsed);
+  if (!validated.ok) {
+    console.warn(`Sect: Ascendant: ${source} rejected by schema (${validated.reason})`);
+    return null;
+  }
+  // SaveSchema is intentionally loose about fields the migrate pass will backfill, so we
+  // upcast here — migrate then trusts the shape and only fills holes.
+  return migrate(validated.data as unknown as GameState);
 }
 
 export function saveGame(state: GameState): void {
@@ -76,8 +110,7 @@ export function loadGame(): GameState | null {
   try {
     const raw = localStorage.getItem(SAVE_KEY);
     if (!raw) return null;
-    const parsed = JSON.parse(raw) as GameState;
-    return migrate(parsed);
+    return loadValidated(raw, "localStorage");
   } catch (err) {
     console.warn("Sect: Ascendant: failed to load save", err);
     return null;
@@ -121,10 +154,17 @@ export function encodeSave(state: GameState): string {
 
 /** Decode + validate a pasted save code; returns the migrated state or null if unusable. */
 export function decodeSave(code: string): GameState | null {
-  try {
-    const parsed = JSON.parse(fromBase64(code.trim())) as GameState;
-    return migrate(parsed);
-  } catch {
+  const trimmed = code.trim();
+  if (trimmed.length === 0 || trimmed.length > MAX_IMPORT_BYTES) {
+    console.warn("Sect: Ascendant: import rejected (empty or exceeds size cap)");
     return null;
   }
+  let json: string;
+  try {
+    json = fromBase64(trimmed);
+  } catch {
+    console.warn("Sect: Ascendant: import rejected (not valid base64 / UTF-8)");
+    return null;
+  }
+  return loadValidated(json, "import");
 }
