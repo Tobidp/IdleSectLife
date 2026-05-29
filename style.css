@@ -2339,6 +2339,43 @@ a:focus-visible,
   max-height: 60vh;
   overflow-y: auto;
 }
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+.history-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  background: var(--bg-row);
+  border-left: 3px solid var(--blue);
+  border-radius: 4px;
+}
+.history-date {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.history-ending {
+  font-weight: 700;
+  color: var(--blue);
+  font-size: 13px;
+}
+.history-legacy {
+  font-size: 11px;
+}
+.history-desc {
+  font-size: 11px;
+  line-height: 1.4;
+  margin-top: 2px;
+}
+.history-btn {
+  font-size: 12px;
+}
 .secret-row {
   display: flex;
   flex-direction: column;
