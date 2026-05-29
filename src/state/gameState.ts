@@ -12,8 +12,9 @@ import type { PillId } from "../data/pills";
 import type { EquippedItem, ItemTier } from "../data/equipment";
 import { STARTING_BLUEPRINTS } from "../data/blueprints";
 import { checkUnlocks, type UnlockId } from "../domain/progression/unlocks";
+import { createInitialClocks, type WorldClock } from "../domain/world/clocks";
 
-export const SAVE_VERSION = 18;
+export const SAVE_VERSION = 19;
 
 export type Speed = 1 | 2 | 4;
 
@@ -81,6 +82,8 @@ export interface GameState {
   achievements: string[];
   /** Ids of UI surfaces (tabs / panels) the player has revealed through play. Sticky. */
   unlocked: UnlockId[];
+  /** External pressures that advance daily and fire consequences when they fill up. */
+  worldClocks: WorldClock[];
   /** Story progress: quests, clues, NPC relationships, flags. */
   narrative: NarrativeState;
 }
@@ -118,6 +121,7 @@ export function createNewGame(sect: SectType, rng: Rng): GameState {
     lastPlayed: Date.now(),
     achievements: [],
     unlocked: [],
+    worldClocks: createInitialClocks(),
     narrative: createInitialNarrativeState(),
   };
 

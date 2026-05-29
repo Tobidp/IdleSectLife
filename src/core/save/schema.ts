@@ -187,6 +187,18 @@ export const SaveSchema = z
       .max(SAVE_LIMITS.maxAchievements)
       .optional(),
     unlocked: z.array(safeStr(SAVE_LIMITS.maxLabelLen)).max(SAVE_LIMITS.maxUnlocks).optional(),
+    worldClocks: z
+      .array(
+        z
+          .object({
+            id: safeStr(SAVE_LIMITS.maxLabelLen),
+            progress: intNonNeg.max(SAVE_LIMITS.maxClockProgress),
+            cycles: intNonNeg.max(SAVE_LIMITS.maxClockCycles),
+          })
+          .passthrough(),
+      )
+      .max(SAVE_LIMITS.maxWorldClocks)
+      .optional(),
     narrative: NarrativeSchema.optional(),
   })
   .passthrough();

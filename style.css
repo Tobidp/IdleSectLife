@@ -650,6 +650,69 @@ a:focus-visible,
   cursor: not-allowed;
 }
 
+/* ---------- World Status (WorldClock panel) ---------- */
+.world-status .panel-body {
+  gap: 10px;
+}
+.clock-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.clock-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.clock-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+.clock-name {
+  font-weight: 600;
+  flex: 1;
+}
+.clock-meta {
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+}
+.clock-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.clock-dot.clock-low {
+  background: var(--jade);
+}
+.clock-dot.clock-medium {
+  background: var(--gold);
+}
+.clock-dot.clock-high {
+  background: var(--crimson);
+}
+.clock-bar {
+  height: 6px;
+  background: var(--bg-panel-2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.clock-bar-fill {
+  height: 100%;
+  transition: width 0.25s ease;
+}
+.clock-bar-fill.clock-low {
+  background: var(--jade);
+}
+.clock-bar-fill.clock-medium {
+  background: var(--gold);
+}
+.clock-bar-fill.clock-high {
+  background: var(--crimson);
+}
+
 /* ---------- Sect dashboard: React Grid Layout windows ---------- */
 .windows-wrap {
   max-width: 1100px;

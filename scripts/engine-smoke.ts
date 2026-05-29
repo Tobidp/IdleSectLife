@@ -151,5 +151,30 @@ const afterForge = engine.getState()!;
 check(afterForge.unlocked.includes("tab.craft"), "upgradePavilion(forge) unfolds the Craft tab");
 check(afterForge.unlocked.includes("craft.forge"), "upgradePavilion(forge) unfolds the Forge craft panel");
 
+// --- B1 WorldClocks: fresh game seeds both clocks; the Bandit Threat fires after ~45 days. ---
+engine.newGame("sword");
+const w0 = engine.getState()!;
+check(w0.worldClocks.length === 2, "fresh game seeds 2 world clocks");
+check(w0.worldClocks.every((c) => c.progress === 0 && c.cycles === 0), "world clocks start at 0");
+
+// Stock a resource so the bandit raid has something to steal, then run 50 days. The
+// bandit_threat clock (threshold 45) should fire exactly once and the wood stockpile drop.
+w0.resources.wood = 500;
+const woodBefore = w0.resources.wood;
+const { advanceDay: advanceDayDirect } = await import("../src/domain/simulation/advanceDay");
+const { Rng: RngImpl } = await import("../src/core/rng/rng");
+const rng = new RngImpl(w0.rngSeed);
+for (let i = 0; i < 50; i++) advanceDayDirect(w0, rng);
+const bandit = w0.worldClocks.find((c) => c.id === "bandit_threat")!;
+check(bandit.cycles === 1, "bandit_threat fires once across 50 days");
+check(bandit.progress < 45, "bandit_threat reset after firing");
+check(w0.resources.wood < woodBefore, "bandit raid stole some stockpiled wood");
+
+// World panel unlocks once totalDays passes 7 — engine's daily tick handles it.
+check(
+  engine.getState()!.unlocked.includes("panel.world"),
+  "panel.world unlocks after the first week",
+);
+
 console.log(failures === 0 ? "\n✓ ENGINE OK" : `\n✗ ${failures} CHECK(S) FAILED`);
 process.exit(failures === 0 ? 0 : 1);

@@ -27,6 +27,7 @@ import { applyAutoSell } from "../market/autoSell";
 import { progressNarrative } from "./storyEvents";
 import { achievementMultipliers, checkAchievements } from "../achievements/achievements";
 import { checkUnlocks } from "../progression/unlocks";
+import { advanceWorldClocks } from "../world/clocks";
 import { STORY_ENABLED } from "../../config/featureFlags";
 import { PASSIVE_GOLD_PER_MONTH, TRIBULATION_AID_FAIL_MULT } from "../../data/balance";
 import { ATTRIBUTE_LABEL } from "../sect/sectTypes";
@@ -256,7 +257,10 @@ export function advanceDay(state: GameState, rng: Rng): void {
     pushLog(state, `Achievement unlocked: ${a.name}!`, "good");
   }
 
-  // 11. Progressive disclosure: reveal any UI surface whose conditions are now met
-  //     (Buildings panel after the reveal-day timer, Story tab when a quest queues, etc.).
+  // 11. World pressures advance once per day — clocks fire their consequences when full.
+  advanceWorldClocks(state, rng);
+
+  // 12. Progressive disclosure: reveal any UI surface whose conditions are now met
+  //     (Buildings panel after the reveal-day timer, World panel after the first week, etc.).
   checkUnlocks(state);
 }

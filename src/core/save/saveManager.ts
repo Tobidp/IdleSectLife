@@ -5,6 +5,7 @@
 import { SAVE_VERSION, type GameState } from "../../state/gameState";
 import { createInitialNarrativeState } from "../../state/narrative";
 import { emptyEquipment } from "../../data/equipment";
+import { reconcileWorldClocks } from "../../domain/world/clocks";
 import { validateSave } from "./schema";
 
 const SAVE_KEY = "idle-sect-life:save:v1";
@@ -39,6 +40,9 @@ function backfill(save: GameState): void {
   // (not "all unlocked") so existing players also see the unfold; conditions that are
   // already met re-unlock within the next tick, so the "reset moment" is brief.
   if (!Array.isArray(save.unlocked)) save.unlocked = [];
+  // Pre-WorldClock saves: seed all known clocks at progress 0. Existing clocks (after a
+  // future codebase adds new ones) are kept and the missing ids appended.
+  save.worldClocks = reconcileWorldClocks(save.worldClocks);
   // Pre-A2 disciples + applicants had no talent; default to "common".
   // Pre-Phase-3-closeout disciples lacked trait / path / age.
   for (const list of [save.disciples, save.applicants]) {

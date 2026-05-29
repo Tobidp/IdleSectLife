@@ -15,6 +15,7 @@ export type UnlockId =
   | "tab.story"
   | "panel.buildings"
   | "panel.market"
+  | "panel.world"
   | "craft.alchemy"
   | "craft.forge";
 
@@ -24,6 +25,7 @@ export const UNLOCK_LABEL: Record<UnlockId, string> = {
   "tab.story": "Story tab",
   "panel.buildings": "Buildings panel",
   "panel.market": "Market panel",
+  "panel.world": "World panel",
   "craft.alchemy": "Alchemy crafting",
   "craft.forge": "Forge crafting",
 };
@@ -34,6 +36,7 @@ const ALL_UNLOCKS: UnlockId[] = [
   "tab.story",
   "panel.buildings",
   "panel.market",
+  "panel.world",
   "craft.alchemy",
   "craft.forge",
 ];
@@ -41,6 +44,10 @@ const ALL_UNLOCKS: UnlockId[] = [
 /** Reveal the Buildings panel after a couple of days so a new player reads
  *  Overview/Resources/Log first instead of being handed every system at once. */
 const BUILDINGS_REVEAL_DAY = 3;
+
+/** Hold the World Status panel back until the first week has passed so the unfold's
+ *  early beats (buildings, recruitment) aren't drowned out by new pressure. */
+const WORLD_REVEAL_DAY = 7;
 
 function shouldUnlock(state: GameState, id: UnlockId): boolean {
   switch (id) {
@@ -59,6 +66,8 @@ function shouldUnlock(state: GameState, id: UnlockId): boolean {
       return state.time.totalDays >= BUILDINGS_REVEAL_DAY;
     case "panel.market":
       return merchantBuilt(state);
+    case "panel.world":
+      return state.time.totalDays >= WORLD_REVEAL_DAY;
     case "craft.alchemy":
       return alchemyBuilt(state);
     case "craft.forge":

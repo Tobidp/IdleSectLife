@@ -37,6 +37,13 @@ export const SAVE_LIMITS = {
   /** UI surfaces (tabs / panels) revealed through play. There are only ~10 unlockable
    *  surfaces total; 50 is generous headroom for future progression flags. */
   maxUnlocks: 50,
+  /** WorldClock entries persisted per save. Currently 2 clocks; 50 lets future systems
+   *  add new pressures without bumping the cap each time. */
+  maxWorldClocks: 50,
+  /** Per-clock progress / cycle counters — large but bounded so a tampered save can't
+   *  hand-roll a billion-cycle clock. */
+  maxClockProgress: 1_000_000,
+  maxClockCycles: 1_000_000,
 
   /** Generic textual limits. */
   maxNameLen: 60,
