@@ -15,6 +15,7 @@ import { Achievements } from "./Achievements";
 import { Stats } from "./Stats";
 import { Settings } from "./Settings";
 import { isTabVisible } from "./progression/visibility";
+import { CurrentObjective } from "./progression/CurrentObjective";
 
 // Tab bodies are code-split: the dashboard chunk (React Grid Layout + Motion) loads only
 // once a game is in play, keeping the sect-selection screen + initial load lean.
@@ -59,6 +60,7 @@ function Game({ state }: { state: GameState }): JSX.Element {
   return (
     <>
       <Topbar state={state} />
+      <CurrentObjective state={state} />
       <Suspense fallback={<div className="muted loading">Loading…</div>}>{body}</Suspense>
       <footer className="footer">
         <Achievements />
