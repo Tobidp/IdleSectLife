@@ -204,6 +204,18 @@ export const SaveSchema = z
       )
       .max(SAVE_LIMITS.maxWorldClocks)
       .optional(),
+    pendingPersonalEvents: z
+      .array(
+        z
+          .object({
+            eventId: safeStr(SAVE_LIMITS.maxLabelLen),
+            discipleId: z.number().int().min(0).max(SAVE_LIMITS.maxIdValue),
+            queuedOn: intNonNeg.max(SAVE_LIMITS.maxTotalDays),
+          })
+          .passthrough(),
+      )
+      .max(SAVE_LIMITS.maxPendingPersonalEvents)
+      .optional(),
     narrative: NarrativeSchema.optional(),
   })
   .passthrough();

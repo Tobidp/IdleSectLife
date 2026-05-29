@@ -23,6 +23,7 @@ import type { EquipmentSlot, ItemTier } from "../data/equipment";
 import type { SectType } from "../domain/sect/sectTypes";
 import { upgradePavilion, type PavilionKey } from "../domain/buildings/buildings";
 import { checkUnlocks } from "../domain/progression/unlocks";
+import { resolvePersonalEvent } from "../domain/disciples/personalEvents";
 import { upgradeSect } from "../domain/sect/sect";
 import { addResource } from "../domain/resources/resources";
 import { sellResource, buyResource } from "../domain/market/market";
@@ -366,6 +367,14 @@ export class GameEngine {
   expelDisciple(id: number): void {
     this.store.update((s) => {
       expelDisciple(s, id);
+    });
+    this.saveNow();
+  }
+
+  /** Resolve the queued personal event for `discipleId` by applying the chosen branch. */
+  resolvePersonalEvent(discipleId: number, choiceId: string): void {
+    this.store.update((s) => {
+      resolvePersonalEvent(s, discipleId, choiceId, this.rng);
     });
     this.saveNow();
   }

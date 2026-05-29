@@ -45,6 +45,8 @@ function backfill(save: GameState): void {
   // Pre-WorldClock saves: seed all known clocks at progress 0. Existing clocks (after a
   // future codebase adds new ones) are kept and the missing ids appended.
   save.worldClocks = reconcileWorldClocks(save.worldClocks);
+  // Pre-B3 saves have no pending personal-event queue.
+  if (!Array.isArray(save.pendingPersonalEvents)) save.pendingPersonalEvents = [];
   // Pre-A2 disciples + applicants had no talent; default to "common".
   // Pre-Phase-3-closeout disciples lacked trait / path / age.
   // Pre-B2 disciples lacked the narrative layers (origin / ambition / fear / trauma /

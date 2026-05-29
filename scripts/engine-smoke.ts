@@ -176,5 +176,38 @@ check(
   "panel.world unlocks after the first week",
 );
 
+// --- B3 Personal events: queue/resolve round-trip ---
+engine.newGame("sword");
+const peState = engine.getState()!;
+check(peState.pendingPersonalEvents.length === 0, "fresh game has no pending personal events");
+// Manually queue an event for the first disciple, then resolve it.
+const firstDiscipleId = peState.disciples[0].id;
+peState.pendingPersonalEvents.push({
+  eventId: "orphan_visitor",
+  discipleId: firstDiscipleId,
+  queuedOn: 0,
+});
+// Force the origin so the event "fits" (cosmetic — apply runs regardless of canFire).
+peState.disciples[0].origin = "orphan";
+const happinessBefore = peState.disciples[0].happiness;
+engine.resolvePersonalEvent(firstDiscipleId, "welcome");
+const peAfter = engine.getState()!;
+check(peAfter.pendingPersonalEvents.length === 0, "resolvePersonalEvent pops the queue entry");
+check(
+  peAfter.disciples[0].happiness > happinessBefore,
+  "orphan_visitor 'welcome' choice raises happiness",
+);
+// Unknown choice id is a no-op (still pops the entry).
+peAfter.pendingPersonalEvents.push({
+  eventId: "orphan_visitor",
+  discipleId: firstDiscipleId,
+  queuedOn: 0,
+});
+engine.resolvePersonalEvent(firstDiscipleId, "no_such_choice");
+check(
+  engine.getState()!.pendingPersonalEvents.length === 0,
+  "resolvePersonalEvent with unknown choice still pops",
+);
+
 console.log(failures === 0 ? "\n✓ ENGINE OK" : `\n✗ ${failures} CHECK(S) FAILED`);
 process.exit(failures === 0 ? 0 : 1);

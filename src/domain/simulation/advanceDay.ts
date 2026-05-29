@@ -28,6 +28,7 @@ import { progressNarrative } from "./storyEvents";
 import { achievementMultipliers, checkAchievements } from "../achievements/achievements";
 import { checkUnlocks } from "../progression/unlocks";
 import { advanceWorldClocks } from "../world/clocks";
+import { rollPersonalEvents } from "../disciples/personalEvents";
 import { STORY_ENABLED } from "../../config/featureFlags";
 import { PASSIVE_GOLD_PER_MONTH, TRIBULATION_AID_FAIL_MULT } from "../../data/balance";
 import { ATTRIBUTE_LABEL } from "../sect/sectTypes";
@@ -260,7 +261,11 @@ export function advanceDay(state: GameState, rng: Rng): void {
   // 11. World pressures advance once per day — clocks fire their consequences when full.
   advanceWorldClocks(state, rng);
 
-  // 12. Progressive disclosure: reveal any UI surface whose conditions are now met
+  // 12. Personal events — low-chance roll per active disciple, branching on their
+  //     ambition/fear/trait/origin. Queued for the player to answer in the UI.
+  rollPersonalEvents(state, rng);
+
+  // 13. Progressive disclosure: reveal any UI surface whose conditions are now met
   //     (Buildings panel after the reveal-day timer, World panel after the first week, etc.).
   checkUnlocks(state);
 }

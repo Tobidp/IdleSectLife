@@ -44,6 +44,9 @@ export const SAVE_LIMITS = {
    *  hand-roll a billion-cycle clock. */
   maxClockProgress: 1_000_000,
   maxClockCycles: 1_000_000,
+  /** Personal events awaiting the player. Runtime cap is MAX_QUEUE = 5; 50 is the
+   *  schema safety cap. */
+  maxPendingPersonalEvents: 50,
 
   /** Generic textual limits. */
   maxNameLen: 60,
