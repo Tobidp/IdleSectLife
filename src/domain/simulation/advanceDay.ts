@@ -29,6 +29,7 @@ import { achievementMultipliers, checkAchievements } from "../achievements/achie
 import { checkUnlocks } from "../progression/unlocks";
 import { advanceWorldClocks } from "../world/clocks";
 import { rollPersonalEvents } from "../disciples/personalEvents";
+import { advanceMissions } from "../missions/missions";
 import { STORY_ENABLED } from "../../config/featureFlags";
 import { PASSIVE_GOLD_PER_MONTH, TRIBULATION_AID_FAIL_MULT } from "../../data/balance";
 import { ATTRIBUTE_LABEL } from "../sect/sectTypes";
@@ -157,14 +158,17 @@ export function advanceDay(state: GameState, rng: Rng): void {
     if (shortage) pushLog(state, "Food shortage! Disciples are going hungry.", "bad");
   }
 
-  // 3. Happiness.
+  // 3. Happiness — disciples away on mission don't have their mood updated by sect events.
   for (const d of state.disciples) {
+    if (d.status === "on_mission") continue;
     updateHappiness(d, state.sect.type, shortage);
   }
 
-  // 4. Healing & death.
+  // 4. Healing & death — on-mission disciples are off-grid; their HP is handled by the
+  //    mission's resolve handler when it fires.
   const dead: Disciple[] = [];
   for (const d of state.disciples) {
+    if (d.status === "on_mission") continue;
     const heal =
       HEAL_BASE + effectiveLevel(d.attributes.vitality) * HEAL_LEVEL_FACTOR + infirmaryBonus;
     if (d.status === "down") {
@@ -261,11 +265,14 @@ export function advanceDay(state: GameState, rng: Rng): void {
   // 11. World pressures advance once per day — clocks fire their consequences when full.
   advanceWorldClocks(state, rng);
 
-  // 12. Personal events — low-chance roll per active disciple, branching on their
+  // 12. Mission timer — any active expedition whose duration elapses today resolves now.
+  advanceMissions(state, rng);
+
+  // 13. Personal events — low-chance roll per active disciple, branching on their
   //     ambition/fear/trait/origin. Queued for the player to answer in the UI.
   rollPersonalEvents(state, rng);
 
-  // 13. Progressive disclosure: reveal any UI surface whose conditions are now met
+  // 14. Progressive disclosure: reveal any UI surface whose conditions are now met
   //     (Buildings panel after the reveal-day timer, World panel after the first week, etc.).
   checkUnlocks(state);
 }

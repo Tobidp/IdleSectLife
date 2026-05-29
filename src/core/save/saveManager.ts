@@ -6,6 +6,7 @@ import { SAVE_VERSION, type GameState } from "../../state/gameState";
 import { createInitialNarrativeState } from "../../state/narrative";
 import { emptyEquipment } from "../../data/equipment";
 import { reconcileWorldClocks } from "../../domain/world/clocks";
+import { createInitialMissionOffers } from "../../domain/missions/missions";
 import { rollAmbition, rollFear, rollOrigin } from "../../data/disciples/narratives";
 import { Rng } from "../rng/rng";
 import { validateSave } from "./schema";
@@ -47,6 +48,10 @@ function backfill(save: GameState): void {
   save.worldClocks = reconcileWorldClocks(save.worldClocks);
   // Pre-B3 saves have no pending personal-event queue.
   if (!Array.isArray(save.pendingPersonalEvents)) save.pendingPersonalEvents = [];
+  // Pre-B4 saves have no mission state — seed the offer board so existing players see
+  // the new system on first load.
+  if (!Array.isArray(save.missionOffers)) save.missionOffers = createInitialMissionOffers();
+  if (!Array.isArray(save.activeMissions)) save.activeMissions = [];
   // Pre-A2 disciples + applicants had no talent; default to "common".
   // Pre-Phase-3-closeout disciples lacked trait / path / age.
   // Pre-B2 disciples lacked the narrative layers (origin / ambition / fear / trauma /

@@ -216,6 +216,25 @@ export const SaveSchema = z
       )
       .max(SAVE_LIMITS.maxPendingPersonalEvents)
       .optional(),
+    missionOffers: z
+      .array(safeStr(SAVE_LIMITS.maxLabelLen))
+      .max(SAVE_LIMITS.maxMissionOffers)
+      .optional(),
+    activeMissions: z
+      .array(
+        z
+          .object({
+            defId: safeStr(SAVE_LIMITS.maxLabelLen),
+            discipleIds: z
+              .array(z.number().int().min(0).max(SAVE_LIMITS.maxIdValue))
+              .max(SAVE_LIMITS.maxMissionRoster),
+            startedOn: intNonNeg.max(SAVE_LIMITS.maxTotalDays),
+            endsOn: intNonNeg.max(SAVE_LIMITS.maxTotalDays),
+          })
+          .passthrough(),
+      )
+      .max(SAVE_LIMITS.maxActiveMissions)
+      .optional(),
     narrative: NarrativeSchema.optional(),
   })
   .passthrough();

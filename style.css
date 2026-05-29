@@ -650,6 +650,155 @@ a:focus-visible,
   cursor: not-allowed;
 }
 
+/* ---------- Missions panel + assign modal ---------- */
+.missions .panel-body {
+  gap: 12px;
+}
+.mission-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mission-section-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-dim);
+}
+.mission-active,
+.mission-offer {
+  background: var(--bg-panel-2);
+  border: 1px solid var(--border-soft);
+  border-radius: 5px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mission-active-head,
+.mission-offer-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.mission-name {
+  font-weight: 600;
+  color: var(--ink);
+}
+.mission-days {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.mission-bar {
+  height: 5px;
+  background: var(--bg-panel);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.mission-bar-fill {
+  height: 100%;
+  background: var(--jade);
+  transition: width 0.25s ease;
+}
+.mission-roster {
+  font-size: 11px;
+}
+.mission-recall,
+.mission-send {
+  align-self: flex-start;
+  margin-top: 2px;
+  padding: 3px 10px;
+  font-size: 11px;
+}
+.mission-recall {
+  color: var(--crimson);
+  border-color: rgba(196, 91, 84, 0.4);
+}
+.mission-desc {
+  font-size: 12px;
+  color: var(--ink);
+  line-height: 1.4;
+}
+.mission-meta,
+.mission-reward {
+  font-size: 11px;
+}
+.mission-risk {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 1px 6px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+.mission-risk-low {
+  background: rgba(79, 174, 139, 0.18);
+  color: var(--jade);
+}
+.mission-risk-medium {
+  background: rgba(217, 178, 90, 0.18);
+  color: var(--gold);
+}
+.mission-risk-high {
+  background: rgba(196, 91, 84, 0.20);
+  color: var(--crimson);
+}
+.mission-assign {
+  max-width: 560px;
+}
+.mission-recommend {
+  background: var(--bg-row);
+  border-radius: 5px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.mission-recommend-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.mission-recommend-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.mission-recommend-row.ok {
+  color: var(--jade);
+}
+.mission-recommend-row.low {
+  color: var(--crimson);
+}
+.mission-roster-picker {
+  max-height: 240px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border: 1px solid var(--border-soft);
+  border-radius: 5px;
+  padding: 4px;
+}
+.mission-roster-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 6px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+}
+.mission-roster-row:hover {
+  background: var(--bg-row);
+}
+.mission-roster-name {
+  font-weight: 600;
+  flex: 1;
+}
+
 /* ---------- World Status (WorldClock panel) ---------- */
 .world-status .panel-body {
   gap: 10px;

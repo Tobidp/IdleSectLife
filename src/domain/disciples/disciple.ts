@@ -38,8 +38,10 @@ export type Activity =
 
 export type Attributes = Record<Attribute, AttrProgress>;
 
-/** "down" = incapacitated (hp <= 0): performs no actions and is at risk of death. */
-export type DiscipleStatus = "active" | "down";
+/** "down" = incapacitated (hp <= 0): performs no actions and is at risk of death.
+ *  "on_mission" = away on an expedition (B4): skipped by daily actions / happiness /
+ *  heal / abandonment ticks until the mission resolves and they're flipped back. */
+export type DiscipleStatus = "active" | "down" | "on_mission";
 
 export interface Disciple {
   id: number;

@@ -47,6 +47,12 @@ export const SAVE_LIMITS = {
   /** Personal events awaiting the player. Runtime cap is MAX_QUEUE = 5; 50 is the
    *  schema safety cap. */
   maxPendingPersonalEvents: 50,
+  /** Mission offer board + active missions. Currently 3 defs total — 100 is generous
+   *  headroom for future mission packs. */
+  maxMissionOffers: 100,
+  maxActiveMissions: 100,
+  /** Max disciples per single mission roster. */
+  maxMissionRoster: 10,
 
   /** Generic textual limits. */
   maxNameLen: 60,

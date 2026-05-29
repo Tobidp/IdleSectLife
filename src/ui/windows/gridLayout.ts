@@ -8,18 +8,27 @@ export const GRID_COLS = 12;
 export const GRID_ROW_HEIGHT = 30;
 export const GRID_MARGIN: [number, number] = [12, 12];
 
-export type PanelId = "overview" | "resources" | "buildings" | "market" | "world" | "log";
+export type PanelId =
+  | "overview"
+  | "resources"
+  | "buildings"
+  | "market"
+  | "world"
+  | "missions"
+  | "log";
 export const PANEL_IDS: PanelId[] = [
   "overview",
   "resources",
   "buildings",
   "market",
   "world",
+  "missions",
   "log",
 ];
 
 // Default three-column arrangement (w=4 each): left x=0, center x=4, right x=8. The World
-// panel sits at the bottom of the centre column and is hidden until the first week passes.
+// + Missions panels sit at the bottom of the centre and right columns respectively and
+// are hidden until their unlock conditions fire.
 const DEFAULT_LAYOUT: Layout[] = [
   { i: "overview", x: 0, y: 0, w: 4, h: 6 },
   { i: "resources", x: 0, y: 6, w: 4, h: 9 },
@@ -27,6 +36,7 @@ const DEFAULT_LAYOUT: Layout[] = [
   { i: "market", x: 4, y: 9, w: 4, h: 8 },
   { i: "world", x: 4, y: 17, w: 4, h: 6 },
   { i: "log", x: 8, y: 0, w: 4, h: 15 },
+  { i: "missions", x: 8, y: 15, w: 4, h: 9 },
 ];
 
 const STORAGE_KEY = "idle-sect-life:grid:v3";

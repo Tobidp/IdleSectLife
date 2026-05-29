@@ -15,6 +15,7 @@ import { ResourcesPanel } from "../panels/ResourcesPanel";
 import { BuildingsPanel } from "../panels/BuildingsPanel";
 import { MarketPanel } from "../panels/MarketPanel";
 import { WorldStatusPanel } from "../panels/WorldStatusPanel";
+import { MissionsPanel } from "../missions/MissionsPanel";
 import { EventLogPanel } from "../panels/EventLogPanel";
 import {
   GRID_COLS,
@@ -61,6 +62,7 @@ export function SectDashboard({ state }: { state: GameState }): JSX.Element {
     buildings: <BuildingsPanel state={state} />,
     market: <MarketPanel state={state} />,
     world: <WorldStatusPanel state={state} />,
+    missions: <MissionsPanel state={state} />,
     log: <EventLogPanel state={state} />,
   };
 

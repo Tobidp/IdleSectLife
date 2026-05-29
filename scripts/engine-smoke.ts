@@ -209,5 +209,36 @@ check(
   "resolvePersonalEvent with unknown choice still pops",
 );
 
+// --- B4 Missions: start, recall, advance-to-completion ---
+engine.newGame("sword");
+const mState = engine.getState()!;
+check(mState.missionOffers.length === 3, "fresh game offers all 3 missions");
+check(mState.activeMissions.length === 0, "fresh game has no active missions");
+// Pick the first disciple and send them on the scout_road mission (1 disciple, 5 days).
+const scoutId = mState.disciples[0].id;
+const sent = engine.startMission("scout_road", [scoutId]);
+check(sent === true, "startMission(scout_road) succeeds with 1 disciple");
+check(engine.getState()!.activeMissions.length === 1, "active mission registered");
+check(engine.getState()!.disciples[0].status === "on_mission", "assigned disciple is on_mission");
+check(
+  !engine.getState()!.missionOffers.includes("scout_road"),
+  "started mission removed from offer board",
+);
+// Recall — disciple comes back to active, mission goes back on the board.
+engine.recallMission("scout_road");
+const recalled = engine.getState()!;
+check(recalled.activeMissions.length === 0, "recallMission empties active list");
+check(recalled.disciples[0].status === "active", "recalled disciple returns to active status");
+check(recalled.missionOffers.includes("scout_road"), "recalled mission goes back on offer board");
+
+// Run a full mission to completion: send + advance 6 days + verify resolve fired.
+engine.startMission("scout_road", [scoutId]);
+const beforeGold = engine.getState()!.resources.gold;
+for (let i = 0; i < 6; i++) advanceDayDirect(engine.getState()!, rng);
+const done = engine.getState()!;
+check(done.activeMissions.length === 0, "mission resolves after duration elapses");
+check(done.disciples[0].status !== "on_mission", "disciple flipped back from on_mission");
+check(done.resources.gold > beforeGold, "scout_road delivered some gold reward");
+
 console.log(failures === 0 ? "\n✓ ENGINE OK" : `\n✗ ${failures} CHECK(S) FAILED`);
 process.exit(failures === 0 ? 0 : 1);

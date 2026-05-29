@@ -24,6 +24,8 @@ import type { SectType } from "../domain/sect/sectTypes";
 import { upgradePavilion, type PavilionKey } from "../domain/buildings/buildings";
 import { checkUnlocks } from "../domain/progression/unlocks";
 import { resolvePersonalEvent } from "../domain/disciples/personalEvents";
+import { startMission, recallMission } from "../domain/missions/missions";
+import type { MissionDefId } from "../data/missions/missionDefs";
 import { upgradeSect } from "../domain/sect/sect";
 import { addResource } from "../domain/resources/resources";
 import { sellResource, buyResource } from "../domain/market/market";
@@ -375,6 +377,26 @@ export class GameEngine {
   resolvePersonalEvent(discipleId: number, choiceId: string): void {
     this.store.update((s) => {
       resolvePersonalEvent(s, discipleId, choiceId, this.rng);
+    });
+    this.saveNow();
+  }
+
+  // --- Missions ---
+
+  /** Dispatch a mission with the chosen roster. No-op if anything fails to validate. */
+  startMission(defId: MissionDefId, discipleIds: number[]): boolean {
+    let ok = false;
+    this.store.update((s) => {
+      ok = startMission(s, defId, discipleIds);
+    });
+    this.saveNow();
+    return ok;
+  }
+
+  /** Recall an active mission early — roster comes home, mission goes back on the board. */
+  recallMission(defId: MissionDefId): void {
+    this.store.update((s) => {
+      recallMission(s, defId);
     });
     this.saveNow();
   }

@@ -14,8 +14,10 @@ import { STARTING_BLUEPRINTS } from "../data/blueprints";
 import { checkUnlocks, type UnlockId } from "../domain/progression/unlocks";
 import { createInitialClocks, type WorldClock } from "../domain/world/clocks";
 import type { PendingPersonalEvent } from "../domain/disciples/personalEvents";
+import { createInitialMissionOffers, type ActiveMission } from "../domain/missions/missions";
+import type { MissionDefId } from "../data/missions/missionDefs";
 
-export const SAVE_VERSION = 21;
+export const SAVE_VERSION = 22;
 
 export type Speed = 1 | 2 | 4;
 
@@ -87,6 +89,10 @@ export interface GameState {
   worldClocks: WorldClock[];
   /** Personal events surfaced for specific disciples, awaiting the player's choice. */
   pendingPersonalEvents: PendingPersonalEvent[];
+  /** Mission ids currently available to start (the offer board). */
+  missionOffers: MissionDefId[];
+  /** Missions currently in progress; disciples assigned have status="on_mission". */
+  activeMissions: ActiveMission[];
   /** Story progress: quests, clues, NPC relationships, flags. */
   narrative: NarrativeState;
 }
@@ -126,6 +132,8 @@ export function createNewGame(sect: SectType, rng: Rng): GameState {
     unlocked: [],
     worldClocks: createInitialClocks(),
     pendingPersonalEvents: [],
+    missionOffers: createInitialMissionOffers(),
+    activeMissions: [],
     narrative: createInitialNarrativeState(),
   };
 
