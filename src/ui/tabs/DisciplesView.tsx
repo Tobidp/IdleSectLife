@@ -134,6 +134,23 @@ function AttrRow({ a, attr, isSectAttr }: { a: AttrProgress; attr: Attribute; is
   );
 }
 
+/** Compact one-line summary of a disciple's three daily activity slots — replaces the three
+ *  selects in the compact row, which now live inside the expanded view. */
+function ActivitySummary({ actions }: { actions: [Activity, Activity, Activity] }): JSX.Element {
+  const tooltip = actions
+    .map((a, i) => `${SLOT_LABELS[i]}: ${ACTIVITY_LABEL[a]}`)
+    .join(" · ");
+  return (
+    <span className="d-activity-summary" title={tooltip}>
+      {actions.map((a, i) => (
+        <span key={i} className="d-activity-pill">
+          {ACTIVITY_LABEL[a]}
+        </span>
+      ))}
+    </span>
+  );
+}
+
 function DiscipleRow({ state, d }: { state: GameState; d: Disciple }): JSX.Element {
   const actions = useActions();
   const view = useView();
@@ -142,6 +159,7 @@ function DiscipleRow({ state, d }: { state: GameState; d: Disciple }): JSX.Eleme
   const down = d.status === "down";
   const selected = view.selectedIds.has(d.id);
   const expanded = view.expandedIds.has(d.id);
+  const activityGroups = availableActivityGroups(state);
 
   return (
     <div className={`d-row ${down ? "is-down" : ""} ${selected ? "sel" : ""}`.trim()}>
@@ -152,42 +170,15 @@ function DiscipleRow({ state, d }: { state: GameState; d: Disciple }): JSX.Eleme
           checked={selected}
           onChange={() => dispatch({ type: "toggleSelected", id: d.id })}
         />
-        <button
-          className="d-expand"
-          title="Show attributes"
-          onClick={() => dispatch({ type: "toggleExpanded", id: d.id })}
-        >
-          {expanded ? "▾" : "▸"}
-        </button>
         <span className="d-sect" title={`Prefers ${d.preferredSect}`}>
           {SECT_ICON[d.preferredSect]}
-        </span>
-        <span className="d-name">{d.name}</span>
-        <span
-          className={`d-talent ${TALENT_TIER_CLASS[d.talent]}`}
-          title={`Spirit root: ${TALENT_BY_ID[d.talent].label} (×${TALENT_BY_ID[d.talent].xpMult} XP)`}
-        >
-          ◈
-        </span>
-        <span
-          className={`d-trait trait-${d.trait}`}
-          title={`${TRAIT_BY_ID[d.trait].label} — ${TRAIT_BY_ID[d.trait].description}`}
-        >
-          {TRAIT_BY_ID[d.trait].label[0]}
         </span>
         {d.path && (
           <span className={`d-path path-${d.path}`} title={PATH_LABEL[d.path]}>
             {d.path === "body" ? "⚔" : "✦"}
           </span>
         )}
-        <span className="d-age muted" title={`Age (in-game years)`}>
-          {ageInYears(d)}y
-        </span>
-        {d.bonds.length > 0 && (
-          <span className="d-bonds" title={`${d.bonds.length} bond${d.bonds.length === 1 ? "" : "s"}`}>
-            ♥{d.bonds.length}
-          </span>
-        )}
+        <span className="d-name">{d.name}</span>
         <span className={`d-joy ${happinessClass(d.happiness)}`} title="Happiness">
           ♥ {fmt(d.happiness)}
         </span>
@@ -195,66 +186,57 @@ function DiscipleRow({ state, d }: { state: GameState; d: Disciple }): JSX.Eleme
           {fmt(d.hp)}/{fmt(maxHp(d))}
         </span>
         {down ? (
-          <>
-            <span className="badge badge-down">Recovering</span>
-            {(state.pills.healing ?? 0) > 0 && (
-              <button
-                className="d-heal"
-                title="Use a Healing Pill"
-                onClick={() => actions.usePill("healing", d.id)}
-              >
-                🧪 Heal
-              </button>
-            )}
-          </>
+          <span className="badge badge-down">Recovering</span>
         ) : (
-          <>
-            {d.tribulationBuff ? (
-              <span className="d-aided" title="Tribulation Aid is active — consumed on next breakthrough">
-                🪷
-              </span>
-            ) : (
-              (state.pills.tribulationAid ?? 0) > 0 && (
-                <button
-                  className="d-aid"
-                  title="Use a Tribulation Aid (halves the next breakthrough's fail chance)"
-                  onClick={() => actions.usePill("tribulationAid", d.id)}
-                >
-                  🪷
-                </button>
-              )
-            )}
-            {(state.pills.insight ?? 0) > 0 && (
-              <button
-                className="d-insight"
-                title="Use an Insight Pill (XP to every attribute)"
-                onClick={() => actions.usePill("insight", d.id)}
-              >
-                🧠
-              </button>
-            )}
-            <div className="d-actions">
-              {[0, 1, 2].map((slot) => (
-                <select
-                  key={slot}
-                  className="action-select"
-                  title={SLOT_LABELS[slot]}
-                  value={d.actions[slot]}
-                  onChange={(e) => actions.setDiscipleAction(d.id, slot, e.target.value as Activity)}
-                >
-                  <ActivityOptions groups={availableActivityGroups(state)} />
-                </select>
-              ))}
-            </div>
-          </>
+          <ActivitySummary actions={d.actions} />
         )}
+        <button
+          className="d-expand"
+          title={expanded ? "Hide details" : "Show details"}
+          onClick={() => dispatch({ type: "toggleExpanded", id: d.id })}
+        >
+          {expanded ? "▾" : "▸"}
+        </button>
       </div>
       {expanded && (
-        <>
-          <div className="d-expanded">
+        <div className="d-expanded">
+          {/* Identity strip: talent / trait / age / bonds */}
+          <div className="d-meta">
+            <span
+              className={`d-talent ${TALENT_TIER_CLASS[d.talent]}`}
+              title={`Spirit root: ${TALENT_BY_ID[d.talent].label} (×${TALENT_BY_ID[d.talent].xpMult} XP)`}
+            >
+              ◈ {TALENT_BY_ID[d.talent].label}
+            </span>
+            <span
+              className={`d-trait trait-${d.trait}`}
+              title={TRAIT_BY_ID[d.trait].description}
+            >
+              {TRAIT_BY_ID[d.trait].label}
+            </span>
+            <span className="d-age muted" title="Age (in-game years)">
+              {ageInYears(d)}y
+            </span>
+            {d.bonds.length > 0 && (
+              <span
+                className="d-bonds"
+                title={`${d.bonds.length} bond${d.bonds.length === 1 ? "" : "s"}`}
+              >
+                ♥ {d.bonds.length} bond{d.bonds.length === 1 ? "" : "s"}
+              </span>
+            )}
+          </div>
+
+          {/* Attributes + equipment side-by-side */}
+          <div className="d-expanded-main">
             <div className="d-attrs">
               {ATTR_ORDER.map((attr) => (
-                <AttrRow key={attr} a={d.attributes[attr]} attr={attr} isSectAttr={attr === sectAttr} />
+                <AttrRow
+                  key={attr}
+                  a={d.attributes[attr]}
+                  attr={attr}
+                  isSectAttr={attr === sectAttr}
+                />
               ))}
             </div>
             <div className="d-equipment" aria-label="Equipment">
@@ -268,6 +250,80 @@ function DiscipleRow({ state, d }: { state: GameState; d: Disciple }): JSX.Eleme
               ))}
             </div>
           </div>
+
+          {/* Daily action slots — labelled selects per period */}
+          {!down && (
+            <div className="d-actions-row">
+              <span className="muted d-actions-label">Daily actions</span>
+              <div className="d-actions">
+                {[0, 1, 2].map((slot) => (
+                  <label key={slot} className="d-slot">
+                    <span className="d-slot-label muted">{SLOT_LABELS[slot]}</span>
+                    <select
+                      className="action-select"
+                      value={d.actions[slot]}
+                      onChange={(e) =>
+                        actions.setDiscipleAction(d.id, slot, e.target.value as Activity)
+                      }
+                    >
+                      <ActivityOptions groups={activityGroups} />
+                    </select>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Pills row: healing if down, tribulation aid / insight otherwise */}
+          {(() => {
+            const hasHeal = down && (state.pills.healing ?? 0) > 0;
+            const hasAid =
+              !down && !d.tribulationBuff && (state.pills.tribulationAid ?? 0) > 0;
+            const hasInsight = !down && (state.pills.insight ?? 0) > 0;
+            if (!hasHeal && !hasAid && !hasInsight && !d.tribulationBuff) return null;
+            return (
+              <div className="d-pills-row">
+                <span className="muted d-pills-label">Pills</span>
+                {hasHeal && (
+                  <button
+                    className="d-heal"
+                    title="Use a Healing Pill"
+                    onClick={() => actions.usePill("healing", d.id)}
+                  >
+                    🧪 Heal
+                  </button>
+                )}
+                {!down && d.tribulationBuff && (
+                  <span
+                    className="d-aided"
+                    title="Tribulation Aid is active — consumed on next breakthrough"
+                  >
+                    🪷 Tribulation Aid active
+                  </span>
+                )}
+                {hasAid && (
+                  <button
+                    className="d-aid"
+                    title="Use a Tribulation Aid (halves the next breakthrough's fail chance)"
+                    onClick={() => actions.usePill("tribulationAid", d.id)}
+                  >
+                    🪷 Tribulation Aid
+                  </button>
+                )}
+                {hasInsight && (
+                  <button
+                    className="d-insight"
+                    title="Use an Insight Pill (XP to every attribute)"
+                    onClick={() => actions.usePill("insight", d.id)}
+                  >
+                    🧠 Insight
+                  </button>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* Destructive: expel */}
           <div className="d-expanded-footer">
             <button
               className="expel-btn"
@@ -281,7 +337,7 @@ function DiscipleRow({ state, d }: { state: GameState; d: Disciple }): JSX.Eleme
               Expel from Sect
             </button>
           </div>
-        </>
+        </div>
       )}
     </div>
   );

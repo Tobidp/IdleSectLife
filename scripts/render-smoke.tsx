@@ -95,7 +95,13 @@ const discHtml = renderToStaticMarkup(
 );
 check(count(discHtml, /d-row/g) === state.disciples.length, "one row per disciple");
 check(discHtml.includes("disciples-toolbar"), "management toolbar present");
-check(count(discHtml, /action-select/g) >= 3, "action selects render for active disciples");
+// Compact rows now show an activity summary instead of inline selects — selects only
+// appear when a row is expanded (the toolbar still uses bulk-activity, not action-select).
+check(
+  count(discHtml, /d-activity-pill/g) === state.disciples.length * 3,
+  "compact row shows 3 activity pills per active disciple",
+);
+check(!discHtml.includes("action-select"), "action selects are hidden until a row is expanded");
 
 console.log(failures === 0 ? "\n✓ UI RENDER OK" : `\n✗ ${failures} CHECK(S) FAILED`);
 process.exit(failures === 0 ? 0 : 1);

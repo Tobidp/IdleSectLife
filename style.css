@@ -774,7 +774,8 @@ button:disabled {
 }
 .d-actions {
   display: flex;
-  gap: 4px;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 .d-attrs {
   display: flex;
@@ -782,18 +783,69 @@ button:disabled {
   gap: 4px;
 }
 
-/* Expanded disciple view: stats on the left, equipment grid on the right, divider between. */
+/* Compact activity summary: 3 pill tags showing the day's slots inline. */
+.d-activity-summary {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.d-activity-pill {
+  background: var(--bg-panel-2);
+  border: 1px solid var(--border-soft);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 11px;
+  color: var(--ink-dim);
+  white-space: nowrap;
+}
+
+/* Expanded disciple view: stacked sections (meta / main / actions / pills / footer). */
 .d-expanded {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px dotted var(--border-soft);
+}
+.d-expanded-main {
   display: flex;
   align-items: stretch;
   gap: 12px;
-  margin-top: 6px;
-  padding-top: 6px;
-  border-top: 1px dotted var(--border-soft);
 }
-.d-expanded > .d-attrs {
+.d-expanded-main > .d-attrs {
   flex: 1 1 0;
   min-width: 0;
+}
+.d-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 12px;
+}
+.d-actions-row,
+.d-pills-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 12px;
+}
+.d-actions-label,
+.d-pills-label {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+.d-slot {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.d-slot-label {
+  font-size: 11px;
 }
 .d-equipment {
   flex: 0 0 auto;
