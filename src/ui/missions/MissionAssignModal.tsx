@@ -6,7 +6,7 @@
 
 import { useState, useMemo } from "react";
 import type { GameState } from "../../state/gameState";
-import { getMissionDef, type MissionDefId } from "../../data/missions/missionDefs";
+import { estimateSuccess, getMissionDef, type MissionDefId } from "../../data/missions/missionDefs";
 import { effectiveLevel } from "../../domain/disciples/attributes";
 import { ATTRIBUTE_LABEL, type Attribute } from "../../domain/sect/sectTypes";
 import { isOnMission } from "../../domain/missions/missions";
@@ -93,6 +93,12 @@ export function MissionAssignModal({
                 </div>
               );
             })}
+            {selectedDisciples.length > 0 && (
+              <div className="mission-recommend-row mission-success">
+                <span>Estimated success</span>
+                <span>{Math.round(estimateSuccess(def, selectedDisciples) * 100)}%</span>
+              </div>
+            )}
           </div>
         )}
 

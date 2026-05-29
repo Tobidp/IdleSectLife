@@ -4,8 +4,8 @@
 import { Panel } from "./components/Panel";
 import { useActions, useGameState } from "./engineContext";
 import { BLUEPRINTS, BLUEPRINT_BY_ID } from "../data/blueprints";
-import { EQUIPMENT_SLOT_LABEL, type EquippedItem } from "../data/equipment";
-import { canCraftBlueprint } from "../domain/equipment/forge";
+import { EQUIPMENT_SLOT_LABEL, ITEM_TIER_LABEL, ITEM_TIER_CLASS, type EquippedItem } from "../data/equipment";
+import { canCraftBlueprint, tierProbabilities } from "../domain/equipment/forge";
 import { forgeLevel } from "../domain/buildings/buildings";
 import { formatCost } from "./components/format";
 import { ATTRIBUTES, ATTRIBUTE_LABEL } from "../domain/sect/sectTypes";
@@ -66,6 +66,7 @@ export function ForgePanel(): JSX.Element | null {
   const level = forgeLevel(state);
   const built = level >= 1;
   const ownedBlueprints = BLUEPRINTS.filter((b) => state.blueprints.includes(b.id));
+  const tierOdds = tierProbabilities(state);
 
   return (
     <Panel title={`Forge${built ? ` · Lv ${level}` : ""}`} className="craft-forge">
@@ -74,6 +75,19 @@ export function ForgePanel(): JSX.Element | null {
           ? "Craft equipment from your discovered blueprints. Items roll a random quality tier; finished items go into your Bag."
           : "Build the Forge from the Buildings panel to start crafting equipment."}
       </p>
+
+      {built && (
+        <div className="forge-tier-odds" aria-label="Current quality tier probabilities">
+          <div className="forge-tier-odds-title muted">Tier odds (current Forge)</div>
+          <div className="forge-tier-odds-list">
+            {tierOdds.map((t) => (
+              <span key={t.tier} className={`forge-tier-pill ${ITEM_TIER_CLASS[t.tier]}`}>
+                {ITEM_TIER_LABEL[t.tier]} {(t.chance * 100).toFixed(1)}%
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="forge-section">
         <div className="forge-section-title">Blueprints ({ownedBlueprints.length})</div>

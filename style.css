@@ -831,6 +831,13 @@ a:focus-visible,
 .mission-recommend-row.low {
   color: var(--crimson);
 }
+.mission-success {
+  border-top: 1px dotted var(--border-soft);
+  padding-top: 4px;
+  margin-top: 4px;
+  color: var(--gold);
+  font-weight: 600;
+}
 .mission-roster-picker {
   max-height: 240px;
   overflow-y: auto;
@@ -2188,6 +2195,32 @@ a:focus-visible,
 .alchemy-btn:hover {
   border-color: var(--jade);
   color: var(--jade);
+}
+.forge-tier-odds {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+  padding: 6px 8px;
+  background: var(--bg-panel-2);
+  border-radius: 5px;
+}
+.forge-tier-odds-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.forge-tier-odds-list {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.forge-tier-pill {
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 8px;
+  font-variant-numeric: tabular-nums;
+  background: var(--bg-row);
 }
 .recipe-list {
   display: flex;

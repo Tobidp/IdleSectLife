@@ -38,7 +38,10 @@ export interface MissionDef {
 
 // Roll quality: fraction in [0, 1] comparing assigned roster totals against recommended.
 // 1.0 = at or above recommended on every called-out attribute, 0 = far below.
-function rosterQuality(assigned: Disciple[], recommended: Partial<Record<Attribute, number>>): number {
+export function rosterQuality(
+  assigned: Disciple[],
+  recommended: Partial<Record<Attribute, number>>,
+): number {
   const entries = Object.entries(recommended) as [Attribute, number][];
   if (entries.length === 0) return 1;
   let total = 0;
@@ -47,6 +50,21 @@ function rosterQuality(assigned: Disciple[], recommended: Partial<Record<Attribu
     total += Math.min(1, have / Math.max(1, rec));
   }
   return total / entries.length;
+}
+
+/** Estimated success probability for the def given the assigned roster — exposed for
+ *  UI previews so the player can compare options before sending. Mirrors the curves
+ *  used inside each def's resolve() so the displayed odds match the engine. */
+export function estimateSuccess(def: MissionDef, assigned: Disciple[]): number {
+  const q = rosterQuality(assigned, def.recommended);
+  switch (def.id) {
+    case "scout_road":
+      return Math.max(0, Math.min(1, 0.95 - (1 - q) * 0.3 * 0.3)); // mostly success at any quality
+    case "clear_caves":
+      return Math.max(0, Math.min(1, 0.4 + q * 0.5));
+    case "tomb_expedition":
+      return Math.max(0, Math.min(1, 0.25 + q * 0.6));
+  }
 }
 
 function applyInjury(disciple: Disciple, damage: number): void {

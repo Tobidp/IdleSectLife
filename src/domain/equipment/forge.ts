@@ -78,7 +78,7 @@ function rollItemTier(rng: Rng, state: GameState): ItemTier {
  * FORGE_TIER_SHIFT_PER_LEVEL points away from "common" and splits 60/40 into uncommon/rare.
  * Epic and legendary weights are untouched in v1 to keep top tiers genuinely rare.
  */
-function adjustedTierWeights(state: GameState): Record<ItemTier, number> {
+export function adjustedTierWeights(state: GameState): Record<ItemTier, number> {
   const shift = sumWorkerLevels(state, "forge") * FORGE_TIER_SHIFT_PER_LEVEL;
   return {
     common: Math.max(0, ITEM_TIER_WEIGHTS.common - shift),
@@ -87,4 +87,13 @@ function adjustedTierWeights(state: GameState): Record<ItemTier, number> {
     epic: ITEM_TIER_WEIGHTS.epic,
     legendary: ITEM_TIER_WEIGHTS.legendary,
   };
+}
+
+/** Convert the current tier weights into 0..1 probabilities so UI can show "rare: 12%".
+ *  Returns ordered entries (common → legendary) for stable rendering. */
+export function tierProbabilities(state: GameState): { tier: ItemTier; chance: number }[] {
+  const weights = adjustedTierWeights(state);
+  const total = Object.values(weights).reduce((s, v) => s + v, 0);
+  const order: ItemTier[] = ["common", "uncommon", "rare", "epic", "legendary"];
+  return order.map((tier) => ({ tier, chance: total > 0 ? weights[tier] / total : 0 }));
 }
