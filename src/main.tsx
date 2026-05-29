@@ -9,6 +9,11 @@ import { EngineProvider } from "./ui/engineContext";
 import { ViewProvider } from "./ui/viewContext";
 import { PrefsProvider } from "./ui/prefsContext";
 import { ErrorBoundary } from "./ui/ErrorBoundary";
+import { migrateLayoutsForLockFeature } from "./ui/windows/layoutMigration";
+
+// Reset any pre-feature dashboard customization once so the player sees the new locked
+// default. No-op on subsequent loads.
+migrateLayoutsForLockFeature();
 
 const engine = new GameEngine();
 engine.boot();

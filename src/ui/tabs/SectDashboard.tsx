@@ -27,11 +27,15 @@ import {
   defaultLayout,
 } from "../windows/gridLayout";
 import { visiblePanels } from "../progression/visibility";
+import { usePrefs, useSetPrefs } from "../prefsContext";
 
 const Grid = WidthProvider(GridLayout);
 
 export function SectDashboard({ state }: { state: GameState }): JSX.Element {
   const [layout, setLayout] = useState<Layout[]>(() => loadGridLayout());
+  const prefs = usePrefs();
+  const setPrefs = useSetPrefs();
+  const customizable = prefs.customizeLayout;
 
   const onLayoutChange = useCallback((next: Layout[]) => {
     setLayout(next);
@@ -68,7 +72,8 @@ export function SectDashboard({ state }: { state: GameState }): JSX.Element {
         margin={GRID_MARGIN}
         draggableHandle=".panel-title"
         onLayoutChange={onLayoutChange}
-        isResizable
+        isDraggable={customizable}
+        isResizable={customizable}
         compactType="vertical"
         useCSSTransforms
       >
@@ -86,11 +91,21 @@ export function SectDashboard({ state }: { state: GameState }): JSX.Element {
         ))}
       </Grid>
       <div className="windows-toolbar">
-        <span className="muted">
-          Drag a panel by its title bar; resize from the corner. Windows snap to the grid.
-        </span>
-        <button className="reset-layout" onClick={reset}>
-          Reset layout
+        {customizable && (
+          <span className="muted">
+            Drag a panel by its title bar; resize from the corner. Windows snap to the grid.
+          </span>
+        )}
+        {customizable && (
+          <button className="reset-layout" onClick={reset}>
+            Reset layout
+          </button>
+        )}
+        <button
+          className="customize-btn"
+          onClick={() => setPrefs({ ...prefs, customizeLayout: !customizable })}
+        >
+          {customizable ? "Lock layout" : "Customize layout"}
         </button>
       </div>
     </div>

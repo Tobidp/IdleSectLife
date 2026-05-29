@@ -31,6 +31,14 @@ export function Settings(): JSX.Element {
               />
               <span>Show notifications (toasts)</span>
             </label>
+            <label className="setting-row" title="Allow dragging and resizing the dashboard panels.">
+              <input
+                type="checkbox"
+                checked={prefs.customizeLayout}
+                onChange={(e) => setPrefs({ ...prefs, customizeLayout: e.target.checked })}
+              />
+              <span>Customize dashboard layout (drag & resize panels)</span>
+            </label>
             <div className="setting-group">
               <div className="setting-group-title">When the browser tab is hidden</div>
               {HIDDEN_OPTIONS.map((opt) => (

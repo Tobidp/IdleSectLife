@@ -17,6 +17,7 @@ g.localStorage = {
 const { GameEngine } = await import("../src/core/engine");
 const { EngineProvider } = await import("../src/ui/engineContext");
 const { ViewProvider } = await import("../src/ui/viewContext");
+const { PrefsProvider } = await import("../src/ui/prefsContext");
 const { NewGameScreen } = await import("../src/ui/NewGameScreen");
 const { Topbar } = await import("../src/ui/Topbar");
 const { SectDashboard } = await import("../src/ui/tabs/SectDashboard");
@@ -67,9 +68,11 @@ check(!topHtml.includes(">Craft<"), "Craft tab hidden (no forge/alchemy yet)");
 // 3. Sect dashboard: a fresh game shows Overview + Resources + Event Log only.
 const dashHtml = renderToStaticMarkup(
   <EngineProvider engine={engine}>
-    <ViewProvider>
-      <SectDashboard state={state} />
-    </ViewProvider>
+    <PrefsProvider>
+      <ViewProvider>
+        <SectDashboard state={state} />
+      </ViewProvider>
+    </PrefsProvider>
   </EngineProvider>,
 );
 check(count(dashHtml, /panel-title/g) === 3, "fresh game shows 3 dashboard panels");
@@ -77,7 +80,10 @@ check(dashHtml.includes("Sect Overview"), "overview panel present");
 check(!dashHtml.includes(">Buildings<"), "Buildings panel hidden on day 1");
 check(!dashHtml.includes(">Market<"), "Market panel hidden until Merchant Pavilion");
 check(dashHtml.includes("react-grid-layout"), "React Grid Layout container rendered");
-check(dashHtml.includes("Reset layout"), "reset-layout control present");
+// Default layout is LOCKED — "Reset layout" is gated behind Customize mode; only the
+// "Customize layout" toggle is visible at the start.
+check(dashHtml.includes("Customize layout"), "Customize layout toggle present (locked default)");
+check(!dashHtml.includes("Reset layout"), "Reset layout hidden while locked");
 
 // 4. Disciples view: one row per disciple + toolbar.
 const discHtml = renderToStaticMarkup(

@@ -11,9 +11,16 @@ export interface Prefs {
   notifications: boolean;
   /** "normal" = full catch-up on return; "half" = catch up at 0.5×; "pause" = no catch-up. */
   hiddenBehavior: HiddenBehavior;
+  /** When false (default) panels are pinned in place — drag/resize disabled. Players opt
+   *  into customization explicitly so new players don't accidentally edit their dashboard. */
+  customizeLayout: boolean;
 }
 
-const DEFAULT: Prefs = { notifications: true, hiddenBehavior: "normal" };
+const DEFAULT: Prefs = {
+  notifications: true,
+  hiddenBehavior: "normal",
+  customizeLayout: false,
+};
 const STORAGE_KEY = "idle-sect-life:prefs:v1";
 
 function loadPrefs(): Prefs {

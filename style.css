@@ -569,13 +569,18 @@ button:disabled {
   margin-top: 12px;
   font-size: 12px;
 }
-.reset-layout {
+.reset-layout,
+.customize-btn {
   padding: 2px 10px;
   font-size: 12px;
 }
-.reset-layout:hover {
+.reset-layout:hover,
+.customize-btn:hover {
   border-color: var(--gold);
   color: var(--gold);
+}
+.customize-btn {
+  margin-left: auto;
 }
 /* Smooth, springy settle when RGL snaps an item to the grid (the "magnetism"). */
 .layout-grid .react-grid-item.cssTransforms {
