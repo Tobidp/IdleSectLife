@@ -32,6 +32,7 @@ import { rollPersonalEvents } from "../disciples/personalEvents";
 import { advanceMissions } from "../missions/missions";
 import { rollEventChains } from "../events/eventChains";
 import { doctrineMult } from "../doctrines/effects";
+import { techniqueXpMult, techniqueBreakthroughFailMult } from "../disciples/techniques";
 import { STORY_ENABLED } from "../../config/featureFlags";
 import { PASSIVE_GOLD_PER_MONTH, TRIBULATION_AID_FAIL_MULT } from "../../data/balance";
 import { ATTRIBUTE_LABEL } from "../sect/sectTypes";
@@ -77,9 +78,19 @@ export function advanceDay(state: GameState, rng: Rng): void {
           resource,
           collectYield(resource, strLevel, seasonMultiplier(season, resource)) * bonus.collect,
         );
-        if (addXp(d.attributes.strength, COLLECT_XP * mult * pathXpMultFor(d.path, "strength") * equipmentXpMult(d, "strength")).readyToBreakthrough) {
+        if (
+          addXp(
+            d.attributes.strength,
+            COLLECT_XP *
+              mult *
+              pathXpMultFor(d.path, "strength") *
+              equipmentXpMult(d, "strength") *
+              techniqueXpMult(d, "strength"),
+          ).readyToBreakthrough
+        ) {
           const failMult =
-            (d.tribulationBuff ? TRIBULATION_AID_FAIL_MULT : 1) / doctrineBreakthroughSuccess;
+            ((d.tribulationBuff ? TRIBULATION_AID_FAIL_MULT : 1) / doctrineBreakthroughSuccess) *
+            techniqueBreakthroughFailMult(d);
           const tr = attemptBreakthrough(
             d.attributes.strength,
             effectiveLevel(d.attributes.vitality),

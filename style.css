@@ -1226,12 +1226,46 @@ a:focus-visible,
   color: var(--gold);
 }
 .d-actions-row,
-.d-pills-row {
+.d-pills-row,
+.d-techniques {
   display: flex;
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
   font-size: 12px;
+}
+.d-tech-label {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+.d-tech-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  flex: 1;
+}
+.d-tech-pill {
+  background: rgba(217, 178, 90, 0.15);
+  color: var(--gold);
+  border: 1px solid rgba(217, 178, 90, 0.4);
+  border-radius: 10px;
+  padding: 1px 8px;
+  font-size: 11px;
+}
+.d-tech-learn {
+  padding: 2px 10px;
+  font-size: 11px;
+}
+.doctrine-card[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.doctrine-block {
+  font-size: 11px;
+  margin-top: 4px;
+  font-style: italic;
 }
 .d-actions-label,
 .d-pills-label {

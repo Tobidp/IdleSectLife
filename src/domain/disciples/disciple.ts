@@ -20,6 +20,7 @@ import {
   type FearId,
   type OriginId,
 } from "../../data/disciples/narratives";
+import { TECHNIQUES, type TechniqueId } from "../../data/techniques/techniqueDefs";
 
 /** One of the 3 daily action slots. */
 export type Activity =
@@ -71,6 +72,8 @@ export interface Disciple {
   tribulationBuff?: boolean;
   /** Currently-equipped item per slot (or null when empty). XP bonuses are pre-computed. */
   equipment: Record<EquipmentSlot, EquippedItem | null>;
+  /** Cultivation techniques learned. Default []. Each stacks multiplicatively. */
+  techniques: TechniqueId[];
   /** For applicants only: the totalDay they arrived. Used to expire them after a month. */
   arrivedOnDay?: number;
   attributes: Attributes;
@@ -86,10 +89,16 @@ export const DEFAULT_ACTIONS: [Activity, Activity, Activity] = [
   "train",
 ];
 
-/** maxHp grows with the Health and Vitality effective levels. */
+/** maxHp grows with the Health and Vitality effective levels, then scaled by any HP-mult
+ *  techniques the disciple has learned (Iron Body etc.). */
 export function maxHp(d: Disciple): number {
+  let techMult = 1;
+  for (const id of d.techniques ?? []) {
+    const m = TECHNIQUES[id]?.maxHpMult;
+    if (typeof m === "number") techMult *= m;
+  }
   const levels = effectiveLevel(d.attributes.health) + effectiveLevel(d.attributes.vitality);
-  return Math.round(HP_BASE + levels * HP_PER_LEVEL);
+  return Math.round((HP_BASE + levels * HP_PER_LEVEL) * techMult);
 }
 
 function freshAttributes(): Attributes {
@@ -122,6 +131,7 @@ export function createDisciple(
     bonds: [],
     tribulationBuff: false,
     equipment: emptyEquipment(),
+    techniques: [],
     attributes: freshAttributes(),
     hp: 0,
     happiness: matches ? HAPPINESS_START_MATCH : HAPPINESS_START_MISMATCH,

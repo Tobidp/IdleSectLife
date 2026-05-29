@@ -1,10 +1,13 @@
 // Disciples tab: a management toolbar (selection, bulk actions, sort, presets) over a
 // compact, expandable roster grouped by the chosen sort, plus the pending-applicants section.
 
+import { useState } from "react";
 import { Panel } from "../components/Panel";
 import { fmt } from "../components/format";
 import type { GameState } from "../../state/gameState";
 import { useActions } from "../engineContext";
+import { TECHNIQUES } from "../../data/techniques/techniqueDefs";
+import { TechniqueModal } from "../techniques/TechniqueModal";
 import type { SlotTarget } from "../../core/engine";
 import { useView, useViewDispatch, DISCIPLE_SORT_LABEL, type DiscipleSort } from "../viewContext";
 import { maxHp, type Activity, type Disciple } from "../../domain/disciples/disciple";
@@ -162,6 +165,7 @@ function DiscipleRow({ state, d }: { state: GameState; d: Disciple }): JSX.Eleme
   const actions = useActions();
   const view = useView();
   const dispatch = useViewDispatch();
+  const [techPickerOpen, setTechPickerOpen] = useState(false);
   const sectAttr = SECT_ATTRIBUTE[state.sect.type];
   const down = d.status === "down";
   const selected = view.selectedIds.has(d.id);
@@ -377,6 +381,32 @@ function DiscipleRow({ state, d }: { state: GameState; d: Disciple }): JSX.Eleme
             );
           })()}
 
+          {/* Techniques (C2): learned techniques + Learn button for the picker. */}
+          <div className="d-techniques">
+            <span className="muted d-tech-label">Techniques</span>
+            {(d.techniques?.length ?? 0) > 0 ? (
+              <div className="d-tech-list">
+                {d.techniques.map((id) => {
+                  const def = TECHNIQUES[id];
+                  return (
+                    <span
+                      key={id}
+                      className="d-tech-pill"
+                      title={`${def?.description ?? ""}\n+ ${def?.bonus ?? ""}\n− ${def?.penalty ?? ""}`}
+                    >
+                      ◆ {def?.name ?? id}
+                    </span>
+                  );
+                })}
+              </div>
+            ) : (
+              <span className="muted">No techniques learned.</span>
+            )}
+            <button className="d-tech-learn" onClick={() => setTechPickerOpen(true)}>
+              Learn…
+            </button>
+          </div>
+
           {/* Destructive: expel */}
           <div className="d-expanded-footer">
             <button
@@ -392,6 +422,9 @@ function DiscipleRow({ state, d }: { state: GameState; d: Disciple }): JSX.Eleme
             </button>
           </div>
         </div>
+      )}
+      {techPickerOpen && (
+        <TechniqueModal state={state} discipleId={d.id} onClose={() => setTechPickerOpen(false)} />
       )}
     </div>
   );

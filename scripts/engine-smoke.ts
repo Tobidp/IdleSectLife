@@ -289,5 +289,26 @@ check(
   "mercantile doctrine raises market sell price (1.35× wood gold)",
 );
 
+// --- C2 Techniques: learn, conflict, observe maxHp effect ---
+engine.newGame("sword");
+const tState = engine.getState()!;
+check(tState.disciples[0].techniques.length === 0, "fresh disciple has no techniques");
+const tdId = tState.disciples[0].id;
+const learned = engine.learnTechnique(tdId, "serene_sword");
+check(learned === true, "learnTechnique succeeds on a fresh disciple");
+check(
+  engine.getState()!.disciples[0].techniques.includes("serene_sword"),
+  "serene_sword present on disciple",
+);
+// Conflict: bloody_sword should be rejected.
+const conflictBlocked = engine.learnTechnique(tdId, "bloody_sword");
+check(conflictBlocked === false, "conflicting technique rejected");
+// Iron Body bumps maxHp.
+const { maxHp: maxHpFn } = await import("../src/domain/disciples/disciple");
+const beforeIron = maxHpFn(engine.getState()!.disciples[0]);
+engine.learnTechnique(tdId, "iron_body");
+const afterIron = maxHpFn(engine.getState()!.disciples[0]);
+check(afterIron > beforeIron, "iron_body raises maxHp via maxHpMult");
+
 console.log(failures === 0 ? "\n✓ ENGINE OK" : `\n✗ ${failures} CHECK(S) FAILED`);
 process.exit(failures === 0 ? 0 : 1);

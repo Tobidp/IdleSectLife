@@ -30,6 +30,8 @@ import { resolveChainChoice } from "../domain/events/eventChains";
 import type { ChainId } from "../data/events/chainDefs";
 import { pickDoctrine } from "../domain/doctrines/effects";
 import type { DoctrineId } from "../data/doctrines/doctrineDefs";
+import { learnTechnique } from "../domain/disciples/techniques";
+import type { TechniqueId } from "../data/techniques/techniqueDefs";
 import { upgradeSect } from "../domain/sect/sect";
 import { addResource } from "../domain/resources/resources";
 import { sellResource, buyResource } from "../domain/market/market";
@@ -411,6 +413,16 @@ export class GameEngine {
       resolveChainChoice(s, chainId, choiceId, this.rng);
     });
     this.saveNow();
+  }
+
+  /** Teach a technique to a disciple. No-op if validation fails (conflict, requirement). */
+  learnTechnique(discipleId: number, techId: TechniqueId): boolean {
+    let ok = false;
+    this.store.update((s) => {
+      ok = learnTechnique(s, discipleId, techId);
+    });
+    if (ok) this.saveNow();
+    return ok;
   }
 
   /** Commit the sect to a doctrine for the rest of the run — irreversible. */

@@ -110,6 +110,7 @@ const DiscipleSchema = z
     fear: safeStr(SAVE_LIMITS.maxLabelLen).optional(),
     trauma: safeStr(SAVE_LIMITS.maxLabelLen).nullable().optional(),
     destiny: safeStr(SAVE_LIMITS.maxLabelLen).nullable().optional(),
+    techniques: z.array(safeStr(SAVE_LIMITS.maxLabelLen)).max(20).optional(),
     attributes: AttributesSchema.optional(),
     hp: finiteNum.min(-SAVE_LIMITS.maxHp).max(SAVE_LIMITS.maxHp).optional(),
     happiness: finiteNum.min(-SAVE_LIMITS.maxHappiness).max(SAVE_LIMITS.maxHappiness).optional(),

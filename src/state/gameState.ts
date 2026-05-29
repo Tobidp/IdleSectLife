@@ -20,7 +20,7 @@ import type { ActiveChain } from "../domain/events/eventChains";
 import type { ChainId } from "../data/events/chainDefs";
 import type { DoctrineId } from "../data/doctrines/doctrineDefs";
 
-export const SAVE_VERSION = 24;
+export const SAVE_VERSION = 25;
 
 export type Speed = 1 | 2 | 4;
 

@@ -77,6 +77,8 @@ function backfill(save: GameState): void {
       if (!d.fear) d.fear = rollFear(backfillRng);
       if (d.trauma === undefined) d.trauma = null;
       if (d.destiny === undefined) d.destiny = null;
+      // Pre-C2 disciples had no techniques learned.
+      if (!Array.isArray(d.techniques)) d.techniques = [];
     }
   }
   // Existing applicants get their timer reset to "just arrived" on load — fair grace for
