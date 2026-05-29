@@ -179,10 +179,18 @@ function DiscipleRow({ state, d }: { state: GameState; d: Disciple }): JSX.Eleme
           </span>
         )}
         <span className="d-name">{d.name}</span>
-        <span className={`d-joy ${happinessClass(d.happiness)}`} title="Happiness">
-          ♥ {fmt(d.happiness)}
+        <span
+          className={`d-joy ${happinessClass(d.happiness)}`}
+          aria-label={`Happiness ${fmt(d.happiness)} (${happinessClass(d.happiness)})`}
+          title="Happiness"
+        >
+          <span aria-hidden="true">♥ {fmt(d.happiness)}</span>
         </span>
-        <span className="d-hp" title="HP">
+        <span
+          className="d-hp"
+          aria-label={`HP ${fmt(d.hp)} of ${fmt(maxHp(d))}`}
+          title="HP"
+        >
           {fmt(d.hp)}/{fmt(maxHp(d))}
         </span>
         {down ? (
