@@ -53,6 +53,10 @@ export const SAVE_LIMITS = {
   maxActiveMissions: 100,
   /** Max disciples per single mission roster. */
   maxMissionRoster: 10,
+  /** Event chains active or completed. One chain runs at a time so active is small;
+   *  completed list grows by 1 per chain ever played. */
+  maxActiveEventChains: 10,
+  maxCompletedEventChains: 200,
 
   /** Generic textual limits. */
   maxNameLen: 60,

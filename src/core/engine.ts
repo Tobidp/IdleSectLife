@@ -26,6 +26,8 @@ import { checkUnlocks } from "../domain/progression/unlocks";
 import { resolvePersonalEvent } from "../domain/disciples/personalEvents";
 import { startMission, recallMission } from "../domain/missions/missions";
 import type { MissionDefId } from "../data/missions/missionDefs";
+import { resolveChainChoice } from "../domain/events/eventChains";
+import type { ChainId } from "../data/events/chainDefs";
 import { upgradeSect } from "../domain/sect/sect";
 import { addResource } from "../domain/resources/resources";
 import { sellResource, buyResource } from "../domain/market/market";
@@ -397,6 +399,14 @@ export class GameEngine {
   recallMission(defId: MissionDefId): void {
     this.store.update((s) => {
       recallMission(s, defId);
+    });
+    this.saveNow();
+  }
+
+  /** Apply a chosen branch on the named event chain — transitions stage or ends. */
+  resolveChainChoice(chainId: ChainId, choiceId: string): void {
+    this.store.update((s) => {
+      resolveChainChoice(s, chainId, choiceId, this.rng);
     });
     this.saveNow();
   }

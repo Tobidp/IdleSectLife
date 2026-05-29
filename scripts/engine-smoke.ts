@@ -240,5 +240,27 @@ check(done.activeMissions.length === 0, "mission resolves after duration elapses
 check(done.disciples[0].status !== "on_mission", "disciple flipped back from on_mission");
 check(done.resources.gold > beforeGold, "scout_road delivered some gold reward");
 
+// --- B5 Event chains: spawn -> resolve choices -> mark completed ---
+engine.newGame("sword");
+const cState = engine.getState()!;
+check(cState.activeEventChains.length === 0, "fresh game has no active chains");
+check(cState.completedEventChains.length === 0, "fresh game has no completed chains");
+// Manually push the sealed_cave chain to test the resolver — daily roll is RNG-dependent.
+cState.activeEventChains.push({ chainId: "sealed_cave", stageId: "discover", startedOn: 0 });
+// Choose "leave_alone" which ends the chain with -4 fame.
+cState.fame = 20;
+engine.resolveChainChoice("sealed_cave", "leave_alone");
+const c1 = engine.getState()!;
+check(c1.activeEventChains.length === 0, "ending choice removes chain from active");
+check(c1.completedEventChains.includes("sealed_cave"), "ending choice marks chain completed");
+check(c1.fame === 16, "leave_alone choice applied its -4 fame effect");
+// Branching choice: push again, pick a transition (break_seal -> inside), verify chain stays active.
+c1.activeEventChains.push({ chainId: "sealed_cave", stageId: "discover", startedOn: 0 });
+c1.completedEventChains = c1.completedEventChains.filter((id) => id !== "sealed_cave");
+engine.resolveChainChoice("sealed_cave", "break_seal");
+const c2 = engine.getState()!;
+check(c2.activeEventChains.length === 1, "transition choice keeps chain active");
+check(c2.activeEventChains[0].stageId === "inside", "transition moves to the named next stage");
+
 console.log(failures === 0 ? "\n✓ ENGINE OK" : `\n✗ ${failures} CHECK(S) FAILED`);
 process.exit(failures === 0 ? 0 : 1);

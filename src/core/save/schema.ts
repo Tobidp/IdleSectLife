@@ -235,6 +235,22 @@ export const SaveSchema = z
       )
       .max(SAVE_LIMITS.maxActiveMissions)
       .optional(),
+    activeEventChains: z
+      .array(
+        z
+          .object({
+            chainId: safeStr(SAVE_LIMITS.maxLabelLen),
+            stageId: safeStr(SAVE_LIMITS.maxLabelLen),
+            startedOn: intNonNeg.max(SAVE_LIMITS.maxTotalDays),
+          })
+          .passthrough(),
+      )
+      .max(SAVE_LIMITS.maxActiveEventChains)
+      .optional(),
+    completedEventChains: z
+      .array(safeStr(SAVE_LIMITS.maxLabelLen))
+      .max(SAVE_LIMITS.maxCompletedEventChains)
+      .optional(),
     narrative: NarrativeSchema.optional(),
   })
   .passthrough();

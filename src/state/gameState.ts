@@ -16,8 +16,10 @@ import { createInitialClocks, type WorldClock } from "../domain/world/clocks";
 import type { PendingPersonalEvent } from "../domain/disciples/personalEvents";
 import { createInitialMissionOffers, type ActiveMission } from "../domain/missions/missions";
 import type { MissionDefId } from "../data/missions/missionDefs";
+import type { ActiveChain } from "../domain/events/eventChains";
+import type { ChainId } from "../data/events/chainDefs";
 
-export const SAVE_VERSION = 22;
+export const SAVE_VERSION = 23;
 
 export type Speed = 1 | 2 | 4;
 
@@ -93,6 +95,10 @@ export interface GameState {
   missionOffers: MissionDefId[];
   /** Missions currently in progress; disciples assigned have status="on_mission". */
   activeMissions: ActiveMission[];
+  /** Event chains currently in progress — each parked at a stage waiting for a choice. */
+  activeEventChains: ActiveChain[];
+  /** Chain ids the player has already played through — fired-once. */
+  completedEventChains: ChainId[];
   /** Story progress: quests, clues, NPC relationships, flags. */
   narrative: NarrativeState;
 }
@@ -134,6 +140,8 @@ export function createNewGame(sect: SectType, rng: Rng): GameState {
     pendingPersonalEvents: [],
     missionOffers: createInitialMissionOffers(),
     activeMissions: [],
+    activeEventChains: [],
+    completedEventChains: [],
     narrative: createInitialNarrativeState(),
   };
 

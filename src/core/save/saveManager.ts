@@ -52,6 +52,9 @@ function backfill(save: GameState): void {
   // the new system on first load.
   if (!Array.isArray(save.missionOffers)) save.missionOffers = createInitialMissionOffers();
   if (!Array.isArray(save.activeMissions)) save.activeMissions = [];
+  // Pre-B5: event chain state defaults to empty (chains will trigger via daily rolls).
+  if (!Array.isArray(save.activeEventChains)) save.activeEventChains = [];
+  if (!Array.isArray(save.completedEventChains)) save.completedEventChains = [];
   // Pre-A2 disciples + applicants had no talent; default to "common".
   // Pre-Phase-3-closeout disciples lacked trait / path / age.
   // Pre-B2 disciples lacked the narrative layers (origin / ambition / fear / trauma /
