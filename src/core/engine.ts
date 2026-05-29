@@ -32,6 +32,8 @@ import { pickDoctrine } from "../domain/doctrines/effects";
 import type { DoctrineId } from "../data/doctrines/doctrineDefs";
 import { learnTechnique } from "../domain/disciples/techniques";
 import type { TechniqueId } from "../data/techniques/techniqueDefs";
+import { investInTerritory } from "../domain/territories/territories";
+import type { TerritoryId } from "../data/territories/territoryDefs";
 import { upgradeSect } from "../domain/sect/sect";
 import { addResource } from "../domain/resources/resources";
 import { sellResource, buyResource } from "../domain/market/market";
@@ -413,6 +415,16 @@ export class GameEngine {
       resolveChainChoice(s, chainId, choiceId, this.rng);
     });
     this.saveNow();
+  }
+
+  /** Invest gold to push player influence in a region. */
+  investInTerritory(territoryId: TerritoryId): boolean {
+    let ok = false;
+    this.store.update((s) => {
+      ok = investInTerritory(s, territoryId);
+    });
+    if (ok) this.saveNow();
+    return ok;
   }
 
   /** Teach a technique to a disciple. No-op if validation fails (conflict, requirement). */

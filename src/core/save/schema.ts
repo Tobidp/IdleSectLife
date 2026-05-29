@@ -277,6 +277,18 @@ export const SaveSchema = z
       .array(safeStr(SAVE_LIMITS.maxLabelLen))
       .max(SAVE_LIMITS.maxUnlockedSecrets)
       .optional(),
+    territories: z
+      .array(
+        z
+          .object({
+            id: safeStr(SAVE_LIMITS.maxLabelLen),
+            playerInfluence: z.number().min(0).max(100),
+            rivalInfluence: z.number().min(0).max(100),
+          })
+          .passthrough(),
+      )
+      .max(SAVE_LIMITS.maxTerritories)
+      .optional(),
     narrative: NarrativeSchema.optional(),
   })
   .passthrough();

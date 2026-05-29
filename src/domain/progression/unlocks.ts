@@ -18,6 +18,7 @@ export type UnlockId =
   | "panel.world"
   | "panel.missions"
   | "panel.rivals"
+  | "panel.territories"
   | "craft.alchemy"
   | "craft.forge";
 
@@ -30,6 +31,7 @@ export const UNLOCK_LABEL: Record<UnlockId, string> = {
   "panel.world": "World panel",
   "panel.missions": "Missions panel",
   "panel.rivals": "Rivals panel",
+  "panel.territories": "Territories panel",
   "craft.alchemy": "Alchemy crafting",
   "craft.forge": "Forge crafting",
 };
@@ -43,6 +45,7 @@ const ALL_UNLOCKS: UnlockId[] = [
   "panel.world",
   "panel.missions",
   "panel.rivals",
+  "panel.territories",
   "craft.alchemy",
   "craft.forge",
 ];
@@ -62,6 +65,10 @@ const MISSIONS_REVEAL_DAY = 10;
 /** Rivals panel — comes online a bit later than the World panel; by then the player has
  *  enough context for the rival sects to feel like a real second axis, not noise. */
 const RIVALS_REVEAL_DAY = 15;
+
+/** Territories panel — opens after Rivals so the regional-influence contest reads as
+ *  the next step (rivals exist → they want territory). */
+const TERRITORIES_REVEAL_DAY = 25;
 
 function shouldUnlock(state: GameState, id: UnlockId): boolean {
   switch (id) {
@@ -86,6 +93,8 @@ function shouldUnlock(state: GameState, id: UnlockId): boolean {
       return state.time.totalDays >= MISSIONS_REVEAL_DAY;
     case "panel.rivals":
       return state.time.totalDays >= RIVALS_REVEAL_DAY;
+    case "panel.territories":
+      return state.time.totalDays >= TERRITORIES_REVEAL_DAY;
     case "craft.alchemy":
       return alchemyBuilt(state);
     case "craft.forge":

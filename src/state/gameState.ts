@@ -22,8 +22,9 @@ import type { DoctrineId } from "../data/doctrines/doctrineDefs";
 import { createInitialRivals, type RivalState } from "../domain/rivals/rivals";
 import { createInitialBehavior, type BehaviorState } from "../domain/secrets/secrets";
 import type { SecretId } from "../data/secrets/secretDefs";
+import { createInitialTerritories, type TerritoryState } from "../domain/territories/territories";
 
-export const SAVE_VERSION = 27;
+export const SAVE_VERSION = 28;
 
 export type Speed = 1 | 2 | 4;
 
@@ -111,6 +112,8 @@ export interface GameState {
   behavior: BehaviorState;
   /** Ids of secret unlocks earned this run (achievement-adjacent flavor records). */
   unlockedSecrets: SecretId[];
+  /** Region-by-region influence contest with the rival sects. */
+  territories: TerritoryState[];
   /** Story progress: quests, clues, NPC relationships, flags. */
   narrative: NarrativeState;
 }
@@ -158,6 +161,7 @@ export function createNewGame(sect: SectType, rng: Rng): GameState {
     rivals: createInitialRivals(),
     behavior: createInitialBehavior(),
     unlockedSecrets: [],
+    territories: createInitialTerritories(),
     narrative: createInitialNarrativeState(),
   };
 

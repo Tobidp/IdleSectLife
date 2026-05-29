@@ -61,6 +61,8 @@ export const SAVE_LIMITS = {
   maxRivals: 50,
   /** Unlocked secrets — currently 5 defs; 200 is generous future headroom. */
   maxUnlockedSecrets: 200,
+  /** Territories — currently 3 defs; 50 is the schema safety cap. */
+  maxTerritories: 50,
 
   /** Generic textual limits. */
   maxNameLen: 60,

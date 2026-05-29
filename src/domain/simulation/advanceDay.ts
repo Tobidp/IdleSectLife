@@ -34,6 +34,7 @@ import { rollEventChains } from "../events/eventChains";
 import { doctrineMult } from "../doctrines/effects";
 import { techniqueXpMult, techniqueBreakthroughFailMult } from "../disciples/techniques";
 import { advanceRivals } from "../rivals/rivals";
+import { advanceTerritories } from "../territories/territories";
 import {
   checkSecrets,
   recordDiscipleLoss,
@@ -312,6 +313,9 @@ export function advanceDay(state: GameState, rng: Rng): void {
   // 15. Rival sects tick: per-day influence growth and (on month change) an
   //     archetype-flavoured action that pokes the world.
   advanceRivals(state, rng, result.monthChanged);
+
+  // 15a. Territories: regional influence contest with monthly yield to controlling side.
+  advanceTerritories(state, result.monthChanged);
 
   // 15b. Behaviour counters + secret unlocks. tickBehavior advances the
   //      daysSinceLastLoss counter; checkSecrets unlocks anything now true.
