@@ -8,6 +8,7 @@ import { emptyEquipment } from "../../data/equipment";
 import { reconcileWorldClocks } from "../../domain/world/clocks";
 import { createInitialMissionOffers } from "../../domain/missions/missions";
 import { reconcileRivals } from "../../domain/rivals/rivals";
+import { reconcileBehavior } from "../../domain/secrets/secrets";
 import { rollAmbition, rollFear, rollOrigin } from "../../data/disciples/narratives";
 import { Rng } from "../rng/rng";
 import { validateSave } from "./schema";
@@ -60,6 +61,9 @@ function backfill(save: GameState): void {
   if (save.doctrine === undefined) save.doctrine = null;
   // Pre-C3: seed rivals (or reconcile against any new defs the codebase added).
   save.rivals = reconcileRivals(save.rivals);
+  // Pre-C5: behavior counters + unlocked secrets default to neutral.
+  save.behavior = reconcileBehavior(save.behavior);
+  if (!Array.isArray(save.unlockedSecrets)) save.unlockedSecrets = [];
   // Pre-A2 disciples + applicants had no talent; default to "common".
   // Pre-Phase-3-closeout disciples lacked trait / path / age.
   // Pre-B2 disciples lacked the narrative layers (origin / ambition / fear / trauma /

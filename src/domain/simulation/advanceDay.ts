@@ -34,6 +34,13 @@ import { rollEventChains } from "../events/eventChains";
 import { doctrineMult } from "../doctrines/effects";
 import { techniqueXpMult, techniqueBreakthroughFailMult } from "../disciples/techniques";
 import { advanceRivals } from "../rivals/rivals";
+import {
+  checkSecrets,
+  recordDiscipleLoss,
+  recordFailedTribulation,
+  recordSurvivedAt1Hp,
+  tickBehavior,
+} from "../secrets/secrets";
 import { STORY_ENABLED } from "../../config/featureFlags";
 import { PASSIVE_GOLD_PER_MONTH, TRIBULATION_AID_FAIL_MULT } from "../../data/balance";
 import { ATTRIBUTE_LABEL } from "../sect/sectTypes";
@@ -122,12 +129,15 @@ export function advanceDay(state: GameState, rng: Rng): void {
                   d.status = "down";
                 }
               }
+              recordFailedTribulation(state);
               pushLog(
                 state,
                 `${d.name}'s ${TRIBULATION_TIER_LABEL[tr.tier]} tribulation in ${ATTRIBUTE_LABEL.strength} failed.`,
                 "bad",
               );
             }
+            // 1HP survival secret — track after damage was applied.
+            if (d.hp > 0 && d.hp <= 1) recordSurvivedAt1Hp(state);
             if (d.hp <= 0) break;
           }
         }
@@ -150,6 +160,7 @@ export function advanceDay(state: GameState, rng: Rng): void {
             }
             maybeDropBlueprint(state, rng, d.name);
           } else {
+            recordFailedTribulation(state);
             pushLog(
               state,
               `${d.name}'s ${TRIBULATION_TIER_LABEL[ev.result.tier]} tribulation in ${ATTRIBUTE_LABEL[ev.attr]} failed.`,
@@ -157,6 +168,7 @@ export function advanceDay(state: GameState, rng: Rng): void {
             );
           }
         }
+        if (d.hp > 0 && d.hp <= 1) recordSurvivedAt1Hp(state);
         if (result.injured && d.hp <= 0) {
           pushLog(state, `${d.name} was injured in training and is recovering.`, "bad");
           break;
@@ -214,6 +226,7 @@ export function advanceDay(state: GameState, rng: Rng): void {
     state.disciples = state.disciples.filter((d) => !deadIds.has(d.id));
     for (const d of dead) pushLog(state, `${d.name} succumbed to their injuries.`, "bad");
     mournLost(state, dead, (s, l) => `${s.name} mourns the loss of ${l.name}.`);
+    recordDiscipleLoss(state);
   }
 
   // 5. Abandonment of unhappy disciples.
@@ -229,6 +242,7 @@ export function advanceDay(state: GameState, rng: Rng): void {
     state.disciples = state.disciples.filter((d) => !leavingIds.has(d.id));
     for (const d of leaving) pushLog(state, `${d.name} grew unhappy and left the sect.`, "bad");
     mournLost(state, leaving, (s, l) => `${s.name} grieves over ${l.name}'s departure.`);
+    recordDiscipleLoss(state);
   }
 
   // 5b. Aging tick: everyone ages one day; beyond their lifespan, natural death may take them.
@@ -298,6 +312,11 @@ export function advanceDay(state: GameState, rng: Rng): void {
   // 15. Rival sects tick: per-day influence growth and (on month change) an
   //     archetype-flavoured action that pokes the world.
   advanceRivals(state, rng, result.monthChanged);
+
+  // 15b. Behaviour counters + secret unlocks. tickBehavior advances the
+  //      daysSinceLastLoss counter; checkSecrets unlocks anything now true.
+  tickBehavior(state);
+  checkSecrets(state);
 
   // 16. Progressive disclosure: reveal any UI surface whose conditions are now met
   //     (Buildings panel after the reveal-day timer, World panel after the first week, etc.).

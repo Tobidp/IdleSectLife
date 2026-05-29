@@ -73,5 +73,7 @@ export function expelDisciple(state: GameState, id: number): boolean {
   const [expelled] = state.disciples.splice(idx, 1);
   pushLog(state, `${expelled.name} was expelled from the sect.`, "bad");
   mournLost(state, [expelled], (s, l) => `${s.name} grieves their bond with ${l.name}.`);
+  // Reset the "no losses" streak that drives the Patient Master secret.
+  state.behavior.daysSinceLastLoss = 0;
   return true;
 }

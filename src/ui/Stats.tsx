@@ -7,6 +7,7 @@ import { fmt } from "./components/format";
 import { ACHIEVEMENTS } from "../data/achievements";
 import { SECT_LABEL } from "../domain/sect/sectTypes";
 import { disciplesCapacity } from "../domain/buildings/buildings";
+import { SECRETS, ALL_SECRET_IDS } from "../data/secrets/secretDefs";
 
 function StatRow({ label, value }: { label: string; value: string }): JSX.Element {
   return (
@@ -68,7 +69,26 @@ export function Stats(): JSX.Element | null {
                     : `${state.goldArrears} month${state.goldArrears === 1 ? "" : "s"}`
                 }
               />
+              <StatRow
+                label="Secrets"
+                value={`${state.unlockedSecrets.length} / ${ALL_SECRET_IDS.length}`}
+              />
             </div>
+            {state.unlockedSecrets.length > 0 && (
+              <div className="setting-group">
+                <div className="setting-group-title">Secrets unlocked</div>
+                {state.unlockedSecrets.map((id) => {
+                  const def = SECRETS[id];
+                  if (!def) return null;
+                  return (
+                    <div key={id} className="secret-row" title={def.description}>
+                      <span className="secret-label">◆ {def.label}</span>
+                      <span className="muted secret-desc">{def.description}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
             <div className="modal-actions">
               <button onClick={() => setOpen(false)}>Close</button>
             </div>

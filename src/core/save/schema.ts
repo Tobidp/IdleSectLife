@@ -265,6 +265,18 @@ export const SaveSchema = z
       )
       .max(SAVE_LIMITS.maxRivals)
       .optional(),
+    behavior: z
+      .object({
+        failedTribulations: intNonNeg.max(SAVE_LIMITS.maxClockProgress),
+        survivedAt1Hp: z.boolean(),
+        daysSinceLastLoss: intNonNeg.max(SAVE_LIMITS.maxTotalDays),
+      })
+      .passthrough()
+      .optional(),
+    unlockedSecrets: z
+      .array(safeStr(SAVE_LIMITS.maxLabelLen))
+      .max(SAVE_LIMITS.maxUnlockedSecrets)
+      .optional(),
     narrative: NarrativeSchema.optional(),
   })
   .passthrough();

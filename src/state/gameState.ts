@@ -20,8 +20,10 @@ import type { ActiveChain } from "../domain/events/eventChains";
 import type { ChainId } from "../data/events/chainDefs";
 import type { DoctrineId } from "../data/doctrines/doctrineDefs";
 import { createInitialRivals, type RivalState } from "../domain/rivals/rivals";
+import { createInitialBehavior, type BehaviorState } from "../domain/secrets/secrets";
+import type { SecretId } from "../data/secrets/secretDefs";
 
-export const SAVE_VERSION = 26;
+export const SAVE_VERSION = 27;
 
 export type Speed = 1 | 2 | 4;
 
@@ -105,6 +107,10 @@ export interface GameState {
   doctrine: DoctrineId | null;
   /** Rival sects in the region — each ticks independently and can affect the world. */
   rivals: RivalState[];
+  /** Lightweight per-run behaviour counters that drive secret unlocks. */
+  behavior: BehaviorState;
+  /** Ids of secret unlocks earned this run (achievement-adjacent flavor records). */
+  unlockedSecrets: SecretId[];
   /** Story progress: quests, clues, NPC relationships, flags. */
   narrative: NarrativeState;
 }
@@ -150,6 +156,8 @@ export function createNewGame(sect: SectType, rng: Rng): GameState {
     completedEventChains: [],
     doctrine: null,
     rivals: createInitialRivals(),
+    behavior: createInitialBehavior(),
+    unlockedSecrets: [],
     narrative: createInitialNarrativeState(),
   };
 
