@@ -67,6 +67,8 @@ function backfill(save: GameState): void {
   if (!Array.isArray(save.unlockedSecrets)) save.unlockedSecrets = [];
   // Pre-D1: territories seeded from defs (or reconciled against new regions).
   save.territories = reconcileTerritories(save.territories);
+  // Pre-D2: no scheduled crises.
+  if (!Array.isArray(save.scheduledCrises)) save.scheduledCrises = [];
   // Pre-A2 disciples + applicants had no talent; default to "common".
   // Pre-Phase-3-closeout disciples lacked trait / path / age.
   // Pre-B2 disciples lacked the narrative layers (origin / ambition / fear / trauma /

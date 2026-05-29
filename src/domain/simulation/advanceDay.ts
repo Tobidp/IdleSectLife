@@ -35,6 +35,7 @@ import { doctrineMult } from "../doctrines/effects";
 import { techniqueXpMult, techniqueBreakthroughFailMult } from "../disciples/techniques";
 import { advanceRivals } from "../rivals/rivals";
 import { advanceTerritories } from "../territories/territories";
+import { fireDueCrises, rollCrisisSchedule } from "../crises/crises";
 import {
   checkSecrets,
   recordDiscipleLoss,
@@ -316,6 +317,11 @@ export function advanceDay(state: GameState, rng: Rng): void {
 
   // 15a. Territories: regional influence contest with monthly yield to controlling side.
   advanceTerritories(state, result.monthChanged);
+
+  // 15c. Crises: announce + fire scheduled events that test specific systems
+  //      (food / infirmary / gold reserves).
+  rollCrisisSchedule(state, rng);
+  fireDueCrises(state, rng);
 
   // 15b. Behaviour counters + secret unlocks. tickBehavior advances the
   //      daysSinceLastLoss counter; checkSecrets unlocks anything now true.

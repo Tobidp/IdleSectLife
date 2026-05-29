@@ -997,6 +997,41 @@ a:focus-visible,
 .rival-bar-fill.rival-shadow { background: #9a9a9a; }
 .rival-bar-fill.rival-diplomatic { background: var(--jade); }
 
+/* Crisis announcement card inside the World Status panel. */
+.crisis-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.crisis-card {
+  background: rgba(196, 91, 84, 0.10);
+  border-left: 3px solid var(--crimson);
+  border-radius: 4px;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.crisis-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.crisis-name {
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--crimson);
+}
+.crisis-eta {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.crisis-desc {
+  font-size: 11px;
+  line-height: 1.4;
+}
+
 /* ---------- World Status (WorldClock panel) ---------- */
 .world-status .panel-body {
   gap: 10px;

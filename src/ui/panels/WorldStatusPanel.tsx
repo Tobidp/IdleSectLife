@@ -5,6 +5,7 @@
 import { Panel } from "../components/Panel";
 import type { GameState } from "../../state/gameState";
 import { CLOCK_DEFS, type ClockSeverity } from "../../domain/world/clockDefs";
+import { CRISES } from "../../data/crises/crisisDefs";
 
 const SEVERITY_LABEL: Record<ClockSeverity, string> = {
   low: "low risk",
@@ -46,6 +47,24 @@ function ClockRow({
 export function WorldStatusPanel({ state }: { state: GameState }): JSX.Element {
   return (
     <Panel title="World Status" className="world-status">
+      {state.scheduledCrises.length > 0 && (
+        <div className="crisis-list">
+          {state.scheduledCrises.map((sc) => {
+            const def = CRISES[sc.defId];
+            if (!def) return null;
+            const daysAway = Math.max(0, sc.scheduledFor - state.time.totalDays);
+            return (
+              <div className="crisis-card" key={sc.defId} title={def.announcement}>
+                <div className="crisis-head">
+                  <span className="crisis-name">⚠ {def.name}</span>
+                  <span className="crisis-eta muted">{daysAway}d</span>
+                </div>
+                <div className="crisis-desc muted">{def.announcement}</div>
+              </div>
+            );
+          })}
+        </div>
+      )}
       {state.worldClocks.length === 0 ? (
         <p className="muted">The world is quiet for now.</p>
       ) : (

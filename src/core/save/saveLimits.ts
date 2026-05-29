@@ -63,6 +63,8 @@ export const SAVE_LIMITS = {
   maxUnlockedSecrets: 200,
   /** Territories — currently 3 defs; 50 is the schema safety cap. */
   maxTerritories: 50,
+  /** Scheduled crises pending (one at a time runtime; 20 schema cap). */
+  maxScheduledCrises: 20,
 
   /** Generic textual limits. */
   maxNameLen: 60,

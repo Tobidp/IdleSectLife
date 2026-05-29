@@ -289,6 +289,17 @@ export const SaveSchema = z
       )
       .max(SAVE_LIMITS.maxTerritories)
       .optional(),
+    scheduledCrises: z
+      .array(
+        z
+          .object({
+            defId: safeStr(SAVE_LIMITS.maxLabelLen),
+            scheduledFor: intNonNeg.max(SAVE_LIMITS.maxTotalDays),
+          })
+          .passthrough(),
+      )
+      .max(SAVE_LIMITS.maxScheduledCrises)
+      .optional(),
     narrative: NarrativeSchema.optional(),
   })
   .passthrough();
