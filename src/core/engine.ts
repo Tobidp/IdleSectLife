@@ -157,8 +157,12 @@ export class GameEngine {
     this.saveNow();
   }
 
+  /**
+   * Wipe the current save and return to sect selection. Caller is responsible for
+   * gating this behind explicit user confirmation — UI now uses a typed "ABANDON"
+   * confirmation in Settings, so we don't double-prompt here.
+   */
   hardReset(): void {
-    if (!window.confirm("Delete your sect and start over?")) return;
     this.loop?.stop();
     this.loop = null;
     clearSave();

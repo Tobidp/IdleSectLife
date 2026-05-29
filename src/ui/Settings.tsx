@@ -1,7 +1,12 @@
-// Per-device settings modal. Toggles & enums that live in the prefs context (not the save).
+// Per-device settings modal. Toggles & enums that live in the prefs context (not the save),
+// plus a Danger Zone that holds the now-typed-confirmation hard reset (moved out of the
+// footer where it was one stray click away from wiping a save).
 
 import { useState } from "react";
 import { usePrefs, useSetPrefs, type HiddenBehavior } from "./prefsContext";
+import { useActions } from "./engineContext";
+
+const ABANDON_PHRASE = "ABANDON";
 
 const HIDDEN_OPTIONS: { value: HiddenBehavior; label: string; help: string }[] = [
   { value: "normal", label: "Run normally", help: "Full speed — when you return, all missed time is applied." },
@@ -12,7 +17,21 @@ const HIDDEN_OPTIONS: { value: HiddenBehavior; label: string; help: string }[] =
 export function Settings(): JSX.Element {
   const prefs = usePrefs();
   const setPrefs = useSetPrefs();
+  const actions = useActions();
   const [open, setOpen] = useState(false);
+  const [abandonInput, setAbandonInput] = useState("");
+  const canAbandon = abandonInput.trim().toUpperCase() === ABANDON_PHRASE;
+
+  const closeModal = (): void => {
+    setOpen(false);
+    setAbandonInput("");
+  };
+
+  const onAbandon = (): void => {
+    if (!canAbandon) return;
+    closeModal();
+    actions.hardReset();
+  };
 
   return (
     <>
@@ -20,7 +39,7 @@ export function Settings(): JSX.Element {
         ⚙ Settings
       </button>
       {open && (
-        <div className="modal-overlay" onClick={() => setOpen(false)}>
+        <div className="modal-overlay" onClick={closeModal}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-title">Settings</div>
             <label className="setting-row">
@@ -55,8 +74,37 @@ export function Settings(): JSX.Element {
                 </label>
               ))}
             </div>
+            <div className="setting-group danger-zone">
+              <div className="setting-group-title danger-title">Danger zone</div>
+              <p className="setting-help muted">
+                Abandon this sect and start over. This permanently deletes your save and
+                cannot be undone. Type <strong>{ABANDON_PHRASE}</strong> to confirm.
+              </p>
+              <div className="abandon-row">
+                <input
+                  type="text"
+                  className="abandon-input"
+                  placeholder={ABANDON_PHRASE}
+                  value={abandonInput}
+                  onChange={(e) => setAbandonInput(e.target.value)}
+                  aria-label={`Type ${ABANDON_PHRASE} to enable the abandon button`}
+                />
+                <button
+                  className="abandon-btn"
+                  disabled={!canAbandon}
+                  title={
+                    canAbandon
+                      ? "Permanently delete this save and return to sect selection"
+                      : `Type ${ABANDON_PHRASE} above to enable`
+                  }
+                  onClick={onAbandon}
+                >
+                  Abandon sect
+                </button>
+              </div>
+            </div>
             <div className="modal-actions">
-              <button onClick={() => setOpen(false)}>Close</button>
+              <button onClick={closeModal}>Close</button>
             </div>
           </div>
         </div>

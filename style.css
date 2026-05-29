@@ -599,13 +599,36 @@ a:focus-visible,
   border-color: var(--jade);
   color: var(--jade);
 }
-.reset-btn {
-  font-size: 12px;
-  color: var(--ink-dim);
+/* Danger Zone in the Settings modal — holds the typed-confirmation hard reset. */
+.danger-zone {
+  border-top-color: rgba(196, 91, 84, 0.4);
 }
-.reset-btn:hover {
+.danger-title {
+  color: var(--crimson);
+}
+.abandon-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+.abandon-input {
+  flex: 1;
+  background: var(--bg-row);
+  color: var(--ink);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 13px;
+  font-family: var(--font);
+  letter-spacing: 0.1em;
+}
+.abandon-btn {
   border-color: var(--crimson);
   color: var(--crimson);
+}
+.abandon-btn:hover:not(:disabled) {
+  background: var(--crimson);
+  color: #fff;
 }
 
 /* ---------- Tabs ---------- */

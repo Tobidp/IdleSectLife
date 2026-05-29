@@ -2,7 +2,7 @@
 
 import { lazy, Suspense, useEffect } from "react";
 import type { GameState } from "../state/gameState";
-import { useGameState, useActions, useEngine } from "./engineContext";
+import { useGameState, useEngine } from "./engineContext";
 import { useView, useViewDispatch } from "./viewContext";
 import { usePrefs } from "./prefsContext";
 import { NewGameScreen } from "./NewGameScreen";
@@ -31,7 +31,6 @@ const StoryView = lazy(() => import("./tabs/StoryView").then((m) => ({ default: 
 function Game({ state }: { state: GameState }): JSX.Element {
   const view = useView();
   const dispatch = useViewDispatch();
-  const actions = useActions();
 
   // If the player is sitting on a tab that's no longer unlocked (e.g. a save import that
   // resets progression, or a feature flag flip), fall them back to the Sect dashboard
@@ -67,13 +66,6 @@ function Game({ state }: { state: GameState }): JSX.Element {
         <Stats />
         <SaveLoad />
         <Settings />
-        <button
-          className="reset-btn"
-          title="Delete this save and choose a new sect"
-          onClick={() => actions.hardReset()}
-        >
-          Abandon &amp; Start Over
-        </button>
       </footer>
     </>
   );
